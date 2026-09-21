@@ -1,0 +1,19 @@
+{
+  "name": "FinClass - Kas Kelas",
+  "short_name": "FinClass",
+  "description": "Pencatatan kas kelas yang rapi, transparan, dan mudah digunakan.",
+  "start_url": "/home",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "lang": "id-ID",
+  "icons": [
+    {
+      "src": "/finclassicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

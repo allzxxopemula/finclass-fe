@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: #f8fafc;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+:root {
+  --theme-primary: #2563eb;
+  --theme-primary-dark: #1d4ed8;
+  --theme-soft: #eff6ff;
+  --theme-border: #dbeafe;
+  --theme-shadow: rgba(37, 99, 235, 0.2);
+}
+
+/* Tema hanya aktif pada area setelah login; landing tetap memakai biru default. */
+[data-app-theme="pink"] {
+  --theme-primary: #db2777;
+  --theme-primary-dark: #be185d;
+  --theme-soft: #fdf2f8;
+  --theme-border: #fbcfe8;
+  --theme-shadow: rgba(219, 39, 119, 0.2);
+}
+
+[data-app-theme="green"] {
+  --theme-primary: #059669;
+  --theme-primary-dark: #047857;
+  --theme-soft: #ecfdf5;
+  --theme-border: #a7f3d0;
+  --theme-shadow: rgba(5, 150, 105, 0.2);
+}
+
+[data-app-theme="purple"] {
+  --theme-primary: #7c3aed;
+  --theme-primary-dark: #6d28d9;
+  --theme-soft: #f5f3ff;
+  --theme-border: #ddd6fe;
+  --theme-shadow: rgba(124, 58, 237, 0.2);
+}
+
+[data-app-theme] .bg-indigo-600,
+[data-app-theme] .bg-indigo-500 { background-color: var(--theme-primary) !important; }
+[data-app-theme] .hover\:bg-indigo-700:hover,
+[data-app-theme] .hover\:bg-indigo-600:hover { background-color: var(--theme-primary-dark) !important; }
+[data-app-theme] .text-indigo-600,
+[data-app-theme] .text-indigo-500 { color: var(--theme-primary) !important; }
+[data-app-theme] .text-indigo-700 { color: var(--theme-primary-dark) !important; }
+[data-app-theme] .bg-indigo-50 { background-color: var(--theme-soft) !important; }
+[data-app-theme] .border-indigo-100,
+[data-app-theme] .border-indigo-200 { border-color: var(--theme-border) !important; }
+[data-app-theme] .shadow-indigo-200,
+[data-app-theme] .shadow-indigo-600\/20 { --tw-shadow-color: var(--theme-shadow) !important; }
+
+* {
+  /* Menyembunyikan scrollbar di Firefox */
+  scrollbar-width: none; 
+}
+
+*::-webkit-scrollbar {
+  /* Menyembunyikan scrollbar di Chrome, Safari, dan Opera */
+  display: none; 
+}
