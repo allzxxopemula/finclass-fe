@@ -19,7 +19,11 @@ import {
   faPlus,
   faRightToBracket,
   faWallet
-  ,faPalette
+  ,faPalette,
+  faQrcode,
+  faImage,
+  faTrash,
+  faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
@@ -31,11 +35,20 @@ export default function Profile() {
   const [copied, setCopied] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('finclass-theme') || 'blue');
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [qrisUrl, setQrisUrl] = useState('');
+  const [qrisDraft, setQrisDraft] = useState('');
+  const [showQrisModal, setShowQrisModal] = useState(false);
+  const [qrisError, setQrisError] = useState('');
+
+  const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
 
   const loadUserData = () => {
     const savedUser = JSON.parse(localStorage.getItem('user'));
     if (savedUser) {
       setUser(savedUser);
+      const savedQrisUrl = localStorage.getItem(getQrisStorageKey(savedUser)) || '';
+      setQrisUrl(savedQrisUrl);
+      setQrisDraft(savedQrisUrl);
       if (savedUser.kelas_id) {
         API.get(`/dashboard?user_id=${savedUser.id}`)
           .then(res => {
@@ -76,6 +89,44 @@ export default function Profile() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const openQrisModal = () => {
+    setQrisDraft(qrisUrl);
+    setQrisError('');
+    setShowQrisModal(true);
+  };
+
+  const handleSaveQris = (event) => {
+    event.preventDefault();
+    const trimmedUrl = qrisDraft.trim();
+
+    if (!trimmedUrl) {
+      localStorage.removeItem(getQrisStorageKey(user));
+      setQrisUrl('');
+      setShowQrisModal(false);
+      return;
+    }
+
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Invalid protocol');
+    } catch {
+      setQrisError('Masukkan URL gambar yang valid, contoh https://domain.com/qris.png');
+      return;
+    }
+
+    localStorage.setItem(getQrisStorageKey(user), trimmedUrl);
+    setQrisUrl(trimmedUrl);
+    setQrisError('');
+    setShowQrisModal(false);
+  };
+
+  const handleRemoveQris = () => {
+    localStorage.removeItem(getQrisStorageKey(user));
+    setQrisUrl('');
+    setQrisDraft('');
+    setShowQrisModal(false);
   };
 
 
@@ -289,6 +340,37 @@ export default function Profile() {
 
           {/* Logout */}
           <div className="pt-2 pb-2">
+            <div className="mb-2">
+              <MenuItem
+                icon={faQrcode}
+                title="QRIS Pembayaran"
+                description={qrisUrl ? 'QRIS tersimpan, siap ditunjukkan' : 'Simpan URL gambar QRIS untuk pembayaran'}
+                badgeColor="bg-emerald-50 text-emerald-600"
+                onClick={openQrisModal}
+              />
+              {qrisUrl && (
+                <div className="mt-2 overflow-hidden rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">QRIS Aktif</p>
+                      <p className="mt-1 text-xs font-bold text-slate-700">Tunjukkan gambar ini saat menerima pembayaran</p>
+                    </div>
+                    <FontAwesomeIcon icon={faQrcode} className="text-xl text-emerald-500" />
+                  </div>
+                  <div className="flex justify-center rounded-2xl bg-slate-50 p-3">
+                    <img
+                      src={qrisUrl}
+                      alt="QRIS pembayaran"
+                      className="h-52 w-52 rounded-xl object-contain"
+                      onError={(event) => { event.currentTarget.style.display = 'none'; }}
+                    />
+                  </div>
+                  <a href={qrisUrl} target="_blank" rel="noreferrer" className="mt-3 flex items-center justify-center gap-2 text-[10px] font-bold text-emerald-600">
+                    <FontAwesomeIcon icon={faExternalLinkAlt} /> Buka gambar QRIS
+                  </a>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => setShowThemeModal(true)}
               className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30"
@@ -330,6 +412,37 @@ export default function Profile() {
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {showQrisModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+              <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+                <div className="mb-5 flex items-start justify-between">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">QRIS Pembayaran</h3>
+                    <p className="mt-1 text-[10px] text-slate-400">Masukkan URL langsung menuju gambar QRIS kamu.</p>
+                  </div>
+                  <button type="button" onClick={() => setShowQrisModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="Tutup QRIS">&times;</button>
+                </div>
+                <form onSubmit={handleSaveQris} className="space-y-3">
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500" htmlFor="qris-url">URL gambar QRIS</label>
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                    <FontAwesomeIcon icon={faImage} className="text-slate-400" />
+                    <input id="qris-url" type="url" value={qrisDraft} onChange={(event) => { setQrisDraft(event.target.value); setQrisError(''); }} placeholder="https://contoh.com/qris.png" className="min-w-0 flex-1 bg-transparent text-xs text-slate-800 outline-none" />
+                  </div>
+                  {qrisError && <p className="text-[10px] font-semibold text-rose-500">{qrisError}</p>}
+                  {qrisDraft && !qrisError && (
+                    <div className="flex justify-center rounded-2xl bg-slate-50 p-3">
+                      <img src={qrisDraft} alt="Preview QRIS" className="h-44 w-44 rounded-xl object-contain" />
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-2">
+                    {qrisUrl && <button type="button" onClick={handleRemoveQris} className="flex-1 rounded-2xl bg-rose-50 px-3 py-3 text-xs font-black text-rose-600"><FontAwesomeIcon icon={faTrash} className="mr-1.5" />Hapus</button>}
+                    <button type="submit" className="flex-1 rounded-2xl bg-indigo-600 px-3 py-3 text-xs font-black text-white shadow-lg shadow-indigo-200">Simpan QRIS</button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
