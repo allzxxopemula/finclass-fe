@@ -12,8 +12,7 @@ import {
   faArrowRight, 
   faShieldHalved, 
   faTriangleExclamation, 
-  faSpinner,
-  faCoins
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Login() {
@@ -63,10 +62,10 @@ export default function Login() {
       <div className="max-w-md mx-auto w-full flex items-center justify-between">
         <div 
           onClick={() => navigate('/')} 
-          className="flex items-center gap-2 text-xl font-extrabold tracking-tight cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer"
         >
-          <FontAwesomeIcon icon={faCoins} className="text-indigo-600" />
-          <div>
+          <img src="/finclassicon.png" alt="FinClass Logo" className="w-7 h-7 object-contain" />
+          <div className="text-xl font-extrabold tracking-tight">
             <span className="text-indigo-600">FIN</span>
             <span className="text-slate-400 font-medium">CLASS</span>
           </div>
@@ -79,29 +78,29 @@ export default function Login() {
       {/* Login Card Form */}
       <div className="max-w-md mx-auto w-full my-auto py-6">
         <div className="bg-white border border-slate-100 p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-100 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+          <div className="text-center space-y-1">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Selamat Datang Kembali
             </h1>
-            <p className="text-slate-400 text-xs md:text-sm">
+            <p className="text-slate-400 text-xs">
               Masukkan email dan password untuk mengelola kas kelasmu.
             </p>
           </div>
 
           {/* Error Alert Box */}
           {errorMessage && (
-            <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-xs font-semibold flex items-center gap-2">
+            <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-xs font-semibold flex items-center gap-2">
               <FontAwesomeIcon icon={faTriangleExclamation} />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             {/* Field Email */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700">Email</label>
               <div className="relative flex items-center">
-                <FontAwesomeIcon icon={faEnvelope} className="absolute left-3.5 text-slate-400 text-sm" />
+                <FontAwesomeIcon icon={faEnvelope} className="absolute left-3.5 text-slate-400 text-xs" />
                 <input 
                   type="email" 
                   name="email"
@@ -109,19 +108,25 @@ export default function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="contoh: bendahara@gmail.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:bg-white focus:border-indigo-500 transition-all text-slate-800"
                 />
               </div>
             </div>
 
             {/* Field Password */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-bold text-slate-700">Password</label>
-                <button type="button" onClick={() => navigate('/lupa-password')} className="text-xs font-medium text-indigo-600 hover:underline">Lupa password?</button>
+                <button 
+                  type="button" 
+                  onClick={() => navigate('/lupa-password')} 
+                  className="text-xs font-medium text-indigo-600 hover:underline cursor-pointer"
+                >
+                  Lupa password?
+                </button>
               </div>
               <div className="relative flex items-center">
-                <FontAwesomeIcon icon={faLock} className="absolute left-3.5 text-slate-400 text-sm" />
+                <FontAwesomeIcon icon={faLock} className="absolute left-3.5 text-slate-400 text-xs" />
                 <input 
                   type={showPassword ? "text" : "password"} 
                   name="password"
@@ -129,14 +134,14 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800"
+                  className="w-full pl-9 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:bg-white focus:border-indigo-500 transition-all text-slate-800"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} size="xs" />
                 </button>
               </div>
             </div>
@@ -145,7 +150,7 @@ export default function Login() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-2"
             >
               {isLoading ? (
                 <>
@@ -162,8 +167,8 @@ export default function Login() {
           </form>
 
           {/* Divider & Link to Register */}
-          <div className="pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-400 font-medium">
+          <div className="pt-3 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-400">
               Belum punya akun kas kelas?{' '}
               <button 
                 onClick={() => navigate('/register')} 
