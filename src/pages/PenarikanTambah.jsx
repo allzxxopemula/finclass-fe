@@ -7,7 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
   faCheck, 
-  faTriangleExclamation
+  faTriangleExclamation,
+  faClipboardList,
+  faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function PenarikanTambah() {
@@ -88,6 +90,15 @@ export default function PenarikanTambah() {
       setShowDeleteModal(false);
     }
   };
+
+  // Menghitung siswa yang belum bayar secara realtime berdasarkan data 'siswas'
+  const siswaBelumBayar = siswas.map(siswa => {
+    const tanggalUnpaid = tanggalKolom.filter(date => !siswa.tanggal?.[date]);
+    return {
+      ...siswa,
+      tanggalUnpaid
+    };
+  }).filter(siswa => siswa.tanggalUnpaid.length > 0);
 
   return (
     <MainLayout>
@@ -177,6 +188,46 @@ export default function PenarikanTambah() {
             </div>
           )}
         </div>
+
+        {/* Container Catatan Realtime Siswa Belum Bayar */}
+        {!loadingBook && siswas.length > 0 && (
+          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3 mt-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-2 text-rose-600 font-black text-xs">
+                <FontAwesomeIcon icon={faClipboardList} />
+                <span>Catatan Belum Bayar ({siswaBelumBayar.length} Siswa)</span>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400">Realtime Update</span>
+            </div>
+
+            {siswaBelumBayar.length === 0 ? (
+              <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-emerald-600 bg-emerald-50/50 rounded-xl border border-emerald-100">
+                <FontAwesomeIcon icon={faCheckCircle} />
+                <span>Lunas! Semua siswa sudah membayar kas periode ini.</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+                {siswaBelumBayar.map(siswa => (
+                  <div key={siswa.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-800">{siswa.nama_siswa}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {siswa.tanggalUnpaid.map(date => (
+                          <span key={date} className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700">
+                            {new Date(`${date}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black text-rose-500 whitespace-nowrap bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+                      {siswa.tanggalUnpaid.length} x
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
       <ConfirmModal
