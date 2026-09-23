@@ -448,6 +448,7 @@ export default function Profile() {
           )}
         </div>
       </div>
+      <footer className="pb-1 pt-2 text-center text-[10px] font-medium tracking-wide text-slate-400 print:hidden">FinClass by Allzxxo Dev and Team</footer>
     </MainLayout>
   );
 }
