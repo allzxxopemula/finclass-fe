@@ -124,63 +124,64 @@ export default function ClassInfoPage() {
           <div className="space-y-4">
             
             {/* Card 1: Informasi Kelas & Statistik (Clean, Solid, No Gradient) */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              {/* Garis Aksen Tema di Atas */}
-              <div className="h-1.5 w-full bg-indigo-500"></div>
-              
-              <div className="p-5 space-y-5">
-                {/* Header Kelas */}
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl border border-indigo-100 shadow-inner">
-                    <FontAwesomeIcon icon={faBuildingColumns} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900 leading-tight">
-                      {kelasData?.nama_kelas || 'Belum ada kelas'}
-                    </h2>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                      Ruang Kelas Terdaftar
-                    </p>
-                  </div>
-                  {exclusivePreset && (
-                    <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-md`}>
-                      {exclusivePreset.label}
-                    </span>
-                  )}
-                </div>
-
-                {/* Divider */}
-                <div className="h-px w-full bg-slate-100"></div>
-
-                {/* Statistik Kelas */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <FontAwesomeIcon icon={faCalendarDays} className="text-slate-300" />
-                      <span>Dibuat Pada</span>
+            <ExclusiveProfileShell email={ownerData?.email || user?.email} variant="card" className="w-full overflow-hidden">
+              <div className="bg-white/90 rounded-[26px] overflow-hidden border border-slate-200/70 shadow-sm">
+                <div className="h-1.5 w-full bg-gradient-to-r from-[#00f5ff] via-violet-500 to-amber-400"></div>
+                
+                <div className="p-5 space-y-5">
+                  {/* Header Kelas */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl border border-indigo-100 shadow-inner">
+                      <FontAwesomeIcon icon={faBuildingColumns} />
                     </div>
-                    <p className="text-sm font-bold text-slate-800">
-                      {kelasData?.created_at
-                        ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })
-                        : '-'}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <FontAwesomeIcon icon={faUsers} className="text-slate-300" />
-                      <span>Total Anggota</span>
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900 leading-tight">
+                        {kelasData?.nama_kelas || 'Belum ada kelas'}
+                      </h2>
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        Ruang Kelas Terdaftar
+                      </p>
                     </div>
-                    <p className="text-sm font-bold text-slate-800">
-                      {memberList.length + 1} Siswa
-                    </p>
+                    {exclusivePreset && (
+                      <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-md`}>
+                        {exclusivePreset.label}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px w-full bg-slate-100"></div>
+
+                  {/* Statistik Kelas */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <FontAwesomeIcon icon={faCalendarDays} className="text-slate-300" />
+                        <span>Dibuat Pada</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-800">
+                        {kelasData?.created_at
+                          ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })
+                          : '-'}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <FontAwesomeIcon icon={faUsers} className="text-slate-300" />
+                        <span>Total Anggota</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-800">
+                        {memberList.length + 1} Siswa
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </ExclusiveProfileShell>
 
             {/* Card 2: Daftar Anggota Kelas (List View Rapih) */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
