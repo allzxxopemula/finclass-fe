@@ -73,12 +73,30 @@ export default function Home() {
         ...savedUser,
         ...storedProfile,
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
-        profile_image: storedProfile?.image || savedUser.profile_image || ''
+        profile_image: storedProfile?.image || savedUser.profile_image || '',
+        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || ''
       };
 
       setUser(mergedUser);
       API.get(`/dashboard?user_id=${savedUser.id}`)
-        .then(res => setDashboardData(res.data))
+        .then(res => {
+          setDashboardData(res.data);
+
+          const memberList = res.data?.members || [];
+          const freshMember = memberList.find(member => Number(member.id) === Number(savedUser.id)) || res.data?.bendahara;
+
+          if (freshMember) {
+            const refreshedUser = {
+              ...savedUser,
+              ...freshMember,
+              username: freshMember.username || savedUser.username || getUserUsername(savedUser),
+              profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
+              profile_image: freshMember.profile_image_url || savedUser.profile_image || ''
+            };
+            setUser(refreshedUser);
+            localStorage.setItem('user', JSON.stringify(refreshedUser));
+          }
+        })
         .catch(err => console.error(err))
         .finally(() => setLoading(false));
     } else {
@@ -96,8 +114,8 @@ export default function Home() {
   const members = dashboardData?.siswas || [];
   const paidMembers = Number(dashboardData?.jumlah_siswa_bayar || 0);
   const paymentProgress = members.length ? Math.round((paidMembers / members.length) * 100) : 0;
-  const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
-  const displayUsername = getUserUsername(user);
+  const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
+  const displayUsername = user?.username || getUserUsername(user);
   const exclusivePreset = getExclusiveUserPreset(user?.email);
 
   const handlePrintSummary = () => {

@@ -68,8 +68,8 @@ export default function Profile() {
     return generated || 'user';
   };
 
-  const displayUsername = getUserUsername(user);
-  const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
+  const displayUsername = user?.username || getUserUsername(user);
+  const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
   const exclusivePreset = getExclusiveUserPreset(user?.email);
 
   const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
@@ -82,7 +82,8 @@ export default function Profile() {
         ...savedUser,
         ...storedProfile,
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
-        profile_image: storedProfile?.image || savedUser.profile_image || ''
+        profile_image: storedProfile?.image || savedUser.profile_image || '',
+        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || ''
       };
 
       setUser(mergedUser);
@@ -95,6 +96,21 @@ export default function Profile() {
             if (res.data.status === 'success') {
               setKelasData(res.data.kelas);
               setDashboardData(res.data);
+
+              const memberList = res.data?.members || [];
+              const freshMember = memberList.find(member => Number(member.id) === Number(savedUser.id)) || res.data?.bendahara;
+
+              if (freshMember) {
+                const refreshedUser = {
+                  ...savedUser,
+                  ...freshMember,
+                  username: freshMember.username || savedUser.username || getUserUsername(savedUser),
+                  profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
+                  profile_image: freshMember.profile_image_url || savedUser.profile_image || ''
+                };
+                setUser(refreshedUser);
+                localStorage.setItem('user', JSON.stringify(refreshedUser));
+              }
             }
           })
           .catch(err => console.error(err))
