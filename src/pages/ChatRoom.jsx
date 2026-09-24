@@ -16,7 +16,6 @@ export default function ChatRoom() {
   const [cooldownUntil, setCooldownUntil] = useState(0);
   
   const listRef = useRef(null);
-  // Ref untuk melacak apakah user sedang berada di area paling bawah chat
   const isAtBottomRef = useRef(true); 
 
   const readUser = () => {
@@ -81,15 +80,12 @@ export default function ChatRoom() {
     return () => window.clearInterval(timer);
   }, [navigate]);
 
-  // Event handler untuk mendeteksi apakah user sedang scroll ke atas
   const handleScroll = () => {
     if (!listRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-    // Jika jarak scroll dari bawah kurang dari 100px, anggap sedang di bawah
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
-  // Scroll otomatis ke bawah HANYA jika posisi sebelumnya di bawah
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -114,10 +110,7 @@ export default function ChatRoom() {
       if (response.data.status === 'success') {
         setDraft('');
         setCooldownUntil(Date.now() + 5000);
-        
-        // Paksa scroll ke bawah saat kita mengirim pesan sendiri
         isAtBottomRef.current = true; 
-        
         await loadMessages(user.id, true);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
@@ -131,10 +124,10 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-[calc(100dvh-135px)] relative pt-2">
+      <div className="flex flex-col h-[calc(100dvh-135px)] relative">
         
-        {/* Header Kelas */}
-        <div className="flex items-center gap-3 pb-3 shrink-0 border-b border-slate-200/50 mb-3">
+        {/* Header Kelas - SUDAH FIX STICKY DI ATAS */}
+        <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
             onClick={() => navigate('/profile')}
@@ -171,7 +164,6 @@ export default function ChatRoom() {
             </div>
           </div>
         ) : (
-          /* Tambahkan event onScroll di sini */
           <div 
             ref={listRef} 
             onScroll={handleScroll}
