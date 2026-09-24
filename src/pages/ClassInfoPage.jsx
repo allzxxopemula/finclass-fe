@@ -226,8 +226,8 @@ export default function ClassInfoPage() {
                     Belum ada anggota lain di kelas ini.
                   </div>
                 ) : (
-                  memberList.map((member) => (
-                    <div key={member.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  memberList.map((member, index) => (
+                    <div key={member.id} className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors ${index > 0 ? '-mt-0.5' : ''}`}>
                       <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
                         {member.displayAvatar ? (
                           <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
