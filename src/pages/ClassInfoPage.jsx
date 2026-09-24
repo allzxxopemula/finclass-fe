@@ -184,7 +184,7 @@ export default function ClassInfoPage() {
                 </span>
               </div>
 
-              <div className="p-2 flex flex-col">
+              <div className="p-2 flex flex-col gap-2.5">
                 
                 {/* 1. Bendahara (Owner) */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50/30 border border-indigo-50">
@@ -228,7 +228,7 @@ export default function ClassInfoPage() {
                 ) : (
                   memberList.map((member) => (
                     <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                      <div className="h-13 w-13 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
+                      <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
                         {member.displayAvatar ? (
                           <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
                         ) : (
