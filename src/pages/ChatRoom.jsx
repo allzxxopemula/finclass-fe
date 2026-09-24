@@ -204,10 +204,10 @@ export default function ChatRoom() {
                             </div>
                           )}
 
-                          <div className={`max-w-[72%] ${isMine ? 'ml-auto' : 'mr-auto'}`}>
-                            <div className={`inline-block rounded-2xl px-2.5 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
+                          <div className={`w-full ${isMine ? 'ml-auto' : 'mr-auto'}`} style={{ maxWidth: '68%' }}>
+                            <div className={`inline-block w-full rounded-2xl px-2.5 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
                               <div className="flex items-end gap-1.5">
-                                <p className="m-0 max-w-[calc(100%-26px)] break-words text-[11px] leading-relaxed text-current">{item.message}</p>
+                                <p className="m-0 min-w-0 flex-1 break-words text-[11px] leading-relaxed text-current">{item.message}</p>
                                 <span className={`m-0 shrink-0 self-end pb-0.5 text-[7px] leading-none whitespace-nowrap ${isMine ? 'text-violet-100' : 'text-slate-400'}`}>
                                   {formatTime(item.created_at)}
                                 </span>
