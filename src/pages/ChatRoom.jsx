@@ -205,13 +205,12 @@ export default function ChatRoom() {
                             </div>
                           )}
 
-                          <div className={`rounded-2xl px-3 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
+                          <div className={`flex max-w-full items-end gap-1.5 rounded-2xl px-3 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
                             <p className="break-words text-xs leading-relaxed">{item.message}</p>
+                            <span className={`shrink-0 self-end pb-0.5 text-[9px] ${isMine ? 'text-violet-100' : 'text-slate-400'}`}>
+                              {formatTime(item.created_at)}
+                            </span>
                           </div>
-
-                          <span className={`mt-1 text-[9px] ${isMine ? 'text-violet-500' : 'text-slate-400'}`}>
-                            {formatTime(item.created_at)}
-                          </span>
                         </div>
                       </div>
                     </div>
