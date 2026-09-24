@@ -134,7 +134,7 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex h-full min-h-[70vh] flex-col pb-3">
+      <div className="flex h-[calc(100vh-180px)] min-h-[60vh] flex-col pb-3">
         <div className="flex items-center gap-3 pt-2 pb-3">
           <button
             type="button"
@@ -171,7 +171,8 @@ export default function ChatRoom() {
           </div>
         ) : (
           <>
-            <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div ref={listRef} className="flex-1 overflow-y-auto rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="space-y-2">
               {messages.length === 0 ? (
                 <div className="flex h-full min-h-[180px] items-center justify-center text-center text-xs text-slate-400">
                   Belum ada pesan di room kelas ini. Mulai percakapan pertama.
@@ -203,11 +204,15 @@ export default function ChatRoom() {
                             </div>
                           )}
 
-                          <div className={`inline-flex max-w-[72%] items-end gap-1.5 rounded-2xl px-2.5 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
-                            <p className="min-w-0 break-words text-[11px] leading-relaxed text-current">{item.message}</p>
-                            <span className={`shrink-0 self-end pb-0.5 text-[7px] leading-none whitespace-nowrap ${isMine ? 'text-violet-100' : 'text-slate-400'}`}>
-                              {formatTime(item.created_at)}
-                            </span>
+                          <div className={`max-w-[72%] ${isMine ? 'ml-auto' : 'mr-auto'}`}>
+                            <div className={`inline-block rounded-2xl px-2.5 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
+                              <div className="flex items-end gap-1.5">
+                                <p className="m-0 max-w-[calc(100%-26px)] break-words text-[11px] leading-relaxed text-current">{item.message}</p>
+                                <span className={`m-0 shrink-0 self-end pb-0.5 text-[7px] leading-none whitespace-nowrap ${isMine ? 'text-violet-100' : 'text-slate-400'}`}>
+                                  {formatTime(item.created_at)}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -215,6 +220,7 @@ export default function ChatRoom() {
                   );
                 })
               )}
+              </div>
             </div>
 
             <form onSubmit={handleSend} className="mt-3 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
