@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
+import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowUp,
@@ -68,6 +69,7 @@ export default function Profile() {
 
   const displayUsername = getUserUsername(user);
   const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
+  const exclusivePreset = getExclusiveUserPreset(user?.email);
 
   const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
 
@@ -205,23 +207,25 @@ export default function Profile() {
           {/* User Info Container: Avatar Kiri, Nama & Info Kanan */}
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
-              <div className="w-20 h-20 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
-                {userAvatar ? (
-                  <img
-                    src={userAvatar}
-                    alt={displayUsername || 'Foto profil'}
-                    className="w-full h-full rounded-full object-cover border border-white/20 shadow-inner"
-                    onError={(event) => {
-                      event.currentTarget.style.display = 'none';
-                      const fallback = event.currentTarget.nextSibling;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div className={`w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black border border-white/20 shadow-inner ${userAvatar ? 'hidden' : 'flex'}`}>
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              <ExclusiveProfileShell email={user?.email} variant="avatar" className="w-20 h-20 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
+                <div className="w-full h-full bg-white/10 rounded-full">
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt={displayUsername || 'Foto profil'}
+                      className="w-full h-full rounded-full object-cover border border-white/20 shadow-inner"
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none';
+                        const fallback = event.currentTarget.nextSibling;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black border border-white/20 shadow-inner ${userAvatar ? 'hidden' : 'flex'}`}>
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                 </div>
-              </div>
+              </ExclusiveProfileShell>
 
               {kelasData && (
                 <div className="absolute -bottom-0.5 -right-0.5 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-indigo-600 shadow-md">
@@ -245,6 +249,12 @@ export default function Profile() {
                 <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[9px] font-black uppercase tracking-wider border border-white/15">
                   {user?.role?.replace('_', ' ')}
                 </span>
+
+                {exclusivePreset && (
+                  <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black tracking-wider border border-white/20 bg-gradient-to-r ${exclusivePreset.accent} text-white`}>
+                    {exclusivePreset.label}
+                  </span>
+                )}
 
                 {kelasData && (
                   <span className="px-2.5 py-0.5 bg-emerald-500/25 backdrop-blur-md rounded-lg text-emerald-200 text-[9px] font-black tracking-wider border border-emerald-400/30 truncate max-w-[140px]">

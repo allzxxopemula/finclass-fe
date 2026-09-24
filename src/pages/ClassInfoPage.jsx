@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
+import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
@@ -76,6 +77,7 @@ export default function ClassInfoPage() {
   const ownerName = ownerData?.name || ownerLocal?.name || 'Bendahara Kelas';
   const ownerUsername = ownerLocal?.username || buildUsername(ownerName, 'bendahara');
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
+  const exclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
 
   const memberList = members
     .map((member) => {
@@ -140,6 +142,11 @@ export default function ClassInfoPage() {
                       Ruang Kelas Terdaftar
                     </p>
                   </div>
+                  {exclusivePreset && (
+                    <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-md`}>
+                      {exclusivePreset.label}
+                    </span>
+                  )}
                 </div>
 
                 {/* Divider */}
@@ -189,15 +196,17 @@ export default function ClassInfoPage() {
                 {/* 1. Bendahara (Owner) */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50/30 border border-indigo-50">
                   <div className="relative">
-                    <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-indigo-100 bg-white shrink-0">
-                      {ownerAvatar ? (
-                        <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-600 text-sm font-black">
-                          {ownerName ? ownerName.charAt(0).toUpperCase() : 'B'}
-                        </div>
-                      )}
-                    </div>
+                    <ExclusiveProfileShell email={ownerData?.email || user?.email} variant="avatar" className="h-14 w-14 shrink-0">
+                      <div className="h-full w-full overflow-hidden rounded-full bg-white">
+                        {ownerAvatar ? (
+                          <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-600 text-sm font-black">
+                            {ownerName ? ownerName.charAt(0).toUpperCase() : 'B'}
+                          </div>
+                        )}
+                      </div>
+                    </ExclusiveProfileShell>
                     {/* Badge Crown Bendahara */}
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center text-[9px] border-2 border-white">
                       <FontAwesomeIcon icon={faCrown} />
@@ -208,9 +217,16 @@ export default function ClassInfoPage() {
                     <p className="truncate text-sm font-bold text-slate-900">{ownerName}</p>
                     <p className="truncate text-[11px] font-medium text-slate-500">@{ownerUsername}</p>
                   </div>
-                  <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
-                    Bendahara
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {exclusivePreset && (
+                      <span className={`rounded-full px-2 py-1 text-[8px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-sm`}>
+                        {exclusivePreset.label}
+                      </span>
+                    )}
+                    <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
+                      Bendahara
+                    </span>
+                  </div>
                 </div>
 
                 {/* Garis Pemisah (Jika ada anggota) */}

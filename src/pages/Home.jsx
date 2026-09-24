@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faWallet, 
@@ -97,6 +98,7 @@ export default function Home() {
   const paymentProgress = members.length ? Math.round((paidMembers / members.length) * 100) : 0;
   const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
   const displayUsername = getUserUsername(user);
+  const exclusivePreset = getExclusiveUserPreset(user?.email);
 
   const handlePrintSummary = () => {
     window.print();
@@ -117,7 +119,7 @@ export default function Home() {
       {/* Top Banner */}
       <div className="flex items-center justify-between pt-2 pb-1">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md overflow-hidden border border-indigo-200">
+          <ExclusiveProfileShell email={user?.email} variant="avatar" className="h-10 w-10 bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
             {userAvatar ? (
               <img
                 src={userAvatar}
@@ -133,11 +135,18 @@ export default function Home() {
             <span className={`h-full w-full items-center justify-center ${userAvatar ? 'hidden' : 'flex'}`}>
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </span>
-          </div>
+          </ExclusiveProfileShell>
           <div>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-              {user?.role || 'User'}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                {user?.role || 'User'}
+              </p>
+              {exclusivePreset && (
+                <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30`}>
+                  {exclusivePreset.label}
+                </span>
+              )}
+            </div>
             <h2 className="text-sm font-bold text-slate-900">{user?.name || 'Pengguna'}</h2>
           </div>
         </div>
