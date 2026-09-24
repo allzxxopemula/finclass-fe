@@ -13,17 +13,17 @@ import {
   faUserPen,
   faUsersCog,
   faCircleQuestion,
-  faRightFromBracket,
   faCheck,
   faSliders,
   faPlus,
   faRightToBracket,
-  faWallet
-  ,faPalette,
+  faWallet,
+  faPalette,
   faQrcode,
   faImage,
   faTrash,
-  faExternalLinkAlt
+  faExternalLinkAlt,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
@@ -39,14 +39,52 @@ export default function Profile() {
   const [qrisDraft, setQrisDraft] = useState('');
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [qrisError, setQrisError] = useState('');
+  const [showClassInfo, setShowClassInfo] = useState(false);
+
+  const PROFILE_TABLE_KEY = 'finclass-user-profiles';
+
+  const readProfileTable = () => {
+    try {
+      return JSON.parse(localStorage.getItem(PROFILE_TABLE_KEY) || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const getStoredProfile = (currentUser) => {
+    if (!currentUser?.id) return null;
+    const table = readProfileTable();
+    return table[currentUser.id] || null;
+  };
+
+  const getUserUsername = (currentUser) => {
+    const storedProfile = getStoredProfile(currentUser);
+    if (currentUser?.username) return currentUser.username;
+    if (storedProfile?.username) return storedProfile.username;
+
+    const rawValue = currentUser?.name || currentUser?.email || 'user';
+    const generated = String(rawValue).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    return generated || 'user';
+  };
+
+  const displayUsername = getUserUsername(user);
+  const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
 
   const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
 
   const loadUserData = () => {
-    const savedUser = JSON.parse(localStorage.getItem('user'));
+    const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (savedUser) {
-      setUser(savedUser);
-      const savedQrisUrl = localStorage.getItem(getQrisStorageKey(savedUser)) || '';
+      const storedProfile = getStoredProfile(savedUser);
+      const mergedUser = {
+        ...savedUser,
+        ...storedProfile,
+        username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
+        profile_image: storedProfile?.image || savedUser.profile_image || ''
+      };
+
+      setUser(mergedUser);
+      const savedQrisUrl = localStorage.getItem(getQrisStorageKey(mergedUser)) || '';
       setQrisUrl(savedQrisUrl);
       setQrisDraft(savedQrisUrl);
       if (savedUser.kelas_id) {
@@ -77,11 +115,6 @@ export default function Profile() {
     localStorage.setItem('finclass-theme', theme);
     document.documentElement.dataset.appTheme = theme;
   }, [theme]);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
-  };
 
   const handleCopyKode = () => {
     if (kelasData?.kode_akses_publik) {
@@ -172,10 +205,21 @@ export default function Profile() {
           
           {/* User Info Container: Avatar Kiri, Nama & Info Kanan */}
           <div className="flex items-center gap-4">
-            {/* Avatar Inisial */}
             <div className="relative shrink-0">
               <div className="w-18 h-18 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
-                <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black border border-white/20 shadow-inner">
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt={displayUsername || 'Foto profil'}
+                    className="w-full h-full rounded-full object-cover border border-white/20 shadow-inner"
+                    onError={(event) => {
+                      event.currentTarget.style.display = 'none';
+                      const fallback = event.currentTarget.nextSibling;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black border border-white/20 shadow-inner ${userAvatar ? 'hidden' : 'flex'}`}>
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               </div>
@@ -187,7 +231,6 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Nama & Status Role / Kelas */}
             <div className="text-left space-y-1.5 overflow-hidden">
               <h3 className="text-white font-black text-xl tracking-tight truncate leading-snug">
                 {user?.name || 'Pengguna'}
@@ -197,6 +240,12 @@ export default function Profile() {
                 <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[9px] font-black uppercase tracking-wider border border-white/15">
                   {user?.role?.replace('_', ' ')}
                 </span>
+
+                {displayUsername && (
+                  <span className="px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-lg text-indigo-100 text-[9px] font-bold tracking-wider border border-white/10 truncate max-w-[120px]">
+                    @{displayUsername}
+                  </span>
+                )}
                 
                 {kelasData && (
                   <span className="px-2.5 py-0.5 bg-emerald-500/25 backdrop-blur-md rounded-lg text-emerald-200 text-[9px] font-black tracking-wider border border-emerald-400/30 truncate max-w-[140px]">
@@ -311,13 +360,22 @@ export default function Profile() {
 
               {/* JIKA USER SUDAH PUNYA KELAS: SETTING KELAS */}
               {kelasData && (
-                <MenuItem 
-                  icon={faSliders} 
-                  title="Setting Akun Kelas" 
-                  description="Keluar dari kelas atau hapus room kelas"
-                  badgeColor="bg-indigo-50 text-indigo-600"
-                  onClick={() => navigate('/settings/kelas')} 
-                />
+                <>
+                  <MenuItem 
+                    icon={faSliders} 
+                    title="Setting Akun Kelas" 
+                    description="Keluar dari kelas atau hapus room kelas"
+                    badgeColor="bg-indigo-50 text-indigo-600"
+                    onClick={() => navigate('/settings/kelas')} 
+                  />
+                  <MenuItem
+                    icon={faInfoCircle}
+                    title="Info Kelas"
+                    description="Lihat pembuat kelas dan tanggal dibuat"
+                    badgeColor="bg-cyan-50 text-cyan-600"
+                    onClick={() => setShowClassInfo(current => !current)}
+                  />
+                </>
               )}
 
               <MenuItem 
@@ -338,7 +396,29 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Logout */}
+          {showClassInfo && kelasData && (
+            <div className="rounded-3xl border border-cyan-100 bg-cyan-50/40 p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-cyan-600">Info Kelas</p>
+                  <h4 className="mt-1 text-sm font-black text-slate-800">{kelasData.nama_kelas}</h4>
+                </div>
+                <div className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-cyan-600 shadow-sm">{user?.role === 'bendahara' ? 'Bendahara' : 'Siswa'}</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Dibuat</p>
+                  <p className="mt-1 font-bold text-slate-800">{kelasData.created_at ? new Date(kelasData.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Belum diketahui'}</p>
+                </div>
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Pembuat</p>
+                  <p className="mt-1 font-bold text-slate-800">{displayUsername || 'Bendahara Kelas'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="pt-2 pb-2">
             <div className="mb-2">
               <MenuItem
@@ -380,13 +460,6 @@ export default function Profile() {
                 <span><strong className="block text-xs text-slate-800">Warna Aplikasi</strong><small className="text-[10px] text-slate-400">Tema tersimpan otomatis</small></span>
               </span>
               <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-rose-100/80 active:scale-[0.98] shadow-sm"
-            >
-              <FontAwesomeIcon icon={faRightFromBracket} />
-              <span>Keluar Akun Saya</span>
             </button>
           </div>
             </>

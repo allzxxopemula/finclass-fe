@@ -3,14 +3,44 @@ import MainLayout from '../layouts/MainLayout';
 import ConfirmModal from '../components/ConfirmModal';
 import API from '../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faClockRotateLeft, 
-  faArrowUp, 
+import {
+  faClockRotateLeft,
+  faArrowUp,
   faArrowDown,
   faPlus,
   faSpinner,
   faXmark
 } from '@fortawesome/free-solid-svg-icons';
+
+const shouldKeepHistoryItem = (item) => {
+  const text = String(item?.judul || item?.title || item?.deskripsi || '').toLowerCase();
+  return (
+    text.includes('buku kas') ||
+    text.includes('ganti nama') ||
+    text.includes('ubah nama') ||
+    text.includes('foto profil') ||
+    text.includes('profil') ||
+    text.includes('pengeluaran') ||
+    text.includes('kelas') ||
+    text.includes('room kelas')
+  );
+};
+
+const normalizeHistoryItem = (item) => ({
+  ...item,
+  id: item.id || `${item.tipe || 'aktivitas'}-${item.raw_id || item.timestamp || Date.now()}`,
+  judul: item.judul || item.title || item.deskripsi || 'Aktivitas kelas',
+  tanggal: item.tanggal || new Date(item.created_at || Date.now()).toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }),
+  tipe: item.tipe === 'masuk' ? 'masuk' : item.tipe === 'keluar' ? 'keluar' : 'aktivitas',
+  nominal: Number(item.nominal || 0),
+  timestamp: Number(item.timestamp || item.raw_id || Date.now())
+});
 
 export default function History() {
   const [user, setUser] = useState(null);
@@ -18,8 +48,6 @@ export default function History() {
   const [riwayat, setRiwayat] = useState([]);
   const [aktivitas, setAktivitas] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
-  // Form Pengeluaran
   const [deskripsi, setDeskripsi] = useState('');
   const [nominal, setNominal] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,23 +66,31 @@ export default function History() {
     try {
       const res = await API.get(`/riwayat?kelas_id=${kelasId}`);
       if (res.data.status === 'success') {
-        setRiwayat(visibleItems(res.data.riwayat));
+        const filtered = (res.data.riwayat || []).filter(shouldKeepHistoryItem).map(normalizeHistoryItem);
+        setRiwayat(visibleItems(filtered));
       }
     } catch (err) {
-      console.error("Gagal mengambil riwayat transaksi:", err);
+      console.error('Gagal mengambil riwayat transaksi:', err);
     } finally {
       setLoadingRiwayat(false);
     }
   };
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem('user'));
+    const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (savedUser) {
       setUser(savedUser);
+      const localHistory = JSON.parse(localStorage.getItem(`finclass-history-${savedUser.id}`) || '[]');
+      const filteredLocal = localHistory.filter(shouldKeepHistoryItem).map(normalizeHistoryItem);
+      setAktivitas(visibleItems(filteredLocal));
+
       if (savedUser.kelas_id) {
         fetchRiwayat(savedUser.kelas_id);
         API.get(`/aktivitas?user_id=${savedUser.id}`)
-          .then(res => setAktivitas(visibleItems(res.data.aktivitas || [])))
+          .then(res => {
+            const filtered = (res.data.aktivitas || []).filter(shouldKeepHistoryItem).map(normalizeHistoryItem);
+            setAktivitas(current => visibleItems([...current, ...filtered]));
+          })
           .catch(err => console.error(err));
       }
     }
@@ -63,12 +99,12 @@ export default function History() {
   const handleTambahPengeluaran = async (e) => {
     e.preventDefault();
     if (!deskripsi || !nominal) {
-      alert("Harap isi deskripsi dan nominal pengeluaran!");
+      alert('Harap isi deskripsi dan nominal pengeluaran!');
       return;
     }
 
     if (!user?.kelas_id) {
-      alert("Kamu belum terhubung ke room kelas!");
+      alert('Kamu belum terhubung ke room kelas!');
       return;
     }
 
@@ -78,14 +114,30 @@ export default function History() {
         kelas_id: user.kelas_id,
         user_id: user.id,
         deskripsi: deskripsi.trim(),
-        nominal: Number(nominal) // Konversi string ke angka murni
+        nominal: Number(nominal)
       });
 
       if (res.data.status === 'success') {
+        const event = {
+          id: `local-pengeluaran-${Date.now()}`,
+          judul: `Pengeluaran: ${deskripsi.trim()}`,
+          tanggal: new Date().toLocaleString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          tipe: 'keluar',
+          nominal: Number(nominal),
+          timestamp: Date.now()
+        };
+
+        setAktivitas(current => visibleItems([event, ...current]));
         setShowModal(false);
         setDeskripsi('');
         setNominal('');
-        alert("Pengeluaran kas berhasil dicatat!");
+        alert('Pengeluaran kas berhasil dicatat!');
         fetchRiwayat(user.kelas_id);
       }
     } catch (err) {
@@ -96,7 +148,6 @@ export default function History() {
     }
   };
 
-  // Menghasilkan angka saja; label Rp ditambahkan sekali di tampilan.
   const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', {
       minimumFractionDigits: 0,
@@ -104,14 +155,10 @@ export default function History() {
     }).format(Number(number) || 0);
   };
 
-  // Batasi tampilan timeline menjadi 20 kartu terbaru.
   const semuaAktivitas = [...riwayat, ...aktivitas]
-    .sort((a, b) => {
-      if (a.tipe === 'keluar' && b.tipe !== 'keluar') return -1;
-      if (a.tipe !== 'keluar' && b.tipe === 'keluar') return 1;
-      return Number(b.raw_id) - Number(a.raw_id);
-    })
+    .sort((a, b) => Number(b.timestamp || b.raw_id || 0) - Number(a.timestamp || a.raw_id || 0))
     .slice(0, 20);
+
   const filteredRiwayat = semuaAktivitas.filter(item => {
     if (filter === 'masuk') return item.tipe === 'masuk';
     if (filter === 'keluar') return item.tipe === 'keluar';
@@ -119,6 +166,11 @@ export default function History() {
   });
 
   const clearHistoryView = () => {
+    if (user?.role !== 'bendahara') {
+      setShowClearModal(false);
+      return;
+    }
+
     const ids = [...riwayat, ...aktivitas].map(item => item.id);
     const nextHiddenIds = [...new Set([...hiddenHistoryIds, ...ids])];
     const key = getHistoryKey();
@@ -132,18 +184,17 @@ export default function History() {
   return (
     <MainLayout>
       <div className="space-y-4 pb-2">
-        {/* Top Bar Header */}
         <div className="flex justify-between items-center pt-2">
           <div>
             <h1 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <FontAwesomeIcon icon={faClockRotateLeft} className="text-indigo-600" />
               Riwayat Transaksi
             </h1>
-            <p className="text-xs text-slate-400">Pemasukan kas, pengeluaran & saldo awal</p>
+            <p className="text-xs text-slate-400">Event penting saja: buku kas, perubahan profil, dan pengeluaran.</p>
           </div>
 
           {user?.role === 'bendahara' && user?.kelas_id && (
-            <button 
+            <button
               onClick={() => setShowModal(true)}
               className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
             >
@@ -153,29 +204,27 @@ export default function History() {
           )}
         </div>
 
-        {/* Filter Navigation Tab */}
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/60 rounded-xl text-xs font-bold">
-          <button 
-            onClick={() => setFilter('semua')} 
+          <button
+            onClick={() => setFilter('semua')}
             className={`py-2 rounded-lg transition-colors ${filter === 'semua' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}
           >
             Semua
           </button>
-          <button 
-            onClick={() => setFilter('masuk')} 
+          <button
+            onClick={() => setFilter('masuk')}
             className={`py-2 rounded-lg transition-colors ${filter === 'masuk' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500'}`}
           >
             Pemasukan
           </button>
-          <button 
-            onClick={() => setFilter('keluar')} 
+          <button
+            onClick={() => setFilter('keluar')}
             className={`py-2 rounded-lg transition-colors ${filter === 'keluar' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500'}`}
           >
             Pengeluaran
           </button>
         </div>
 
-        {/* List Data Riwayat Transaksi */}
         <div className="space-y-2 pb-2">
           {loadingRiwayat ? (
             <div className="space-y-2 animate-pulse">
@@ -183,7 +232,7 @@ export default function History() {
             </div>
           ) : filteredRiwayat.length === 0 ? (
             <div className="p-8 bg-white rounded-2xl text-center text-xs text-slate-400 border border-slate-100 shadow-sm">
-              Belum ada riwayat transaksi.
+              Belum ada riwayat penting untuk ditampilkan.
             </div>
           ) : (
             filteredRiwayat.map((item) => (
@@ -211,7 +260,7 @@ export default function History() {
           )}
         </div>
 
-        {user?.kelas_id && (
+        {user?.kelas_id && user?.role === 'bendahara' && (
           <div className="flex justify-center pt-2">
             <button
               type="button"
@@ -222,13 +271,18 @@ export default function History() {
             </button>
           </div>
         )}
+
+        {user?.kelas_id && user?.role !== 'bendahara' && (
+          <div className="flex justify-center pt-2">
+            <p className="text-[10px] text-slate-400">Riwayat siswa mengikuti pengaturan bendahara kelas.</p>
+          </div>
+        )}
       </div>
 
-      {/* Modal Overlay Input Pengeluaran Kas */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-5 w-full max-w-sm space-y-4 relative shadow-2xl">
-            <button 
+            <button
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
             >
@@ -239,39 +293,39 @@ export default function History() {
             <form onSubmit={handleTambahPengeluaran} className="space-y-3">
               <div>
                 <label className="text-[11px] font-bold text-slate-600 block mb-1">Deskripsi Pengeluaran</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={deskripsi} 
-                  onChange={e => setDeskripsi(e.target.value)} 
-                  placeholder="Contoh: Beli Spidol & Penghapus" 
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-indigo-600" 
+                <input
+                  type="text"
+                  required
+                  value={deskripsi}
+                  onChange={e => setDeskripsi(e.target.value)}
+                  placeholder="Contoh: Beli Spidol & Penghapus"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-indigo-600"
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-bold text-slate-600 block mb-1">Nominal Pengeluaran (Rp)</label>
-                <input 
-                  type="number" 
-                  required 
-                  value={nominal} 
-                  onChange={e => setNominal(e.target.value)} 
-                  placeholder="Contoh: 15000" 
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-indigo-600" 
+                <input
+                  type="number"
+                  required
+                  value={nominal}
+                  onChange={e => setNominal(e.target.value)}
+                  placeholder="Contoh: 15000"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-indigo-600"
                 />
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setShowModal(false)} 
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
                   className="w-full py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl cursor-pointer"
                 >
                   Batal
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={loading} 
+                <button
+                  type="submit"
+                  disabled={loading}
                   className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer flex justify-center items-center"
                 >
                   {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Simpan Transaksi'}

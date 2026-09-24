@@ -22,6 +22,32 @@ import {
   faLightbulb
 } from '@fortawesome/free-solid-svg-icons';
 
+const PROFILE_TABLE_KEY = 'finclass-user-profiles';
+
+const readProfileTable = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_TABLE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const getStoredProfile = (currentUser) => {
+  if (!currentUser?.id) return null;
+  const table = readProfileTable();
+  return table[currentUser.id] || null;
+};
+
+const getUserUsername = (currentUser) => {
+  const storedProfile = getStoredProfile(currentUser);
+  if (currentUser?.username) return currentUser.username;
+  if (storedProfile?.username) return storedProfile.username;
+
+  const rawValue = currentUser?.name || currentUser?.email || 'user';
+  const generated = String(rawValue).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  return generated || 'user';
+};
+
 export default function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -39,9 +65,17 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem('user'));
+    const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (savedUser) {
-      setUser(savedUser);
+      const storedProfile = getStoredProfile(savedUser);
+      const mergedUser = {
+        ...savedUser,
+        ...storedProfile,
+        username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
+        profile_image: storedProfile?.image || savedUser.profile_image || ''
+      };
+
+      setUser(mergedUser);
       API.get(`/dashboard?user_id=${savedUser.id}`)
         .then(res => setDashboardData(res.data))
         .catch(err => console.error(err))
@@ -61,6 +95,8 @@ export default function Home() {
   const members = dashboardData?.siswas || [];
   const paidMembers = Number(dashboardData?.jumlah_siswa_bayar || 0);
   const paymentProgress = members.length ? Math.round((paidMembers / members.length) * 100) : 0;
+  const userAvatar = getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.profile_image_url || user?.profile_image || user?.avatar_url || '';
+  const displayUsername = getUserUsername(user);
 
   const handlePrintSummary = () => {
     window.print();
@@ -81,8 +117,22 @@ export default function Home() {
       {/* Top Banner */}
       <div className="flex items-center justify-between pt-2 pb-1">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md overflow-hidden border border-indigo-200">
+            {userAvatar ? (
+              <img
+                src={userAvatar}
+                alt={displayUsername || 'Foto profil'}
+                className="h-full w-full object-cover"
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none';
+                  const fallback = event.currentTarget.nextSibling;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <span className={`h-full w-full items-center justify-center ${userAvatar ? 'hidden' : 'flex'}`}>
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </span>
           </div>
           <div>
             <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
