@@ -39,7 +39,6 @@ export default function Profile() {
   const [qrisDraft, setQrisDraft] = useState('');
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [qrisError, setQrisError] = useState('');
-  const [showClassInfo, setShowClassInfo] = useState(false);
 
   const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
@@ -235,18 +234,18 @@ export default function Profile() {
               <h3 className="text-white font-black text-xl tracking-tight truncate leading-snug">
                 {user?.name || 'Pengguna'}
               </h3>
-              
+
+              {displayUsername && (
+                <p className="text-[11px] font-medium text-indigo-100/90">
+                  @{displayUsername}
+                </p>
+              )}
+
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[9px] font-black uppercase tracking-wider border border-white/15">
                   {user?.role?.replace('_', ' ')}
                 </span>
 
-                {displayUsername && (
-                  <span className="px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-lg text-indigo-100 text-[9px] font-bold tracking-wider border border-white/10 truncate max-w-[120px]">
-                    @{displayUsername}
-                  </span>
-                )}
-                
                 {kelasData && (
                   <span className="px-2.5 py-0.5 bg-emerald-500/25 backdrop-blur-md rounded-lg text-emerald-200 text-[9px] font-black tracking-wider border border-emerald-400/30 truncate max-w-[140px]">
                     {kelasData.nama_kelas}
@@ -373,7 +372,7 @@ export default function Profile() {
                     title="Info Kelas"
                     description="Lihat pembuat kelas dan tanggal dibuat"
                     badgeColor="bg-cyan-50 text-cyan-600"
-                    onClick={() => setShowClassInfo(current => !current)}
+                    onClick={() => navigate('/settings/info-kelas')}
                   />
                 </>
               )}
@@ -395,29 +394,6 @@ export default function Profile() {
               />
             </div>
           </div>
-
-          {showClassInfo && kelasData && (
-            <div className="rounded-3xl border border-cyan-100 bg-cyan-50/40 p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-cyan-600">Info Kelas</p>
-                  <h4 className="mt-1 text-sm font-black text-slate-800">{kelasData.nama_kelas}</h4>
-                </div>
-                <div className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-cyan-600 shadow-sm">{user?.role === 'bendahara' ? 'Bendahara' : 'Siswa'}</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-2xl bg-white p-3 shadow-sm">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Dibuat</p>
-                  <p className="mt-1 font-bold text-slate-800">{kelasData.created_at ? new Date(kelasData.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Belum diketahui'}</p>
-                </div>
-                <div className="rounded-2xl bg-white p-3 shadow-sm">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Pembuat</p>
-                  <p className="mt-1 font-bold text-slate-800">{displayUsername || 'Bendahara Kelas'}</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="pt-2 pb-2">
             <div className="mb-2">

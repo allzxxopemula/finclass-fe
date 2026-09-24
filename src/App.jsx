@@ -10,6 +10,7 @@ import Penarikan from './pages/Penarikan';
 import PenarikanTambah from './pages/PenarikanTambah';
 import History from './pages/History';
 import Profile from './pages/Profile';
+import ClassInfoPage from './pages/ClassInfoPage';
 
 import SettingProfile from './pages/SettingProfile';
 import SettingAnggota from './pages/SettingAnggota';
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/penarikan/tambah" element={<PenarikanTambah />} />
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings/info-kelas" element={<ClassInfoPage />} />
 
         {/* Settings Routes */}
         <Route path="/settings/profile" element={<SettingProfile />} />
