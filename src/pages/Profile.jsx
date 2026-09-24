@@ -205,7 +205,7 @@ export default function Profile() {
           {/* User Info Container: Avatar Kiri, Nama & Info Kanan */}
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
-              <div className="w-18 h-18 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
+              <div className="w-20 h-20 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
                 {userAvatar ? (
                   <img
                     src={userAvatar}

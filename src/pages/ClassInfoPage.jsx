@@ -189,7 +189,7 @@ export default function ClassInfoPage() {
                 {/* 1. Bendahara (Owner) */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50/30 border border-indigo-50">
                   <div className="relative">
-                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-indigo-100 bg-white shrink-0">
+                    <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-indigo-100 bg-white shrink-0">
                       {ownerAvatar ? (
                         <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
                       ) : (
@@ -228,7 +228,7 @@ export default function ClassInfoPage() {
                 ) : (
                   memberList.map((member) => (
                     <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                      <div className="h-10 w-10 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
+                      <div className="h-11 w-11 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
                         {member.displayAvatar ? (
                           <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
                         ) : (
