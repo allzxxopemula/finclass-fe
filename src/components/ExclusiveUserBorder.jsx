@@ -18,7 +18,7 @@ export const EXCLUSIVE_USER_EMAILS = [
     shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(217,70,239,0.65),_transparent_22%),linear-gradient(135deg,_rgba(168,85,247,0.22),_rgba(49,46,129,0.25))]'
   },
   {
-    email: 'rizky@gmail.com',
+    emails: ['ayyubrashifpamungkas@gmail.com'],
     label: 'ELITE',
     accent: 'from-emerald-400 via-teal-500 to-cyan-500',
     chip: 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white border border-white/30',

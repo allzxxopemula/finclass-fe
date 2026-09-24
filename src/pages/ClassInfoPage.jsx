@@ -75,7 +75,7 @@ export default function ClassInfoPage() {
 
   const ownerLocal = ownerData?.id ? getStoredProfile(ownerData.id) : null;
   const ownerName = ownerData?.name || ownerLocal?.name || 'Bendahara Kelas';
-  const ownerUsername = ownerLocal?.username || buildUsername(ownerName, 'bendahara');
+  const ownerUsername = ownerData?.username || ownerLocal?.username || buildUsername(ownerName, 'bendahara');
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
   const ownerExclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
 
@@ -84,7 +84,7 @@ export default function ClassInfoPage() {
       const local = getStoredProfile(member.id);
       const email = member.email || local?.email || '';
       const name = member.name || local?.name || 'Anggota';
-      const username = local?.username || buildUsername(name, 'user');
+      const username = member.username || local?.username || buildUsername(name, 'user');
       const avatar = local?.image || member.profile_image_url || '';
       const preset = getExclusiveUserPreset(email);
 
