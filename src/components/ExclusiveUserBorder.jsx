@@ -10,7 +10,7 @@ export const EXCLUSIVE_USER_EMAILS = [
     shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.95),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.85),_transparent_28%),linear-gradient(135deg,_rgba(34,211,238,0.2),_rgba(124,58,237,0.38),_rgba(245,158,11,0.22))]'
   },
   {
-    email: 'aldorendyjulian@gmail.com',
+    emails: ['aldorendyjulian@gmail.com', 'jancok123@gmail.com'],
     label: 'EXCLUSIVE',
     accent: 'from-fuchsia-500 via-violet-500 to-indigo-500',
     chip: 'bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white border border-white/30',
