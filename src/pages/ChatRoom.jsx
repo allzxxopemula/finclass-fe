@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPaperPlane, faSpinner, faComments, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPaperPlane, faSpinner, faComments } from '@fortawesome/free-solid-svg-icons';
 
 export default function ChatRoom() {
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ export default function ChatRoom() {
   const getDisplayName = (member) => member?.name || member?.username || 'Anggota';
   const getDisplayUsername = (member) => member?.username || member?.name || 'user';
   const getDisplayAvatar = (member) => member?.profile_image_url || member?.profile_image || '';
+  
   const formatTime = (value) => {
     if (!value) return '';
     try {
@@ -43,9 +44,7 @@ export default function ChatRoom() {
       return;
     }
 
-    if (!silent) {
-      setLoading(true);
-    }
+    if (!silent) setLoading(true);
 
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
@@ -61,9 +60,7 @@ export default function ChatRoom() {
       setRoom(null);
       setMessages([]);
     } finally {
-      if (!silent) {
-        setLoading(false);
-      }
+      if (!silent) setLoading(false);
     }
   };
 
@@ -91,6 +88,7 @@ export default function ChatRoom() {
     return () => window.clearInterval(interval);
   }, []);
 
+  // Auto scroll to bottom
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -103,9 +101,7 @@ export default function ChatRoom() {
     if (sending) return;
 
     const now = Date.now();
-    if (now < cooldownUntil) {
-      return;
-    }
+    if (now < cooldownUntil) return;
 
     setSending(true);
 
@@ -134,48 +130,58 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex h-[calc(100vh-180px)] min-h-[60vh] flex-col pb-3">
-        <div className="flex items-center gap-3 pt-2 pb-3">
+      {/* Container utama dibuat full height (termasuk offset navbar) mirip UI WhatsApp */}
+      <div className="flex flex-col h-[calc(100vh-130px)] min-h-[60vh] pb-2 relative">
+        
+        {/* Header Kelas - (Tetap dipertahankan sesuai request) */}
+        <div className="flex items-center gap-3 pt-2 pb-4 shrink-0">
           <button
             type="button"
             onClick={() => navigate('/profile')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50"
           >
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner">
               <FontAwesomeIcon icon={faComments} />
             </div>
             <div>
-              <h1 className="text-base font-black text-slate-900">
+              <h1 className="text-base font-black text-slate-900 leading-tight">
                 {room ? room.name : 'Room Chat Kelas'}
               </h1>
-              <p className="text-[10px] text-slate-400">Pesan akan otomatis dihapus setelah 7 hari</p>
+              <p className="text-[10px] font-semibold text-slate-400">Pesan dihapus otomatis 7 hari</p>
             </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex flex-1 items-center justify-center py-12">
-            <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
-              <FontAwesomeIcon icon={faSpinner} spin />
-              Memuat chat...
+          <div className="flex flex-1 items-center justify-center">
+            <div className="flex flex-col items-center gap-3 text-slate-400">
+              <FontAwesomeIcon icon={faSpinner} spin className="text-2xl text-indigo-500" />
+              <span className="text-xs font-bold">Memuat percakapan...</span>
             </div>
           </div>
         ) : !user?.kelas_id ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 text-center shadow-sm">
-            <p className="text-sm font-black text-slate-800">Kamu belum masuk kelas.</p>
-            <p className="mt-2 text-xs text-slate-500">Gabung kelas dulu agar bisa mengikuti room chat.</p>
+          <div className="flex flex-1 items-center justify-center">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm max-w-sm">
+              <p className="text-sm font-black text-slate-800">Kamu belum bergabung di kelas.</p>
+              <p className="mt-1 text-xs text-slate-500">Silakan gabung kelas terlebih dahulu untuk memulai obrolan.</p>
+            </div>
           </div>
         ) : (
           <>
-            <div ref={listRef} className="flex-1 overflow-y-auto rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
-              <div className="space-y-2">
+            {/* Area Chat / List Pesan (Mirip WhatsApp, bisa di-scroll tanpa border luar) */}
+            <div 
+              ref={listRef} 
+              className="flex-1 overflow-y-auto scroll-smooth pr-1 space-y-4 pb-4"
+            >
               {messages.length === 0 ? (
-                <div className="flex h-full min-h-[180px] items-center justify-center text-center text-xs text-slate-400">
-                  Belum ada pesan di room kelas ini. Mulai percakapan pertama.
+                <div className="flex h-full items-center justify-center">
+                  <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100">
+                    Mulai obrolan pertama di kelas ini!
+                  </div>
                 </div>
               ) : (
                 messages.map((item) => {
@@ -184,71 +190,87 @@ export default function ChatRoom() {
                   const avatarUrl = getDisplayAvatar(sender);
 
                   return (
-                    <div key={item.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`flex max-w-[88%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm">
-                          {avatarUrl ? (
-                            <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[10px] font-black text-slate-600">
-                              {getDisplayName(sender).charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                          {!isMine && (
-                            <div className="mb-1 flex items-center gap-1 px-1">
-                              <span className="text-[10px] font-black text-slate-700">{getDisplayName(sender)}</span>
-                              <span className="text-[9px] text-slate-400">@{getDisplayUsername(sender)}</span>
-                            </div>
-                          )}
-
-                          <div className={isMine ? 'ml-auto max-w-[78%]' : 'mr-auto max-w-[70%]'}>
-                            <div className={`inline-block rounded-2xl px-2.5 py-2 shadow-sm ${isMine ? 'bg-violet-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-800'}`}>
-                              <div className="flex items-end gap-1.5">
-                                <p className="m-0 min-w-0 break-words text-[11px] leading-relaxed text-current" style={{ maxWidth: isMine ? 'calc(100% - 26px)' : 'calc(100% - 26px)' }}>
-                                  {item.message}
-                                </p>
-                                <span className={`m-0 shrink-0 self-end pb-0.5 text-[7px] leading-none whitespace-nowrap ${isMine ? 'text-violet-100' : 'text-slate-400'}`}>
-                                  {formatTime(item.created_at)}
-                                </span>
+                    <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`flex max-w-[85%] md:max-w-[70%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+                        
+                        {/* Avatar Pengirim (Disembunyikan jika chat kita sendiri agar rapi) */}
+                        {!isMine && (
+                          <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm mb-1">
+                            {avatarUrl ? (
+                              <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[9px] font-black text-slate-600 uppercase">
+                                {getDisplayName(sender).charAt(0)}
                               </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Bubble Chat */}
+                        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                          
+                          {/* Nama Pengirim untuk orang lain */}
+                          {!isMine && (
+                            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
+                              {getDisplayName(sender)}
+                            </span>
+                          )}
+
+                          {/* 
+                            Mengatasi BUG Wrapping: 
+                            Text dan Jam dipisah menggunakan flex-col agar teks sependek 
+                            apapun tidak memaksakan diri di samping jam dan hancur formatnya.
+                          */}
+                          <div className={`relative px-3 pt-2 pb-1.5 shadow-sm ${
+                            isMine 
+                              ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-sm' 
+                              : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-sm'
+                          }`}>
+                            <div className="flex flex-col min-w-[60px]">
+                              <p className="text-[13px] leading-relaxed break-words whitespace-pre-wrap">
+                                {item.message}
+                              </p>
+                              <span className={`text-[9px] text-right mt-1 ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>
+                                {formatTime(item.created_at)}
+                              </span>
                             </div>
                           </div>
+
                         </div>
                       </div>
                     </div>
                   );
                 })
               )}
-              </div>
             </div>
 
-            <form onSubmit={handleSend} className="mt-3 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+            {/* Input Form Text Area (Sticky di bawah mirip WA) */}
+            <form 
+              onSubmit={handleSend} 
+              className="shrink-0 mt-2 pt-2 border-t border-slate-100 flex items-end gap-2 bg-slate-50 sticky bottom-0"
+            >
               <input
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Tulis pesan ke kelas..."
-                className="flex-1 border-0 bg-transparent px-2 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400"
+                placeholder="Ketik pesan..."
+                className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
+                autoComplete="off"
               />
 
               <button
                 type="submit"
                 disabled={sendDisabled || !draft.trim()}
-                className="flex items-center gap-2 rounded-xl bg-violet-600 px-3 py-2 text-[10px] font-black text-white disabled:cursor-not-allowed disabled:bg-violet-300"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
               >
-                {sending ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPaperPlane} />}
-                {Date.now() < cooldownUntil ? 'Tunggu' : 'Kirim'}
+                {sending ? (
+                  <FontAwesomeIcon icon={faSpinner} spin className="text-lg" />
+                ) : (
+                  <FontAwesomeIcon icon={faPaperPlane} className="text-lg mr-0.5" />
+                )}
               </button>
             </form>
-
-            <div className="mt-2 flex items-center justify-center gap-1 text-[9px] text-slate-400">
-              <FontAwesomeIcon icon={faClock} />
-              <span>Cooldown kirim: 5 detik</span>
-            </div>
           </>
         )}
       </div>
