@@ -228,7 +228,7 @@ export default function ClassInfoPage() {
                 ) : (
                   memberList.map((member) => (
                     <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                      <div className="h-11 w-11 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
+                      <div className="h-13 w-13 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
                         {member.displayAvatar ? (
                           <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
                         ) : (
