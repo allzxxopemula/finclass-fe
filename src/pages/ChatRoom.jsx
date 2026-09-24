@@ -14,7 +14,6 @@ export default function ChatRoom() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
-  const [nowTick, setNowTick] = useState(Date.now());
   const listRef = useRef(null);
 
   const readUser = () => {
@@ -43,7 +42,6 @@ export default function ChatRoom() {
       setLoading(false);
       return;
     }
-
     if (!silent) setLoading(true);
 
     try {
@@ -75,20 +73,13 @@ export default function ChatRoom() {
     loadMessages(savedUser.id, false);
 
     const timer = window.setInterval(() => {
-      if (savedUser?.id) {
-        loadMessages(savedUser.id, true);
-      }
+      if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 15000);
 
     return () => window.clearInterval(timer);
   }, [navigate]);
 
-  useEffect(() => {
-    const interval = window.setInterval(() => setNowTick(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  // Auto scroll to bottom
+  // Scroll otomatis ke paling bawah saat pesan baru muncul
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -97,8 +88,7 @@ export default function ChatRoom() {
 
   const handleSend = async (event) => {
     event.preventDefault();
-    if (!user?.id || !draft.trim()) return;
-    if (sending) return;
+    if (!user?.id || !draft.trim() || sending) return;
 
     const now = Date.now();
     if (now < cooldownUntil) return;
@@ -113,28 +103,25 @@ export default function ChatRoom() {
 
       if (response.data.status === 'success') {
         setDraft('');
-        setCooldownUntil(Date.now() + 5000);
+        setCooldownUntil(Date.now() + 5000); // Cooldown internal (tanpa label)
         await loadMessages(user.id, true);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
-      const message = error?.response?.data?.message || 'Gagal mengirim pesan.';
-      alert(message);
+      alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
       setSending(false);
     }
   };
 
-  const sendDisabled = sending || nowTick < cooldownUntil;
-
   return (
     <MainLayout>
-      {/* Container utama dibuat full height (termasuk offset navbar) mirip UI WhatsApp */}
-      <div className="flex flex-col h-[calc(100vh-130px)] min-h-[60vh] pb-2 relative">
+      {/* Container utama Chat (Memberi ruang ekstra untuk Form di bawah) */}
+      <div className="flex flex-col h-[calc(100dvh-135px)] relative pt-2">
         
-        {/* Header Kelas - (Tetap dipertahankan sesuai request) */}
-        <div className="flex items-center gap-3 pt-2 pb-4 shrink-0">
+        {/* Header Kelas */}
+        <div className="flex items-center gap-3 pb-3 shrink-0 border-b border-slate-200/50 mb-3">
           <button
             type="button"
             onClick={() => navigate('/profile')}
@@ -144,14 +131,14 @@ export default function ChatRoom() {
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner">
-              <FontAwesomeIcon icon={faComments} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner">
+              <FontAwesomeIcon icon={faComments} className="text-sm" />
             </div>
             <div>
               <h1 className="text-base font-black text-slate-900 leading-tight">
                 {room ? room.name : 'Room Chat Kelas'}
               </h1>
-              <p className="text-[10px] font-semibold text-slate-400">Pesan dihapus otomatis 7 hari</p>
+              <p className="text-[10px] font-bold text-slate-400">Pesan terhapus otomatis 7 hari</p>
             </div>
           </div>
         </div>
@@ -171,98 +158,99 @@ export default function ChatRoom() {
             </div>
           </div>
         ) : (
-          <>
-            {/* Area Chat / List Pesan (Mirip WhatsApp, bisa di-scroll tanpa border luar) */}
-            <div 
-              ref={listRef} 
-              className="flex-1 overflow-y-auto scroll-smooth pr-1 space-y-4 pb-4"
-            >
-              {messages.length === 0 ? (
-                <div className="flex h-full items-center justify-center">
-                  <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100">
-                    Mulai obrolan pertama di kelas ini!
-                  </div>
+          /* Area List Chat WA Style */
+          <div 
+            ref={listRef} 
+            className="flex-1 overflow-y-auto scroll-smooth space-y-4 pb-20 pr-1" // pb-20 agar pesan terbawah tidak tertutup form
+          >
+            {messages.length === 0 ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100">
+                  Mulai obrolan pertama di kelas ini!
                 </div>
-              ) : (
-                messages.map((item) => {
-                  const sender = item.user || {};
-                  const isMine = String(sender.id) === String(user.id);
-                  const avatarUrl = getDisplayAvatar(sender);
+              </div>
+            ) : (
+              messages.map((item) => {
+                const sender = item.user || {};
+                const isMine = String(sender.id) === String(user.id);
+                const avatarUrl = getDisplayAvatar(sender);
 
-                  return (
-                    <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`flex max-w-[85%] md:max-w-[70%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
-                        
-                        {/* Avatar Pengirim (Disembunyikan jika chat kita sendiri agar rapi) */}
-                        {!isMine && (
-                          <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm mb-1">
-                            {avatarUrl ? (
-                              <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[9px] font-black text-slate-600 uppercase">
-                                {getDisplayName(sender).charAt(0)}
-                              </div>
-                            )}
+                return (
+                  <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
+                    {/* flex-row-reverse untuk pesan sendiri agar avatar di kanan */}
+                    <div className={`flex max-w-[90%] md:max-w-[75%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+                      
+                      {/* Avatar Profile (Sekarang Muncul Keduanya Kiri & Kanan) */}
+                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm mb-0.5">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[10px] font-black text-slate-600 uppercase">
+                            {getDisplayName(sender).charAt(0)}
                           </div>
                         )}
+                      </div>
 
-                        {/* Bubble Chat */}
-                        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                      {/* Konten Chat */}
+                      <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                        
+                        {/* Nama Pengirim (Khusus orang lain) */}
+                        {!isMine && (
+                          <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
+                            {getDisplayName(sender)}
+                          </span>
+                        )}
+
+                        {/* 
+                          Bubble Chat Modern (WhatsApp Style) 
+                          Trik pr-11 (padding right) digunakan sebagai ruang khusus jam, 
+                          agar teks sepanjang/sependek apapun tidak terganggu oleh timestamp.
+                        */}
+                        <div className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
+                          isMine 
+                            ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm' 
+                            : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
+                        }`}>
                           
-                          {/* Nama Pengirim untuk orang lain */}
-                          {!isMine && (
-                            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
-                              {getDisplayName(sender)}
-                            </span>
-                          )}
-
-                          {/* 
-                            Mengatasi BUG Wrapping: 
-                            Text dan Jam dipisah menggunakan flex-col agar teks sependek 
-                            apapun tidak memaksakan diri di samping jam dan hancur formatnya.
-                          */}
-                          <div className={`relative px-3 pt-2 pb-1.5 shadow-sm ${
-                            isMine 
-                              ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-sm' 
-                              : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-sm'
-                          }`}>
-                            <div className="flex flex-col min-w-[60px]">
-                              <p className="text-[13px] leading-relaxed break-words whitespace-pre-wrap">
-                                {item.message}
-                              </p>
-                              <span className={`text-[9px] text-right mt-1 ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>
-                                {formatTime(item.created_at)}
-                              </span>
-                            </div>
+                          <div className="text-[13px] leading-relaxed break-words whitespace-pre-wrap pr-11">
+                            {item.message}
                           </div>
+                          
+                          <span className={`text-[9px] absolute bottom-1.5 right-2 leading-none font-medium ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>
+                            {formatTime(item.created_at)}
+                          </span>
 
                         </div>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
 
-            {/* Input Form Text Area (Sticky di bawah mirip WA) */}
-            <form 
-              onSubmit={handleSend} 
-              className="shrink-0 mt-2 pt-2 border-t border-slate-100 flex items-end gap-2 bg-slate-50 sticky bottom-0"
-            >
+      {/* Form Ketik Pesan - Nempel Tepat di Atas BottomNav */}
+      {/* bottom-[65px] adalah estimasi akurat tinggi BottomNav bawaan Tailwindmu */}
+      {user?.kelas_id && (
+        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-slate-50/95 backdrop-blur-md border-t border-slate-200/60 px-4 py-2">
+          <div className="max-w-4xl mx-auto">
+            <form onSubmit={handleSend} className="flex items-end gap-2">
               <input
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Ketik pesan..."
-                className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
               />
 
               <button
                 type="submit"
-                disabled={sendDisabled || !draft.trim()}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
+                disabled={sending || !draft.trim()}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
               >
                 {sending ? (
                   <FontAwesomeIcon icon={faSpinner} spin className="text-lg" />
@@ -271,9 +259,9 @@ export default function ChatRoom() {
                 )}
               </button>
             </form>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
