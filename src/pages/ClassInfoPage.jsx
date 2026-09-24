@@ -77,20 +77,24 @@ export default function ClassInfoPage() {
   const ownerName = ownerData?.name || ownerLocal?.name || 'Bendahara Kelas';
   const ownerUsername = ownerLocal?.username || buildUsername(ownerName, 'bendahara');
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
-  const exclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
+  const ownerExclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
 
   const memberList = members
     .map((member) => {
       const local = getStoredProfile(member.id);
+      const email = member.email || local?.email || '';
       const name = member.name || local?.name || 'Anggota';
       const username = local?.username || buildUsername(name, 'user');
       const avatar = local?.image || member.profile_image_url || '';
+      const preset = getExclusiveUserPreset(email);
 
       return {
         ...member,
+        email,
         displayName: name,
         displayUsername: username,
         displayAvatar: avatar,
+        exclusivePreset: preset,
       };
     })
     .filter((member) => member.displayName && member.id !== ownerData?.id);
@@ -124,64 +128,59 @@ export default function ClassInfoPage() {
           <div className="space-y-4">
             
             {/* Card 1: Informasi Kelas & Statistik (Clean, Solid, No Gradient) */}
-            <ExclusiveProfileShell email={ownerData?.email || user?.email} variant="card" className="w-full overflow-hidden">
-              <div className="bg-white/90 rounded-[26px] overflow-hidden border border-slate-200/70 shadow-sm">
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#00f5ff] via-violet-500 to-amber-400"></div>
-                
-                <div className="p-5 space-y-5">
-                  {/* Header Kelas */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl border border-indigo-100 shadow-inner">
-                      <FontAwesomeIcon icon={faBuildingColumns} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-black text-slate-900 leading-tight">
-                        {kelasData?.nama_kelas || 'Belum ada kelas'}
-                      </h2>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                        Ruang Kelas Terdaftar
-                      </p>
-                    </div>
-                    {exclusivePreset && (
-                      <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-md`}>
-                        {exclusivePreset.label}
-                      </span>
-                    )}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="h-1.5 w-full bg-indigo-500"></div>
+
+              <div className="p-5 space-y-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl border border-indigo-100 shadow-inner">
+                    <FontAwesomeIcon icon={faBuildingColumns} />
                   </div>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 leading-tight">
+                      {kelasData?.nama_kelas || 'Belum ada kelas'}
+                    </h2>
+                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                      Ruang Kelas Terdaftar
+                    </p>
+                  </div>
+                  {ownerExclusivePreset && (
+                    <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-md`}>
+                      {ownerExclusivePreset.label}
+                    </span>
+                  )}
+                </div>
 
-                  {/* Divider */}
-                  <div className="h-px w-full bg-slate-100"></div>
+                <div className="h-px w-full bg-slate-100"></div>
 
-                  {/* Statistik Kelas */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        <FontAwesomeIcon icon={faCalendarDays} className="text-slate-300" />
-                        <span>Dibuat Pada</span>
-                      </div>
-                      <p className="text-sm font-bold text-slate-800">
-                        {kelasData?.created_at
-                          ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            })
-                          : '-'}
-                      </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      <FontAwesomeIcon icon={faCalendarDays} className="text-slate-300" />
+                      <span>Dibuat Pada</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        <FontAwesomeIcon icon={faUsers} className="text-slate-300" />
-                        <span>Total Anggota</span>
-                      </div>
-                      <p className="text-sm font-bold text-slate-800">
-                        {memberList.length + 1} Siswa
-                      </p>
+                    <p className="text-sm font-bold text-slate-800">
+                      {kelasData?.created_at
+                        ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                        : '-'}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      <FontAwesomeIcon icon={faUsers} className="text-slate-300" />
+                      <span>Total Anggota</span>
                     </div>
+                    <p className="text-sm font-bold text-slate-800">
+                      {memberList.length + 1} Siswa
+                    </p>
                   </div>
                 </div>
               </div>
-            </ExclusiveProfileShell>
+            </div>
 
             {/* Card 2: Daftar Anggota Kelas (List View Rapih) */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -208,20 +207,19 @@ export default function ClassInfoPage() {
                         )}
                       </div>
                     </ExclusiveProfileShell>
-                    {/* Badge Crown Bendahara */}
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center text-[9px] border-2 border-white">
                       <FontAwesomeIcon icon={faCrown} />
                     </div>
                   </div>
-                  
+
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-slate-900">{ownerName}</p>
                     <p className="truncate text-[11px] font-medium text-slate-500">@{ownerUsername}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {exclusivePreset && (
-                      <span className={`rounded-full px-2 py-1 text-[8px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30 shadow-sm`}>
-                        {exclusivePreset.label}
+                    {ownerExclusivePreset && (
+                      <span className={`rounded-full px-2 py-1 text-[8px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-sm`}>
+                        {ownerExclusivePreset.label}
                       </span>
                     )}
                     <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
@@ -245,17 +243,26 @@ export default function ClassInfoPage() {
                 ) : (
                   memberList.map((member, index) => (
                     <div key={member.id} className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors ${index > 0 ? '-mt-0.5' : ''}`}>
-                      <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
-                        {member.displayAvatar ? (
-                          <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-slate-600 text-xs font-black">
-                            {member.displayName ? member.displayName.charAt(0).toUpperCase() : 'A'}
-                          </div>
-                        )}
-                      </div>
+                      <ExclusiveProfileShell email={member.email} variant="avatar" className="h-14 w-14 shrink-0">
+                        <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                          {member.displayAvatar ? (
+                            <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-slate-200 text-slate-600 text-xs font-black">
+                              {member.displayName ? member.displayName.charAt(0).toUpperCase() : 'A'}
+                            </div>
+                          )}
+                        </div>
+                      </ExclusiveProfileShell>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-slate-800">{member.displayName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-bold text-slate-800">{member.displayName}</p>
+                          {member.exclusivePreset && (
+                            <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${member.exclusivePreset.accent} border border-white/30`}>
+                              {member.exclusivePreset.label}
+                            </span>
+                          )}
+                        </div>
                         <p className="truncate text-[11px] font-medium text-slate-500">@{member.displayUsername}</p>
                       </div>
                       <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">
