@@ -74,7 +74,7 @@ export default function ChatRoom() {
 
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
-    }, 15000);
+    }, 3000);
 
     return () => window.clearInterval(timer);
   }, [navigate]);
