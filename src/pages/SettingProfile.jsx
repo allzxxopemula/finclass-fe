@@ -155,6 +155,7 @@ export default function SettingProfile() {
       await API.post('/update-profile', {
         user_id: savedUser?.id,
         name: cleanedName,
+        username: cleanedUsername,
         profile_image_url: profileImage || null
       }).catch(() => null);
 
