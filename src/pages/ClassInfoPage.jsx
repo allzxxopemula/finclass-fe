@@ -33,6 +33,7 @@ export default function ClassInfoPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [kelasData, setKelasData] = useState(null);
+  const [ownerData, setOwnerData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,33 +44,35 @@ export default function ClassInfoPage() {
       return;
     }
 
-    const storedProfile = getStoredProfile(savedUser);
-    const mergedUser = {
-      ...savedUser,
-      ...storedProfile,
-      username: savedUser.username || storedProfile?.username || getDisplayUsername(savedUser)
-    };
+    setUser(savedUser);
 
-    setUser(mergedUser);
-
-    if (savedUser.kelas_id) {
-      API.get(`/dashboard?user_id=${savedUser.id}`)
-        .then((res) => {
-          if (res.data.status === 'success') {
-            setKelasData(res.data.kelas);
-          }
-        })
-        .catch((err) => console.error(err))
-        .finally(() => setLoading(false));
+    if (!savedUser.kelas_id) {
+      setKelasData(null);
+      setOwnerData(null);
+      setLoading(false);
       return;
     }
 
-    setKelasData(null);
-    setLoading(false);
+    API.get(`/dashboard?user_id=${savedUser.id}`)
+      .then((res) => {
+        if (res.data.status === 'success') {
+          const bendahara = res.data.bendahara || null;
+          setKelasData(res.data.kelas);
+          setOwnerData(bendahara);
+        }
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, [navigate]);
 
-  const creatorName = user?.name || 'Bendahara Kelas';
-  const creatorUsername = user?.username || getDisplayUsername(user) || 'bendahara';
+  const localProfile = ownerData?.id ? getStoredProfile({ id: ownerData.id }) : null;
+  const generatedUsername = (() => {
+    const sourceName = ownerData?.name || localProfile?.name || user?.name || 'bendahara';
+    return String(sourceName).trim().toLowerCase().replace(/[^a-z0-9]/g, '') || 'bendahara';
+  })();
+  const ownerName = ownerData?.name || localProfile?.name || 'Bendahara Kelas';
+  const ownerUsername = localProfile?.username || ownerData?.username || generatedUsername;
+  const ownerAvatar = localProfile?.image || ownerData?.profile_image_url || '';
 
   return (
     <MainLayout>
@@ -85,7 +88,7 @@ export default function ClassInfoPage() {
 
           <div>
             <h1 className="text-base font-black text-slate-900">Info Kelas</h1>
-            <p className="text-[10px] text-slate-400">Data pembuat dan detail kelas</p>
+            <p className="text-[10px] text-slate-400">Owner kelas dan detail room</p>
           </div>
         </div>
 
@@ -96,46 +99,53 @@ export default function ClassInfoPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-3xl border border-cyan-100 bg-cyan-50/60 p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-sm">
-                  <FontAwesomeIcon icon={faBuildingColumns} />
+            <div className="rounded-[28px] border border-cyan-100 bg-gradient-to-br from-cyan-50 via-white to-indigo-50 p-5 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 overflow-hidden rounded-2xl bg-white border border-cyan-100 shadow-sm flex items-center justify-center">
+                  {ownerAvatar ? (
+                    <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-cyan-600 text-white text-xl font-black">
+                      {ownerName ? ownerName.charAt(0).toUpperCase() : 'K'}
+                    </div>
+                  )}
                 </div>
-                <div>
+
+                <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-600">Nama Kelas</p>
-                  <h2 className="mt-1 text-lg font-black text-slate-900">{kelasData?.nama_kelas || 'Belum ada kelas'}</h2>
+                  <h2 className="mt-1 text-lg font-black text-slate-900 truncate">{kelasData?.nama_kelas || 'Belum ada kelas'}</h2>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm space-y-4">
+            <div className="rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm space-y-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                   <FontAwesomeIcon icon={faUser} />
                 </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Nama lengkap</p>
-                  <p className="mt-1 text-base font-black text-slate-900">{creatorName}</p>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Nama lengkap bendahara</p>
+                  <p className="mt-1 text-base font-black text-slate-900 break-words">{ownerName}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
                   <FontAwesomeIcon icon={faIdBadge} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Username bendahara</p>
-                  <p className="mt-1 text-base font-black text-slate-900">@{creatorUsername}</p>
+                  <p className="mt-1 text-base font-black text-slate-900 break-words">@{ownerUsername}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                   <FontAwesomeIcon icon={faCalendarDays} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Tanggal dibuat</p>
-                  <p className="mt-1 text-base font-black text-slate-900">
+                  <p className="mt-1 text-base font-black text-slate-900 break-words">
                     {kelasData?.created_at
                       ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
