@@ -29,11 +29,16 @@ export default function ChatRoom() {
   const getDisplayUsername = (member) => member?.username || member?.name || 'user';
   const getDisplayAvatar = (member) => member?.profile_image_url || member?.profile_image || '';
 
-  const loadMessages = async () => {
-    if (!user?.id) return;
+  const loadMessages = async (currentUserId = user?.id) => {
+    if (!currentUserId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const response = await API.get(`/chat-room?user_id=${user.id}`);
+      const response = await API.get(`/chat-room?user_id=${currentUserId}`);
       if (response.data.status === 'success') {
         setRoom(response.data.room);
         setMessages(response.data.messages || []);
@@ -43,6 +48,8 @@ export default function ChatRoom() {
       }
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
+      setRoom(null);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -56,11 +63,11 @@ export default function ChatRoom() {
     }
 
     setUser(savedUser);
-    loadMessages();
+    loadMessages(savedUser.id);
 
     const timer = window.setInterval(() => {
       if (savedUser?.id) {
-        loadMessages();
+        loadMessages(savedUser.id);
       }
     }, 5000);
 
@@ -99,7 +106,7 @@ export default function ChatRoom() {
       if (response.data.status === 'success') {
         setDraft('');
         setCooldownUntil(Date.now() + 5000);
-        await loadMessages();
+        await loadMessages(user.id);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
