@@ -19,6 +19,7 @@ import AksiKelas from './pages/AksiKelas';
 import ProteksiAkun from './pages/ProteksiAkun';
 import Faq from './pages/Faq';
 import InputSaldoAwal from './pages/InputSaldoAwal';
+import ChatRoom from './pages/ChatRoom';
 
 export default function App() {
   const savedUser = localStorage.getItem('user');
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings/info-kelas" element={<ClassInfoPage />} />
+        <Route path="/chat-room" element={<ChatRoom />} />
 
         {/* Settings Routes */}
         <Route path="/settings/profile" element={<SettingProfile />} />

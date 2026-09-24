@@ -24,7 +24,8 @@ import {
   faImage,
   faTrash,
   faExternalLinkAlt,
-  faInfoCircle
+  faInfoCircle,
+  faComments
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
@@ -383,6 +384,13 @@ export default function Profile() {
                     description="Lihat pembuat kelas dan tanggal dibuat"
                     badgeColor="bg-cyan-50 text-cyan-600"
                     onClick={() => navigate('/settings/info-kelas')}
+                  />
+                  <MenuItem
+                    icon={faComments}
+                    title="Room Chat Kelas"
+                    description="Diskusi cepat antar anggota kelas"
+                    badgeColor="bg-violet-50 text-violet-600"
+                    onClick={() => navigate('/chat-room')}
                   />
                 </>
               )}
