@@ -2,22 +2,22 @@ import React from 'react';
 
 export const EXCLUSIVE_USER_EMAILS = [
   {
-    // === 1. TIER DEWA (DEVELOPER) - LEVEL MAX 999 (DISCORD NITRO STYLE) ===
+    // === 1. TIER DEWA (DEVELOPER) - GOD TIER 9999+ ===
     emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
     chip: 'bg-gradient-to-r from-slate-900 via-zinc-700 to-slate-200 text-white border border-white/40 font-black shadow-lg shadow-slate-500/30',
-    glow: 'shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_35px_rgba(255,255,255,0.9),0_0_65px_rgba(156,163,175,0.7)]',
+    glow: 'shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_40px_rgba(255,255,255,0.9),0_0_70px_rgba(156,163,175,0.8)]',
     isDeveloper: true
   },
   {
-    // === 2. TIM DEVELOPER (DEV TEAM) - ANIMASI SPIN BIRU/PUTIH AKSELERASI ===
+    // === 2. TIM DEVELOPER (DEV TEAM) - TURBO SPIN ===
     emails: ['team@finclass.id', 'staff@finclass.id', 'jancok123@gmail.com', 'ayubganda@gmail.com', 'ayyubrashifpamungkas@gmail.com'],
     label: 'DEV TEAM',
     accent: 'from-[#38BDF8] via-[#818CF8] to-[#6366F1]',
     chip: 'bg-gradient-to-r from-sky-400 to-indigo-500 text-white border border-white/50 font-black shadow-md shadow-blue-500/40',
-    glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.8),0_0_15px_rgba(56,189,248,0.7),0_0_35px_rgba(99,102,241,0.5)]',
-    isDevTeam: true // Flag khusus untuk memicu animasi Dev Team
+    glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.8),0_0_20px_rgba(56,189,248,0.8),0_0_45px_rgba(99,102,241,0.6)]',
+    isDevTeam: true
   },
   {
     // === 3. DONATUR (SUPPORTER) ===
@@ -50,6 +50,13 @@ export const getExclusiveUserPreset = (email) => {
   }) || null;
 };
 
+// SVG Komponen Khusus untuk Bintang Nitro
+const StarSparkle = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 0C12 0 12 9.5 17.5 12C12 14.5 12 24 12 24C12 24 12 14.5 6.5 12C12 9.5 12 0 12 0Z" />
+  </svg>
+);
+
 export function ExclusiveProfileShell({ email, className = '', children, variant = 'card' }) {
   const preset = getExclusiveUserPreset(email);
 
@@ -57,7 +64,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     return <div className={className}>{children}</div>;
   }
 
-  // Cek flag role
   const isDeveloper = preset.isDeveloper;
   const isDevTeam = preset.isDevTeam;
   const isRegular = !isDeveloper && !isDevTeam;
@@ -67,14 +73,19 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     return (
       <div className="relative inline-block">
         
-        {/* === AURA HALO PULSE KHUSUS DEVELOPER (Di Luar Border Utama) === */}
+        {/* === DOUBLE RIPPLE PULSE KHUSUS DEVELOPER (Anti Kotak) === */}
         {isDeveloper && (
-          <div className="absolute -inset-1 rounded-[inherit] border border-white/60 animate-[haloPulse_3s_ease-out_infinite] z-0" />
+          <>
+            {/* Gelombang 1 (Cepat) */}
+            <div className="absolute -inset-1 rounded-full border-[1.5px] border-white/80 animate-[rippleFast_2s_ease-out_infinite] pointer-events-none z-0" />
+            {/* Gelombang 2 (Lambat & Menyusul) */}
+            <div className="absolute -inset-1 rounded-full border-2 border-slate-300/60 animate-[rippleSlow_2.5s_ease-out_infinite_0.8s] pointer-events-none z-0" />
+          </>
         )}
 
         {/* === WADAH UTAMA === */}
         <div 
-          className={`group relative isolate overflow-hidden p-[3px] 
+          className={`group relative isolate overflow-hidden p-[3.5px] 
             ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite] rounded-full' : ''} 
             ${isDevTeam ? 'bg-transparent rounded-full' : ''} 
             ${isRegular ? `bg-gradient-to-br ${preset.accent} rounded-full` : ''} 
@@ -82,44 +93,44 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         >
           
           {/* ======================================= */}
-          {/* 1. EFEK DEVELOPER (LEVEL MAX 999)       */}
+          {/* 1. EFEK DEVELOPER (GOD TIER)            */}
           {/* ======================================= */}
           {isDeveloper && (
             <>
-              {/* Liquid Platinum Conic Gradient (Berputar Mulus) */}
-              <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_20%,#374151_40%,#FFFFFF_50%,#000000_70%,#D1D5DB_90%,#000000_100%)] opacity-95" />
+              {/* Liquid Platinum Conic Gradient (Metalik Bercahaya) */}
+              <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-100" />
               
               {/* 3D Reverse Orbiting Ring (Garis putus-putus berlawanan arah) */}
-              <div className="absolute -inset-[2px] animate-[spin_5s_linear_infinite_reverse] border-[1.5px] border-dashed border-white/50 rounded-full opacity-70 pointer-events-none" />
+              <div className="absolute -inset-[3px] rounded-full animate-[spin_5s_linear_infinite_reverse] border-[2px] border-dashed border-white/60 opacity-80 pointer-events-none" />
 
               {/* Kilat Petir */}
               <div className="absolute inset-0 bg-white opacity-0 animate-[lightningFlash_4s_steps(2,start)_infinite]" />
               
-              {/* Glow Berdenyut Dalam */}
-              <div className="absolute inset-0 bg-white/20 animate-[pulse_2.5s_ease-in-out_infinite]" />
+              {/* Core Nebula Glow (Cahaya di belakang foto) */}
+              <div className="absolute inset-0 bg-white/30 animate-[pulse_2.5s_ease-in-out_infinite]" />
             </>
           )}
 
           {/* ======================================= */}
-          {/* 2. EFEK DEV TEAM (BIRU PUTIH AKSELERASI)*/}
+          {/* 2. EFEK DEV TEAM (TURBO ACCELERATION)   */}
           {/* ======================================= */}
           {isDevTeam && (
             <>
-              {/* Border berputar dengan timing pelan lalu ngebut! (ease-in-out) */}
-              <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_ease-in-out_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_25%,#6366F1_50%,#FFFFFF_75%,#38BDF8_100%)] opacity-90" />
+              {/* Timing ease-in-out yang bikin putarannya terasa ngebut di tengah */}
+              <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
             </>
           )}
 
           {/* ======================================= */}
-          {/* 3. EFEK ROLE REGULAR (DONATUR DLL)      */}
+          {/* 3. EFEK ROLE REGULAR                    */}
           {/* ======================================= */}
           {isRegular && (
             <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
           )}
           
-          {/* === WADAH FOTO PROFIL (TETAP AMAN BULAT SEMPURNA) === */}
+          {/* === WADAH FOTO PROFIL === */}
           <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-20">
-            {/* Couter Morph cuma nyala buat Developer biar gambarnya gak penyok */}
+            {/* Counter Morph mengamankan rasio gambar asli */}
             <div className={`w-full h-full ${isDeveloper ? 'animate-[counterSmooth_6s_ease-in-out_infinite]' : ''}`}>
               {children}
             </div>
@@ -127,23 +138,39 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         </div>
 
         {/* ======================================= */}
-        {/* EFEK NITRO SPARKLES (KHUSUS DEVELOPER)  */}
+        {/* EFEK NITRO STAR SPARKLES (KHUSUS DEVELOPER) */}
+        {/* Menggunakan bentuk bintang betulan (SVG)  */}
         {/* ======================================= */}
         {isDeveloper && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
-            <span className="absolute -top-2 left-1/4 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_2px_#ffffff] animate-[sparkleFloat_2.5s_ease-in-out_infinite]" />
-            <span className="absolute top-1/4 -right-2 w-2 h-2 bg-slate-100 rounded-full shadow-[0_0_12px_2px_#ffffff] animate-[sparkleFloat_3s_ease-in-out_infinite_0.8s]" />
-            <span className="absolute -bottom-2 left-1/3 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_1px_#ffffff] animate-[sparkleFloat_2s_ease-in-out_infinite_1.5s]" />
-            <span className="absolute bottom-1/4 -left-2 w-2 h-2 bg-zinc-200 rounded-full shadow-[0_0_10px_2px_#ffffff] animate-[sparkleFloat_3.5s_ease-in-out_infinite_0.4s]" />
-            {/* Sparkles tambahan untuk Level Max */}
-            <span className="absolute top-0 right-1/4 w-1 h-1 bg-white rounded-full shadow-[0_0_6px_#ffffff] animate-[sparkleFloat_2.2s_ease-in-out_infinite_1.1s]" />
-            <span className="absolute bottom-0 right-1/4 w-1.5 h-1.5 bg-slate-300 rounded-full shadow-[0_0_8px_#ffffff] animate-[sparkleFloat_2.8s_ease-in-out_infinite_0.7s]" />
+            <StarSparkle className="absolute -top-3 left-1/4 w-3.5 h-3.5 text-white filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.5s_ease-in-out_infinite]" />
+            
+            <StarSparkle className="absolute top-1/4 -right-3 w-4 h-4 text-slate-100 filter drop-shadow-[0_0_8px_#ffffff] animate-[starFloat_3s_ease-in-out_infinite_0.7s]" />
+            
+            <StarSparkle className="absolute -bottom-2 left-1/3 w-3 h-3 text-white filter drop-shadow-[0_0_4px_#ffffff] animate-[starFloat_2s_ease-in-out_infinite_1.4s]" />
+            
+            <StarSparkle className="absolute bottom-1/4 -left-3 w-4 h-4 text-zinc-200 filter drop-shadow-[0_0_6px_#ffffff] animate-[starFloat_3.5s_ease-in-out_infinite_0.4s]" />
+            
+            {/* Sparkle Ekstra Kecil */}
+            <StarSparkle className="absolute top-0 right-1/4 w-2 h-2 text-white filter drop-shadow-[0_0_3px_#ffffff] animate-[starFloat_2.2s_ease-in-out_infinite_1.1s]" />
+            
+            <StarSparkle className="absolute bottom-0 right-1/4 w-2.5 h-2.5 text-slate-200 filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.8s_ease-in-out_infinite_0.9s]" />
           </div>
         )}
 
-        {/* === KUMPULAN CSS KEYFRAMES LEVEL MAX === */}
+        {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
-          /* Animasi Morph Developer */
+          /* Double Ripple Rings */
+          @keyframes rippleFast {
+            0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
+            100% { transform: scale(1.35); opacity: 0; border-width: 0px; }
+          }
+          @keyframes rippleSlow {
+            0% { transform: scale(1); opacity: 0.6; border-width: 3px; }
+            100% { transform: scale(1.6); opacity: 0; border-width: 0px; }
+          }
+
+          /* Animasi Morphing Base Developer */
           @keyframes smoothMorph {
             0%, 100% { border-radius: 50%; transform: scale(1); }
             25% { border-radius: 42% 58% 65% 35% / 55% 42% 58% 45%; transform: scale(1.03, 0.97); }
@@ -157,30 +184,23 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             75% { transform: scale(1.03, 0.97); }
           }
           
-          /* Animasi Putar Dev Team (Pelan -> Ngebut -> Pelan) */
+          /* Animasi Dev Team Turbo Spin (Efek membal dan ngebut) */
           @keyframes devTeamSpin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-          }
-          
-          /* Efek Cincin Aura Berdenyut (Halo) */
-          @keyframes haloPulse {
-            0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
-            50% { transform: scale(1.25); opacity: 0; border-width: 0px; }
-            100% { transform: scale(1); opacity: 0; border-width: 0px; }
           }
 
           /* Animasi Petir Developer */
           @keyframes lightningFlash {
             0%, 85%, 89%, 93% { opacity: 0; }
-            87%, 91% { opacity: 0.6; }
+            87%, 91% { opacity: 0.7; }
           }
 
-          /* Partikel Terbang */
-          @keyframes sparkleFloat {
-            0%, 100% { transform: translateY(0px) translateX(0px) scale(0.5); opacity: 0; }
-            30% { opacity: 1; }
-            50% { transform: translateY(-15px) translateX(5px) scale(1.3); opacity: 1; }
+          /* Animasi Bintang Nitro Jatuh/Melayang */
+          @keyframes starFloat {
+            0%, 100% { transform: translateY(0px) translateX(0px) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            50% { transform: translateY(-20px) translateX(8px) scale(1.2) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 10px white); }
             80% { opacity: 0; }
           }
         `}</style>
@@ -197,12 +217,12 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     >
       {/* Background Card Developer */}
       {isDeveloper && (
-        <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_20%,#374151_40%,#FFFFFF_50%,#000000_70%,#D1D5DB_90%,#000000_100%)] opacity-95" />
+        <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
       )}
       
       {/* Background Card Dev Team */}
       {isDevTeam && (
-        <div className="absolute -inset-[150%] animate-[devTeamSpin_5s_ease-in-out_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_25%,#6366F1_50%,#FFFFFF_75%,#38BDF8_100%)] opacity-90" />
+        <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
       )}
 
       {/* Background Card Reguler */}
