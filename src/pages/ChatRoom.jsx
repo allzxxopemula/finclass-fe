@@ -18,19 +18,9 @@ export default function ChatRoom() {
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true); 
 
-  // Inisialisasi State dengan CACHE LOCAL STORAGE agar loading instan
-  const [messages, setMessages] = useState(() => {
-    try {
-      const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
-      if (savedUser?.id) {
-        const cached = localStorage.getItem(`finclass_chat_${savedUser.id}`);
-        if (cached) return JSON.parse(cached);
-      }
-    } catch (e) {}
-    return [];
-  });
-  
-  const [loading, setLoading] = useState(messages.length === 0);
+  // Murni State biasa tanpa Local Storage
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const readUser = () => {
     try {
@@ -55,15 +45,13 @@ export default function ChatRoom() {
   // Fungsi memuat pesan realtime dari database murni
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
-    if (!silent && messages.length === 0) setLoading(true);
+    if (!silent) setLoading(true);
 
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
       if (response.data.status === 'success') {
         setRoom(response.data.room);
-        const incomingMessages = response.data.messages || [];
-        setMessages(incomingMessages);
-        localStorage.setItem(`finclass_chat_${currentUserId}`, JSON.stringify(incomingMessages));
+        setMessages(response.data.messages || []);
       }
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
@@ -80,8 +68,11 @@ export default function ChatRoom() {
     }
 
     setUser(savedUser);
+    
+    // Tarik data pertama kali (loading muncul)
     loadMessages(savedUser.id, false);
 
+    // Polling background setiap 3 detik (tanpa loading visual)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
@@ -95,18 +86,18 @@ export default function ChatRoom() {
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
-  // Auto-scroll dengan jeda 100ms agar browser selesai menggambar UI dari Cache
+  // Auto-scroll ke bawah saat ada pesan baru
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
       setTimeout(() => {
         if (listRef.current) {
           listRef.current.scrollTop = listRef.current.scrollHeight;
         }
-      }, 100);
+      }, 50);
     }
-  }, [messages, loading]);
+  }, [messages]);
 
-  // Handle Kirim REALTIME MURNI (Tanpa visual palsu)
+  // Handle Kirim LOGIKA BARU: Murni tunggu server baru update UI
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -115,42 +106,40 @@ export default function ChatRoom() {
     if (now < cooldownUntil) return;
 
     const trimmedDraft = draft.trim();
+    
+    // 1. Mulai animasi muter di tombol (Teks di input TETAP ADA)
     setSending(true);
-    setCooldownUntil(Date.now() + 1000);
 
     try {
-      // 1. Langsung tembak API Database
+      // 2. Murni tunggu balasan API Database
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
         message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
-        // 2. Kosongkan input LANGSUNG setelah DB bilang sukses
+        // 3. JIKA SUKSES MASUK DATABASE:
+        // Kosongkan teks di inputan
         setDraft(''); 
         
-        // 3. Masukkan data balasan resmi dari API langsung ke UI agar tak perlu nunggu loadMessages
+        // Langsung masukkan pesan dari database ke layar
         const sentChat = response.data.chat;
         if (sentChat) {
           setMessages((prev) => {
-            // Cek agar tidak duplikat jika polling 3 detik kebetulan jalan bersamaan
             if (prev.find(m => m.id === sentChat.id)) return prev; 
-            const newMsgs = [...prev, sentChat];
-            localStorage.setItem(`finclass_chat_${user.id}`, JSON.stringify(newMsgs));
-            return newMsgs;
+            return [...prev, sentChat];
           });
           isAtBottomRef.current = true;
         }
-
-        // 4. Tarik sinkronisasi tipis-tipis di background (tanpa await agar spinner kirim langsung berhenti)
-        loadMessages(user.id, true);
+        
+        setCooldownUntil(Date.now() + 500);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
-      // 5. Matikan spinner dengan cepat!
+      // 4. Matikan animasi muter di tombol enter
       setSending(false);
     }
   };
@@ -320,6 +309,7 @@ export default function ChatRoom() {
                 className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
+                disabled={sending}
               />
 
               <button
