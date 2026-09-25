@@ -2,7 +2,7 @@ import React from 'react';
 
 export const EXCLUSIVE_USER_EMAILS = [
   {
-    // === 1. TIER DEWA (DEVELOPER) - ANIMASI SPESIAL & PREMIUM MONOCHROME ===
+    // === 1. TIER DEWA (DEVELOPER) - ULTRA SMOOTH MONOCHROME & MORPHING ===
     emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
@@ -11,16 +11,16 @@ export const EXCLUSIVE_USER_EMAILS = [
     isDeveloper: true
   },
   {
-    // === 2. TIM DEVELOPER (DEV TEAM) - KEMBALI KE WARNA BIRU/INDIGO SEBELUMNYA ===
+    // === 2. TIM DEVELOPER (DEV TEAM) - KEMBALI KE WARNA BIRU/INDIGO ===
     emails: ['team@finclass.id', 'staff@finclass.id', 'jancok123@gmail.com', 'ayubganda@gmail.com', 'ayyubrashifpamungkas@gmail.com'],
     label: 'DEV TEAM',
     accent: 'from-[#38BDF8] via-[#818CF8] to-[#6366F1]',
     chip: 'bg-gradient-to-r from-sky-400 to-indigo-500 text-white border border-white/50 font-black shadow-md shadow-blue-500/40',
     glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.8),0_0_15px_rgba(56,189,248,0.7),0_0_35px_rgba(99,102,241,0.5)]',
-    shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.8),_transparent_35%],linear-gradient(135deg,_rgba(129,140,248,0.4),_rgba(79,70,229,0.4))]'
+    shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.8),_transparent_35%),linear-gradient(135deg,_rgba(129,140,248,0.4),_rgba(79,70,229,0.4))]'
   },
   {
-    // === 3. DONATUR (SUPPORTER) - KEMBALI KE WARNA GOLD/AMBER SEBELUMNYA ===
+    // === 3. DONATUR (SUPPORTER) - KEMBALI KE WARNA GOLD/AMBER ===
     emails: ['wahyuhanindio@gmail.com'],
     label: 'DONATUR',
     accent: 'from-[#FDE047] via-[#F59E0B] to-[#EA580C]',
@@ -60,44 +60,66 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   // --- STYLE UNTUK FOTO PROFIL (AVATAR) ---
   if (variant === 'avatar') {
     return (
-      <div className={`group relative isolate overflow-hidden rounded-full p-[3px] ${preset.isDeveloper ? 'bg-transparent animate-[morphShape_4s_ease-in-out_infinite]' : `bg-gradient-to-br ${preset.accent}`} ${preset.glow} ${className} transition-all duration-300 hover:scale-105`}>
+      <div className={`group relative isolate overflow-hidden rounded-full p-[3px] ${preset.isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : `bg-gradient-to-br ${preset.accent}`} ${preset.glow} ${className} transition-all duration-300 hover:scale-105`}>
         
-        {/* Khusus Developer: Animasi Border Berputar, Kilat Petir, & Efek Monokrom */}
+        {/* Khusus Developer: Animasi Border Berputar Lembut, Kilat Petir Elegan, & Monokrom */}
         {preset.isDeveloper && (
           <>
-            <div className="absolute -inset-[150%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0deg,#FFFFFF_90deg,#6B7280_180deg,#FFFFFF_270deg,#000000_360deg)] opacity-95" />
-            <div className="absolute inset-0 bg-white opacity-0 animate-[lightningFlash_2.5s_steps(2,start)_infinite]" />
-            <div className="absolute inset-0 bg-white/30 animate-[pulse_1.5s_ease-in-out_infinite]" />
+            <div className="absolute -inset-[150%] animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0deg,#FFFFFF_90deg,#6B7280_180deg,#FFFFFF_270deg,#000000_360deg)] opacity-95" />
+            <div className="absolute inset-0 bg-white opacity-0 animate-[lightningFlash_4s_steps(2,start)_infinite]" />
+            <div className="absolute inset-0 bg-white/20 animate-[pulse_2.5s_ease-in-out_infinite]" />
           </>
         )}
 
-        {/* Untuk Role Lain: Shell diam standar tanpa animasi morphing */}
+        {/* Untuk Role Lain: Shell diam standar */}
         {!preset.isDeveloper && (
           <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
         )}
         
-        {/* WADAH FOTO PROFIL (DIJAMIN TETAP BULAT SEMPURNA, TIDAK IKUT GEPENG/OVAL) */}
+        {/* WADAH FOTO PROFIL: Menggunakan Counter-Morph agar gambar dalam tetap stabil dan bulat */}
         <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-10">
-          <div className={`w-full h-full ${preset.isDeveloper ? 'animate-[counterMorph_4s_ease-in-out_infinite]' : ''}`}>
+          <div className={`w-full h-full ${preset.isDeveloper ? 'animate-[counterSmooth_6s_ease-in-out_infinite]' : ''}`}>
             {children}
           </div>
         </div>
 
-        {/* CSS Keyframes Kustom: Border luar saja yang oval, foto di dalam tetap bulat */}
+        {/* CSS Keyframes dengan pergerakan yang sangat pelan, lembut, dan smooth */}
         <style>{`
-          @keyframes morphShape {
-            0%, 100% { border-radius: 9999px; transform: scale(1); }
-            35% { border-radius: 40% 60% 70% 30% / 50% 30% 70% 50%; transform: scale(1.03, 0.97); }
-            70% { border-radius: 60% 40% 30% 70% / 30% 70% 30% 70%; transform: scale(0.97, 1.03); }
+          @keyframes smoothMorph {
+            0%, 100% {
+              border-radius: 50%;
+              transform: scale(1);
+            }
+            25% {
+              border-radius: 42% 58% 65% 35% / 55% 42% 58% 45%;
+              transform: scale(1.03, 0.97);
+            }
+            50% {
+              border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+              transform: scale(1);
+            }
+            75% {
+              border-radius: 58% 42% 35% 65% / 45% 58% 42% 55%;
+              transform: scale(0.97, 1.03);
+            }
           }
-          @keyframes counterMorph {
-            0%, 100% { transform: scale(1); }
-            35% { transform: scale(0.97, 1.03); }
-            70% { transform: scale(1.03, 0.97); }
+          @keyframes counterSmooth {
+            0%, 100% {
+              transform: scale(1);
+            }
+            25% {
+              transform: scale(0.97, 1.03);
+            }
+            50% {
+              transform: scale(1);
+            }
+            75% {
+              transform: scale(1.03, 0.97);
+            }
           }
           @keyframes lightningFlash {
-            0%, 90%, 94%, 98% { opacity: 0; }
-            92%, 96% { opacity: 0.85; }
+            0%, 85%, 89%, 93% { opacity: 0; }
+            87%, 91% { opacity: 0.6; }
           }
         `}</style>
       </div>
@@ -108,7 +130,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   return (
     <div className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 ${preset.isDeveloper ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`} p-[2.5px] ${preset.glow} ${className} transition-all duration-300`}>
       {preset.isDeveloper ? (
-        <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0deg,#FFFFFF_90deg,#6B7280_180deg,#FFFFFF_270deg,#000000_360deg)] opacity-95" />
+        <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0deg,#FFFFFF_90deg,#6B7280_180deg,#FFFFFF_270deg,#000000_360deg)] opacity-95" />
       ) : (
         <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
       )}
