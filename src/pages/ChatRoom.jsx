@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
+import { ExclusiveProfileShell } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments } from '@fortawesome/free-solid-svg-icons';
 
@@ -122,6 +123,35 @@ export default function ChatRoom() {
     }
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    if (!user?.id || !messageId) return;
+
+    try {
+      const response = await API.delete(`/chat-room/message/${messageId}`, {
+        data: { user_id: user.id },
+      });
+
+      if (response.data.status === 'success') {
+        setMessages((currentMessages) =>
+          currentMessages.map((item) =>
+            item.id === messageId
+              ? {
+                  ...item,
+                  message: 'Pesan ini telah dihapus',
+                  deleted_at: response.data.chat?.deleted_at || new Date().toISOString(),
+                  is_deleted: true,
+                }
+              : item
+          )
+        );
+      } else {
+        alert(response.data.message || 'Gagal menghapus pesan.');
+      }
+    } catch (error) {
+      alert(error?.response?.data?.message || 'Gagal menghapus pesan.');
+    }
+  };
+
   return (
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
@@ -180,21 +210,24 @@ export default function ChatRoom() {
                 const sender = item.user || {};
                 const isMine = String(sender.id) === String(user.id);
                 const avatarUrl = getDisplayAvatar(sender);
+                const isDeleted = Boolean(item.deleted_at || item.is_deleted);
 
                 return (
                   <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex max-w-[90%] md:max-w-[75%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
                       
                       {/* Avatar Profile */}
-                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm mb-0.5">
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[10px] font-black text-slate-600 uppercase">
-                            {getDisplayName(sender).charAt(0)}
-                          </div>
-                        )}
-                      </div>
+                      <ExclusiveProfileShell email={sender.email || user?.email} variant="avatar" className="h-7 w-7 shrink-0 mb-0.5">
+                        <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm">
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[10px] font-black text-slate-600 uppercase">
+                              {getDisplayName(sender).charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                      </ExclusiveProfileShell>
 
                       {/* Konten Chat */}
                       <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
@@ -205,13 +238,34 @@ export default function ChatRoom() {
                         )}
 
                         <div className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
-                          isMine 
-                            ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm' 
-                            : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
+                          isMine
+                            ? isDeleted
+                              ? 'bg-slate-200 text-slate-600 rounded-2xl rounded-br-sm border border-slate-200'
+                              : 'bg-indigo-600 text-white rounded-2xl rounded-br-sm'
+                            : isDeleted
+                              ? 'bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl rounded-bl-sm'
+                              : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
                         }`}>
-                          
-                          <div className="text-[13px] leading-relaxed break-words whitespace-pre-wrap pr-11">
-                            {item.message}
+                          {isMine && !isDeleted && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMessage(item.id)}
+                              className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-[10px] font-black text-slate-500 shadow-sm transition hover:bg-rose-50 hover:text-rose-500"
+                              aria-label="Hapus pesan"
+                            >
+                              ×
+                            </button>
+                          )}
+
+                          <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
+                            {isDeleted ? (
+                              <span className="flex items-center gap-1.5">
+                                <span>Pesan ini telah dihapus</span>
+                                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
+                              </span>
+                            ) : (
+                              item.message
+                            )}
                           </div>
                           
                           <span className={`text-[9px] absolute bottom-1.5 right-2 leading-none font-medium ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>

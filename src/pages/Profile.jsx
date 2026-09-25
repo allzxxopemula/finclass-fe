@@ -41,6 +41,7 @@ export default function Profile() {
   const [qrisDraft, setQrisDraft] = useState('');
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [qrisError, setQrisError] = useState('');
+  const [chatUnreadCount, setChatUnreadCount] = useState(0);
 
   const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
@@ -92,7 +93,7 @@ export default function Profile() {
       setQrisDraft(savedQrisUrl);
       if (savedUser.kelas_id) {
         API.get(`/dashboard?user_id=${savedUser.id}`)
-          .then(res => {
+          .then(async (res) => {
             if (res.data.status === 'success') {
               setKelasData(res.data.kelas);
               setDashboardData(res.data);
@@ -110,6 +111,9 @@ export default function Profile() {
                 };
                 setUser(refreshedUser);
                 localStorage.setItem('user', JSON.stringify(refreshedUser));
+                await loadChatUnreadCount(refreshedUser);
+              } else {
+                await loadChatUnreadCount(savedUser);
               }
             }
           })
@@ -180,6 +184,25 @@ export default function Profile() {
     setShowQrisModal(false);
   };
 
+  const loadChatUnreadCount = async (currentUser) => {
+    if (!currentUser?.id) {
+      setChatUnreadCount(0);
+      return;
+    }
+
+    try {
+      const response = await API.get(`/chat-room?user_id=${currentUser.id}`);
+      if (response.data.status === 'success') {
+        setChatUnreadCount(Number(response.data.unread_count || 0));
+      } else {
+        setChatUnreadCount(0);
+      }
+    } catch (error) {
+      console.error('Gagal memuat unread chat:', error);
+      setChatUnreadCount(0);
+    }
+  };
+
 
   // Menghasilkan angka saja; label Rp ditambahkan sekali di tampilan.
   const formatRupiah = (number) => {
@@ -189,7 +212,7 @@ export default function Profile() {
     }).format(Number(number) || 0);
   };
 
-  const MenuItem = ({ icon, title, description, badgeColor, onClick }) => (
+  const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null }) => (
     <div 
       onClick={onClick} 
       className="group flex items-center justify-between p-3.5 bg-white hover:bg-slate-50 border border-slate-200/60 rounded-2xl cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md"
@@ -203,8 +226,15 @@ export default function Profile() {
           <p className="text-[10px] text-slate-400 font-medium">{description}</p>
         </div>
       </div>
-      <div className="w-7 h-7 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
-        <FontAwesomeIcon icon={faChevronRight} className="text-slate-300 group-hover:text-indigo-600 text-xs transition-colors" />
+      <div className="flex items-center gap-2">
+        {rightBadge !== null && rightBadge > 0 && (
+          <span className="min-w-[20px] rounded-full bg-rose-500 px-1.5 py-0.5 text-center text-[9px] font-black text-white shadow-sm">
+            {rightBadge}
+          </span>
+        )}
+        <div className="w-7 h-7 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
+          <FontAwesomeIcon icon={faChevronRight} className="text-slate-300 group-hover:text-indigo-600 text-xs transition-colors" />
+        </div>
       </div>
     </div>
   );
@@ -407,6 +437,7 @@ export default function Profile() {
                     description="Diskusi cepat antar anggota kelas"
                     badgeColor="bg-violet-50 text-violet-600"
                     onClick={() => navigate('/chat-room')}
+                    rightBadge={chatUnreadCount}
                   />
                 </>
               )}
