@@ -11,8 +11,8 @@ import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } fr
 // =========================================================
 const AutoEmbedLink = ({ url, isMine, onImageLoaded }) => {
   // 'checking' = sedang dimuat rahasia, 'is-image' = sukses gambar, 'is-link' = gagal (bukan gambar)
-  const [status, setStatus] = useState('checking'); 
-  
+  const [status, setStatus] = useState('checking');
+
   const linkStyle = isMine ? "text-indigo-100 underline font-medium break-all" : "text-blue-600 underline font-medium break-all";
 
   return (
@@ -23,22 +23,22 @@ const AutoEmbedLink = ({ url, isMine, onImageLoaded }) => {
           {url}
         </a>
       )}
-      
+
       {/* Trik anti-bug: Gambar tetap dirender agar didownload browser, tapi di-hidden pakai opacity-0 jika belum siap */}
       {status !== 'is-link' && (
         <a href={url} target="_blank" rel="noopener noreferrer" className={status === 'is-image' ? 'block mt-1 relative' : 'absolute opacity-0 w-0 h-0 overflow-hidden'}>
-          <img 
-            src={url} 
-            alt="Attachment" 
-            className="max-w-[200px] sm:max-w-[240px] w-auto h-auto max-h-[250px] rounded-[14px] object-cover bg-slate-100 shadow-sm transition-transform hover:scale-[1.02]"
+          <img
+            src={url}
+            alt="Attachment"
+            className="max-w-[220px] sm:max-w-[260px] w-auto h-auto max-h-[270px] rounded-[16px] object-cover bg-slate-100 shadow-sm transition-transform hover:scale-[1.02]"
             loading="lazy"
             onLoad={() => {
               setStatus('is-image');
               if (onImageLoaded) onImageLoaded(); // Lapor ke Bubble agar backgroundnya jadi transparan
-            }} 
+            }}
             onError={() => {
               setStatus('is-link'); // Error = Berarti ini link web biasa (misal YouTube)
-            }} 
+            }}
           />
         </a>
       )}
@@ -65,7 +65,7 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
   const sender = item.user || {};
   const avatarUrl = sender?.profile_image_url || sender?.profile_image || '';
   const isDeleted = Boolean(item.deleted_at || item.is_deleted);
-  
+
   // Deteksi apakah pesan ini CUMA berisi 1 link URL (tanpa teks lain)
   const isOnlyUrl = /^https?:\/\/[^\s]+$/i.test(item.message?.trim() || '');
   const [isImageMode, setIsImageMode] = useState(false);
@@ -96,50 +96,50 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
     bubbleClass = 'bg-transparent shadow-none p-0';
   } else {
     // Beri pb-5 agar teks tidak tertimpa jam (timestamp) di pojok bawah
-    bubbleClass += ` px-3 pt-2 pb-5 min-w-[70px] ${cornerClass}`;
+    bubbleClass += ` px-3.5 pt-2.5 pb-5 min-w-[74px] ${cornerClass}`;
   }
 
   return (
-    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1`}>
-      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
-        
-        {/* WADAH FOTO PROFIL: Di-lock lebarnya (w-7). Jika bukan urutan pertama, dibiarkan kosong jadi sejajar */}
-        <div className="flex flex-col items-center shrink-0 w-7">
+    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1.5`}>
+      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2.5 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+
+        {/* WADAH FOTO PROFIL: Di-lock lebarnya (w-9). Jika bukan urutan pertama, dibiarkan kosong jadi sejajar */}
+        <div className="flex flex-col items-center shrink-0 w-9">
           {showAvatar ? (
-            <div className={`h-7 w-7 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
-              <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
+            <div className={`h-9 w-9 rounded-full ${preset ? `p-[2px] bg-gradient-to-br ${preset.accent}` : ''}`}>
+              <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-2 border-white' : 'border border-slate-200'}`}>
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="text-[10px] font-black text-slate-600 uppercase">
+                  <div className="text-xs font-black text-slate-600 uppercase">
                     {getDisplayName(sender).charAt(0)}
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="h-7 w-7" /> // Jarak kosong pengganti foto profil
+            <div className="h-9 w-9" /> // Jarak kosong pengganti foto profil
           )}
         </div>
 
         {/* WADAH KONTEN CHAT */}
-        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.25rem)]`}>
-          
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.75rem)]`}>
+
           {/* NAMA (Hanya muncul jika profilnya muncul dan bukan diri sendiri) */}
           {showAvatar && !isMine && (
-            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
+            <span className="text-[11px] font-bold text-slate-500 mb-1 ml-1">
               {getDisplayName(sender)}
             </span>
           )}
 
-          <div 
+          <div
             onClick={() => {
               if (isMine && !isDeleted) setMessageToDelete(item);
             }}
             className={`relative max-w-full cursor-pointer active:scale-[0.98] transition-all ${bubbleClass}`}
           >
-            
-            <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : ''}`}>
+
+            <div className={`text-[13.5px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : ''}`}>
               {isDeleted ? (
                 <span className="flex items-center gap-1.5">
                   <span className="italic">Pesan ini telah dihapus</span>
@@ -149,10 +149,10 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
                 renderMessageWithImages(item.message, isMine, handleImageLoaded)
               )}
             </div>
-            
+
             {/* JAM / TIMESTAMP */}
             <span className={`text-[9px] absolute font-medium z-10 ${
-              isImageMode 
+              isImageMode
                 ? 'bottom-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm' // Style Jam di atas Gambar
                 : `bottom-1.5 right-2 ${isMine ? 'text-indigo-200' : 'text-slate-400'}` // Style Jam di dalam Bubble teks
             }`}>
@@ -175,9 +175,14 @@ export default function ChatRoom() {
   const [sending, setSending] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [messageToDelete, setMessageToDelete] = useState(null);
-  
+
   const listRef = useRef(null);
-  const isAtBottomRef = useRef(true); 
+  const isAtBottomRef = useRef(true);
+
+  // Penanda urutan request GET pesan. Dipakai untuk membuang respons "basi"
+  // (mis. hasil polling lama yang baru selesai belakangan) supaya tidak
+  // menimpa/menghapus pesan yang baru saja dikirim atau dihapus secara lokal.
+  const requestIdRef = useRef(0);
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,7 +196,7 @@ export default function ChatRoom() {
   };
 
   const getDisplayName = (member) => member?.name || member?.username || 'Anggota';
-  
+
   const formatTime = (value) => {
     if (!value) return '';
     try {
@@ -207,18 +212,28 @@ export default function ChatRoom() {
       API.post('/chat-room/read', {
         user_id: currentUserId,
         room_id: currentRoomId,
-      }).catch(() => {}); 
+      }).catch(() => {});
     } catch (e) {}
   };
 
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
-    
+
     // Hanya nampilin loading penuh di tengah jika belum ada chat sama sekali
     if (!silent && messages.length === 0) setLoading(true);
 
+    // Tandai request ini sebagai yang paling baru
+    const requestId = ++requestIdRef.current;
+
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
+
+      // Kalau sudah ada request/aksi lain yang lebih baru (kirim/hapus pesan,
+      // atau polling berikutnya), buang hasil ini agar tidak menimpa state
+      // dengan data yang sudah tidak up-to-date lagi (ini penyebab pesan
+      // sempat "hilang" lalu muncul lagi).
+      if (requestId !== requestIdRef.current) return;
+
       if (response.data.status === 'success') {
         const nextRoom = response.data.room;
         setRoom(nextRoom);
@@ -231,7 +246,7 @@ export default function ChatRoom() {
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   };
 
@@ -280,7 +295,7 @@ export default function ChatRoom() {
     if (now < cooldownUntil) return;
 
     const trimmedDraft = draft.trim();
-    
+
     // 1. Loading mulai, teks input TIDAK dikosongkan dulu
     setSending(true);
 
@@ -293,18 +308,23 @@ export default function ChatRoom() {
 
       if (response.data.status === 'success') {
         // 3. Jika DB sukses nyimpan, KOSONGKAN input
-        setDraft(''); 
-        
+        setDraft('');
+
+        // Batalkan/abaikan hasil polling lama yang mungkin masih berjalan di
+        // belakang layar, supaya datanya yang sudah basi tidak menimpa
+        // pesan yang baru saja berhasil terkirim ini.
+        requestIdRef.current += 1;
+
         const sentChat = response.data.chat;
         if (sentChat) {
           setMessages((prev) => {
             // Cek agar tidak duplikat dengan hasil polling timer
-            if (prev.find(m => m.id === sentChat.id)) return prev; 
+            if (prev.find((m) => m.id === sentChat.id)) return prev;
             return [...prev, sentChat];
           });
           isAtBottomRef.current = true;
         }
-        
+
         setCooldownUntil(Date.now() + 500);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
@@ -326,6 +346,11 @@ export default function ChatRoom() {
       });
 
       if (response.data.status === 'success') {
+        // Sama seperti saat kirim: abaikan hasil polling lama yang mungkin
+        // masih berjalan, supaya tidak "menghidupkan lagi" pesan yang baru
+        // saja dihapus secara lokal.
+        requestIdRef.current += 1;
+
         setMessages((currentMessages) =>
           currentMessages.map((item) =>
             item.id === messageId
@@ -350,7 +375,7 @@ export default function ChatRoom() {
   return (
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
-        
+
         <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
@@ -388,10 +413,10 @@ export default function ChatRoom() {
             </div>
           </div>
         ) : (
-          <div 
-            ref={listRef} 
+          <div
+            ref={listRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto scroll-smooth pb-20 pr-1" 
+            className="flex-1 overflow-y-auto scroll-smooth pb-20 pr-1"
           >
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
@@ -405,7 +430,7 @@ export default function ChatRoom() {
                 const sender = item.user || {};
                 const isMine = String(sender.id) === String(user.id);
                 const preset = getExclusiveUserPreset(sender.email || user?.email);
-                
+
                 // LOGIKA GROUPING AVATAR
                 const prevMessage = messages[index - 1];
                 const prevSender = prevMessage?.user || {};
@@ -414,7 +439,7 @@ export default function ChatRoom() {
                 const showAvatar = !isSameUserAsPrev;
 
                 return (
-                  <MessageItem 
+                  <MessageItem
                     key={item.id}
                     item={item}
                     isMine={isMine}
@@ -443,7 +468,7 @@ export default function ChatRoom() {
                 className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
-                disabled={sending} 
+                disabled={sending}
               />
 
               <button
@@ -464,13 +489,13 @@ export default function ChatRoom() {
 
       {messageToDelete && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-          <div 
-            className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl animate-[slide-up_0.2s_ease-out]" 
+          <div
+            className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl animate-[slide-up_0.2s_ease-out]"
             style={{ animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
             <h3 className="text-center text-sm font-black text-slate-800 mb-5">Pilihan Pesan</h3>
-            
+
             <div className="space-y-3">
               <button
                 onClick={() => handleDeleteMessage(messageToDelete.id)}
@@ -479,7 +504,7 @@ export default function ChatRoom() {
                 <FontAwesomeIcon icon={faTrash} />
                 Hapus Pesan Ini
               </button>
-              
+
               <button
                 onClick={() => setMessageToDelete(null)}
                 className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
@@ -489,7 +514,7 @@ export default function ChatRoom() {
               </button>
             </div>
           </div>
-          
+
           <style>{`
             @keyframes slideUp {
               from { transform: translateY(100%); opacity: 0; }
