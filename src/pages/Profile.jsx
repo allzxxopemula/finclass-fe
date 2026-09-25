@@ -91,9 +91,10 @@ export default function Profile() {
       const savedQrisUrl = localStorage.getItem(getQrisStorageKey(mergedUser)) || '';
       setQrisUrl(savedQrisUrl);
       setQrisDraft(savedQrisUrl);
+      
       if (savedUser.kelas_id) {
         API.get(`/dashboard?user_id=${savedUser.id}`)
-          .then(async (res) => {
+          .then((res) => {
             if (res.data.status === 'success') {
               setKelasData(res.data.kelas);
               setDashboardData(res.data);
@@ -111,9 +112,11 @@ export default function Profile() {
                 };
                 setUser(refreshedUser);
                 localStorage.setItem('user', JSON.stringify(refreshedUser));
-                await loadChatUnreadCount(refreshedUser);
+                
+                // LOGIC FIX: Jalankan chat unread di background tanpa "await", agar skeleton langsung hilang!
+                loadChatUnreadCount(refreshedUser); 
               } else {
-                await loadChatUnreadCount(savedUser);
+                loadChatUnreadCount(savedUser); 
               }
             }
           })
@@ -203,8 +206,6 @@ export default function Profile() {
     }
   };
 
-
-  // Menghasilkan angka saja; label Rp ditambahkan sekali di tampilan.
   const formatRupiah = (number) => {
     return new Intl.NumberFormat('id-ID', {
       minimumFractionDigits: 0,
@@ -242,7 +243,7 @@ export default function Profile() {
   return (
     <MainLayout>
       <div className="space-y-4 pb-2">
-        {/* === HEADER PROFESSIONAL MODERN (LAYOUT HORIZONTAL) === */}
+        {/* === HEADER PROFESSIONAL MODERN === */}
         <div className="bg-indigo-600 pt-5 pb-16 px-5 -mx-4 -mt-4 rounded-b-[36px] relative shadow-xl">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-black text-lg tracking-tight">Profil Saya</h2>
@@ -251,16 +252,16 @@ export default function Profile() {
             </span>
           </div>
           
-          {/* User Info Container: Avatar Kiri, Nama & Info Kanan */}
           <div className="flex items-center gap-4">
-            <div className="relative shrink-0">
-              <ExclusiveProfileShell email={user?.email} variant="avatar" className="w-20 h-20 bg-white/20 p-1 rounded-full shadow-xl backdrop-blur-sm">
-                <div className="w-full h-full bg-white/10 rounded-full">
+            <div className="relative shrink-0 z-10">
+              {/* FIX GLOWING PROFILE: padding bawaan dihapus agar border glowing terlihat sempurna */}
+              <ExclusiveProfileShell email={user?.email} variant="avatar" className="w-20 h-20 shadow-2xl">
+                <div className="w-full h-full bg-slate-800 rounded-full overflow-hidden border-[1.5px] border-white/40">
                   {userAvatar ? (
                     <img
                       src={userAvatar}
                       alt={displayUsername || 'Foto profil'}
-                      className="w-full h-full rounded-full object-cover border border-white/20 shadow-inner"
+                      className="w-full h-full object-cover"
                       onError={(event) => {
                         event.currentTarget.style.display = 'none';
                         const fallback = event.currentTarget.nextSibling;
@@ -268,20 +269,20 @@ export default function Profile() {
                       }}
                     />
                   ) : null}
-                  <div className={`w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black border border-white/20 shadow-inner ${userAvatar ? 'hidden' : 'flex'}`}>
+                  <div className={`w-full h-full bg-slate-800 flex items-center justify-center text-white text-2xl font-black ${userAvatar ? 'hidden' : 'flex'}`}>
                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
                 </div>
               </ExclusiveProfileShell>
 
               {kelasData && (
-                <div className="absolute -bottom-0.5 -right-0.5 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-indigo-600 shadow-md">
+                <div className="absolute -bottom-0.5 -right-0.5 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-indigo-600 shadow-md z-20">
                   <FontAwesomeIcon icon={faCircleCheck} className="text-[9px]" />
                 </div>
               )}
             </div>
 
-            <div className="text-left space-y-1.5 overflow-hidden">
+            <div className="text-left space-y-1.5 overflow-hidden z-10">
               <h3 className="text-white font-black text-xl tracking-tight truncate leading-snug">
                 {user?.name || 'Pengguna'}
               </h3>

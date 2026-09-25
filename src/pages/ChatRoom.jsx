@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell } from '../components/ExclusiveUserBorder';
+import { getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPaperPlane, faSpinner, faComments } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export default function ChatRoom() {
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ export default function ChatRoom() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
+  
+  // State untuk popup hapus pesan
+  const [messageToDelete, setMessageToDelete] = useState(null);
   
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true); 
@@ -144,6 +147,7 @@ export default function ChatRoom() {
               : item
           )
         );
+        setMessageToDelete(null); // Tutup modal setelah sukses
       } else {
         alert(response.data.message || 'Gagal menghapus pesan.');
       }
@@ -156,7 +160,7 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
         
-        {/* Header Kelas - SUDAH FIX STICKY DI ATAS */}
+        {/* Header Kelas - STICKY */}
         <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
@@ -211,23 +215,26 @@ export default function ChatRoom() {
                 const isMine = String(sender.id) === String(user.id);
                 const avatarUrl = getDisplayAvatar(sender);
                 const isDeleted = Boolean(item.deleted_at || item.is_deleted);
+                
+                // Cek apakah punya preset khusus (Donatur/Developer)
+                const preset = getExclusiveUserPreset(sender.email || user?.email);
 
                 return (
                   <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex max-w-[90%] md:max-w-[75%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
                       
-                      {/* Avatar Profile */}
-                      <ExclusiveProfileShell email={sender.email || user?.email} variant="avatar" className="h-7 w-7 shrink-0 mb-0.5">
-                        <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-sm">
+                      {/* Avatar Profile (Tanpa Glowing, Cukup Border) */}
+                      <div className={`h-7 w-7 shrink-0 mb-0.5 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
+                        <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
                           {avatarUrl ? (
                             <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[10px] font-black text-slate-600 uppercase">
+                            <div className="text-[10px] font-black text-slate-600 uppercase">
                               {getDisplayName(sender).charAt(0)}
                             </div>
                           )}
                         </div>
-                      </ExclusiveProfileShell>
+                      </div>
 
                       {/* Konten Chat */}
                       <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
@@ -237,30 +244,25 @@ export default function ChatRoom() {
                           </span>
                         )}
 
-                        <div className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
+                        <div 
+                          onClick={() => {
+                            // Munculkan popup Hapus HANYA jika chat milik kita dan belum dihapus
+                            if (isMine && !isDeleted) setMessageToDelete(item);
+                          }}
+                          className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
                           isMine
                             ? isDeleted
                               ? 'bg-slate-200 text-slate-600 rounded-2xl rounded-br-sm border border-slate-200'
-                              : 'bg-indigo-600 text-white rounded-2xl rounded-br-sm'
+                              : 'bg-indigo-600 text-white rounded-2xl rounded-br-sm cursor-pointer active:scale-[0.97] transition-transform' // Efek klik
                             : isDeleted
                               ? 'bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl rounded-bl-sm'
                               : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
                         }`}>
-                          {isMine && !isDeleted && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteMessage(item.id)}
-                              className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-[10px] font-black text-slate-500 shadow-sm transition hover:bg-rose-50 hover:text-rose-500"
-                              aria-label="Hapus pesan"
-                            >
-                              ×
-                            </button>
-                          )}
-
+                          
                           <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
                             {isDeleted ? (
                               <span className="flex items-center gap-1.5">
-                                <span>Pesan ini telah dihapus</span>
+                                <span className="italic">Pesan ini telah dihapus</span>
                                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
                               </span>
                             ) : (
@@ -312,6 +314,50 @@ export default function ChatRoom() {
           </div>
         </div>
       )}
+
+      {/* ========================================= */}
+      {/* MODAL ACTION SHEET: HAPUS PESAN           */}
+      {/* ========================================= */}
+      {messageToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+          <div 
+            className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl animate-[slide-up_0.2s_ease-out]" 
+            style={{ animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          >
+            {/* Indikator Swipe (Hiasan) */}
+            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
+            
+            <h3 className="text-center text-sm font-black text-slate-800 mb-5">Pilihan Pesan</h3>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => handleDeleteMessage(messageToDelete.id)}
+                className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+                Hapus Pesan Ini
+              </button>
+              
+              <button
+                onClick={() => setMessageToDelete(null)}
+                className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+                Batal
+              </button>
+            </div>
+          </div>
+          
+          {/* Keyframes inline agar animasi slide-up jalan mulus */}
+          <style>{`
+            @keyframes slideUp {
+              from { transform: translateY(100%); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+        </div>
+      )}
+
     </MainLayout>
   );
 }
