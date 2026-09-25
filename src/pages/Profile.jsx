@@ -213,7 +213,15 @@ export default function Profile() {
     }).format(Number(number) || 0);
   };
 
-  const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null, cardClassName = '' }) => (
+  const getChatUnreadLabel = (count) => {
+    if (!count || count <= 0) {
+      return 'Pesan telah terbaca semua';
+    }
+
+    return count === 1 ? '1 pesan belum terbaca' : `${count} pesan belum terbaca`;
+  };
+
+  const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null, rightText = null, cardClassName = '' }) => (
     <div 
       onClick={onClick} 
       className={`group flex items-center justify-between p-3.5 bg-white hover:bg-slate-50 border border-slate-200/60 rounded-2xl cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md ${cardClassName}`}
@@ -228,10 +236,16 @@ export default function Profile() {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        {rightBadge !== null && rightBadge > 0 && (
-          <span className="min-w-[20px] rounded-full bg-rose-500 px-1.5 py-0.5 text-center text-[9px] font-black text-white shadow-sm">
-            {rightBadge}
+        {rightText ? (
+          <span className={`whitespace-nowrap rounded-full px-2 py-1 text-[8px] font-black tracking-[0.08em] ${rightBadge > 0 ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`}>
+            {rightText}
           </span>
+        ) : (
+          rightBadge !== null && rightBadge > 0 && (
+            <span className="min-w-[20px] rounded-full bg-rose-500 px-1.5 py-0.5 text-center text-[9px] font-black text-white shadow-sm">
+              {rightBadge}
+            </span>
+          )
         )}
         <div className="w-7 h-7 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
           <FontAwesomeIcon icon={faChevronRight} className="text-slate-300 group-hover:text-indigo-600 text-xs transition-colors" />
@@ -439,6 +453,7 @@ export default function Profile() {
                     badgeColor="bg-violet-50 text-violet-600"
                     onClick={() => navigate('/chat-room')}
                     rightBadge={chatUnreadCount}
+                    rightText={getChatUnreadLabel(chatUnreadCount)}
                     cardClassName="border-violet-200/80 bg-gradient-to-r from-violet-50/80 via-white to-indigo-50/80 shadow-[0_0_0_1px_rgba(167,139,250,0.2),0_14px_32px_rgba(124,58,237,0.12)] hover:border-violet-300 hover:shadow-[0_0_0_1px_rgba(167,139,250,0.28),0_16px_36px_rgba(124,58,237,0.18)]"
                   />
                 </>

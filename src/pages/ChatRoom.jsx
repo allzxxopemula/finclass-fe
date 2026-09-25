@@ -43,6 +43,19 @@ export default function ChatRoom() {
   };
 
   // Fungsi memuat pesan realtime dari database murni
+  const markMessagesAsRead = async (currentUserId = user?.id, currentRoomId = room?.id) => {
+    if (!currentUserId || !currentRoomId) return;
+
+    try {
+      await API.post('/chat-room/read', {
+        user_id: currentUserId,
+        room_id: currentRoomId,
+      });
+    } catch (error) {
+      console.error('Gagal menandai chat sebagai terbaca:', error);
+    }
+  };
+
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
     if (!silent) setLoading(true);
@@ -50,8 +63,13 @@ export default function ChatRoom() {
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
       if (response.data.status === 'success') {
-        setRoom(response.data.room);
+        const nextRoom = response.data.room;
+        setRoom(nextRoom);
         setMessages(response.data.messages || []);
+
+        if (!silent && nextRoom?.id) {
+          await markMessagesAsRead(currentUserId, nextRoom.id);
+        }
       }
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
