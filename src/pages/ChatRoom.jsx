@@ -10,24 +10,20 @@ import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } fr
 // KOMPONEN CERDAS: AUTO-EMBED LINK JADI GAMBAR ALA DISCORD
 // =========================================================
 const AutoEmbedLink = ({ url, isMine }) => {
-  // Cek apakah url secara eksplisit punya ekstensi gambar
+  // Hanya deteksi ekstensi umum gambar agar browser tidak error
   const isKnownImage = /\.(jpeg|jpg|gif|png|svg|webp)(\?.*)?$/i.test(url);
-  
-  // Status: 'checking', 'is-image', 'is-link'
   const [status, setStatus] = useState(isKnownImage ? 'is-image' : 'checking');
   
   const linkStyle = isMine ? "text-indigo-100 underline font-bold break-all" : "text-blue-600 underline font-bold break-all";
 
   return (
     <span className="inline-block max-w-full align-bottom">
-      {/* Tampilkan teks URL HANYA JIKA statusnya BUKAN gambar */}
       {status !== 'is-image' && (
         <a href={url} target="_blank" rel="noopener noreferrer" className={linkStyle}>
           {url}
         </a>
       )}
       
-      {/* Coba muat gambar. Kalau sukses, teks link di atas akan disembunyikan. */}
       <span className={status === 'is-image' ? 'block mt-1' : 'hidden'}>
         <a href={url} target="_blank" rel="noopener noreferrer" className="block">
           <img 
@@ -35,8 +31,8 @@ const AutoEmbedLink = ({ url, isMine }) => {
             alt="Attachment" 
             className="max-w-full h-auto max-h-60 rounded-xl object-contain border border-slate-200/30 bg-black/5 shadow-sm transition-transform hover:scale-[1.02]"
             loading="lazy"
-            onLoad={() => setStatus('is-image')} // BEGITU GAMBAR MUNCUL, URL TEKS HILANG
-            onError={() => setStatus('is-link')} // KALAU BUKAN GAMBAR MURNI (MISAL PIN.IT WEB), BALIK KE TEKS LINK
+            onLoad={() => setStatus('is-image')} 
+            onError={() => setStatus('is-link')} 
           />
         </a>
       </span>
@@ -46,15 +42,12 @@ const AutoEmbedLink = ({ url, isMine }) => {
 
 const renderMessageWithImages = (text, isMine) => {
   if (!text) return null;
-  // Pisahkan teks berdasarkan spasi/enter tanpa menghilangkan spasinya
   const parts = text.split(/(\s+)/);
 
   return parts.map((part, index) => {
-    // Kalau potongan teks ini adalah URL, masukkan ke komponen cerdas kita
     if (/^https?:\/\/[^\s]+/i.test(part)) {
       return <AutoEmbedLink key={index} url={part} isMine={isMine} />;
     }
-    // Selain URL, tampilkan sebagai teks biasa
     return <span key={index}>{part}</span>;
   });
 };
@@ -72,7 +65,9 @@ export default function ChatRoom() {
   const isAtBottomRef = useRef(true); 
 
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  // Loading awal hanya true saat pertama dirender
+  const [loading, setLoading] = useState(true); 
 
   const readUser = () => {
     try {
@@ -96,35 +91,40 @@ export default function ChatRoom() {
 
   const markMessagesAsRead = async (currentUserId = user?.id, currentRoomId = room?.id) => {
     if (!currentUserId || !currentRoomId) return;
-
     try {
-      await API.post('/chat-room/read', {
+      // Tidak di-await agar tidak menghambat flow loading chat utama
+      API.post('/chat-room/read', {
         user_id: currentUserId,
         room_id: currentRoomId,
-      });
-    } catch (error) {
-      console.error('Gagal menandai chat sebagai terbaca:', error);
-    }
+      }).catch(() => {}); // catch diredam agar console bersih
+    } catch (e) {}
   };
 
+  // Fungsi loadMessages dioptimasi untuk mengurangi beban spinner
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
-    if (!silent) setLoading(true);
+    
+    // Hanya tampilkan loading besar kalau messages benar-benar kosong 
+    // DAN ini bukan silent update (background polling)
+    if (!silent && messages.length === 0) setLoading(true);
 
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
       if (response.data.status === 'success') {
         const nextRoom = response.data.room;
         setRoom(nextRoom);
-        setMessages(response.data.messages || []);
+        
+        const incomingMessages = response.data.messages || [];
+        setMessages(incomingMessages);
 
         if (!silent && nextRoom?.id) {
-          await markMessagesAsRead(currentUserId, nextRoom.id);
+          markMessagesAsRead(currentUserId, nextRoom.id);
         }
       }
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
     } finally {
+      // Selalu matikan loading setelah request selesai
       setLoading(false);
     }
   };
@@ -138,16 +138,17 @@ export default function ChatRoom() {
 
     setUser(savedUser);
     
-    // Tarik data pertama kali (loading muncul)
+    // Panggil pertama kali saat komponen mount
     loadMessages(savedUser.id, false);
 
-    // Polling background setiap 3 detik (tanpa loading visual)
+    // Polling background setiap 3 detik (wajib silent = true)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
 
     return () => window.clearInterval(timer);
-  }, [navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]); // navigate diset sebagai dependensi aman
 
   const handleScroll = () => {
     if (!listRef.current) return;
@@ -155,9 +156,9 @@ export default function ChatRoom() {
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
-  // Auto-scroll ke bawah saat ada pesan baru
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
+      // Timeout 50ms untuk memberi ruang render React
       setTimeout(() => {
         if (listRef.current) {
           listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -166,7 +167,7 @@ export default function ChatRoom() {
     }
   }, [messages]);
 
-  // Handle Kirim REALTIME MURNI
+  // Handle Kirim: MURNI TUNGGU SERVER
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -176,33 +177,39 @@ export default function ChatRoom() {
 
     const trimmedDraft = draft.trim();
     
+    // 1. Tampilkan spinner di tombol (teks di input tetep ada, NO FLICKER)
     setSending(true);
 
     try {
+      // 2. Murni POST ke database
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
         message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
+        // 3. Sukses masuk DB -> Kosongkan input text
         setDraft(''); 
         
+        // 4. Langsung tambahkan ke list messages UI agar seketika muncul di layar
         const sentChat = response.data.chat;
         if (sentChat) {
           setMessages((prev) => {
+            // Hindari duplikat jika polling 3 detikan keburu menarik pesan yang sama
             if (prev.find(m => m.id === sentChat.id)) return prev; 
             return [...prev, sentChat];
           });
-          isAtBottomRef.current = true;
+          isAtBottomRef.current = true; // Paksa auto scroll kebawah
         }
         
-        setCooldownUntil(Date.now() + 500);
+        setCooldownUntil(Date.now() + 500); // Cooldown spam
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
+      // 5. Matikan spinner tombol kirim (baik sukses maupun error)
       setSending(false);
     }
   };
@@ -241,6 +248,7 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
         
+        {/* === HEADER === */}
         <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
@@ -263,6 +271,8 @@ export default function ChatRoom() {
           </div>
         </div>
 
+        {/* === LOADING SPINNER === */}
+        {/* Hanya muncul kalau beneran loading DAN belum ada pesan sama sekali */}
         {loading && messages.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-slate-400">
@@ -361,6 +371,7 @@ export default function ChatRoom() {
         )}
       </div>
 
+      {/* === INPUT CHAT === */}
       {user?.kelas_id && (
         <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-slate-50/95 backdrop-blur-md border-t border-slate-200/60 px-4 py-2">
           <div className="max-w-4xl mx-auto">
@@ -373,7 +384,7 @@ export default function ChatRoom() {
                 className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
-                disabled={sending}
+                disabled={sending} // Matikan input saat sedang mengirim
               />
 
               <button
@@ -381,6 +392,7 @@ export default function ChatRoom() {
                 disabled={sending || !draft.trim()}
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
               >
+                {/* Efek spinner murni hanya muncul saat sending = true */}
                 {sending ? (
                   <FontAwesomeIcon icon={faSpinner} spin className="text-lg" />
                 ) : (
@@ -392,6 +404,7 @@ export default function ChatRoom() {
         </div>
       )}
 
+      {/* === MODAL DELETE === */}
       {messageToDelete && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
           <div 
