@@ -7,32 +7,38 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 // =========================================================
-// KOMPONEN CERDAS: AUTO-EMBED LINK JADI GAMBAR ALA DISCORD
+// KOMPONEN CERDAS: AUTO-EMBED LINK JADI GAMBAR
 // =========================================================
-const AutoEmbedLink = ({ url, isMine }) => {
-  // Hanya deteksi ekstensi umum gambar agar browser tidak error
-  const isKnownImage = /\.(jpeg|jpg|gif|png|svg|webp)(\?.*)?$/i.test(url);
-  const [status, setStatus] = useState(isKnownImage ? 'is-image' : 'checking');
+const AutoEmbedLink = ({ url, isMine, onImageLoaded }) => {
+  // Semua URL akan diuji sebagai gambar terlebih dahulu secara diam-diam
+  const [status, setStatus] = useState('checking'); // 'checking', 'is-image', 'is-link'
   
-  const linkStyle = isMine ? "text-indigo-100 underline font-bold break-all" : "text-blue-600 underline font-bold break-all";
+  const linkStyle = isMine ? "text-indigo-100 underline font-medium break-all" : "text-blue-600 underline font-medium break-all";
 
   return (
-    <span className="inline-block max-w-full align-bottom">
+    <span className="inline-block max-w-full align-top">
+      {/* Tampilkan teks URL JIKA ternyata dia bukan gambar atau masih dicek */}
       {status !== 'is-image' && (
         <a href={url} target="_blank" rel="noopener noreferrer" className={linkStyle}>
           {url}
         </a>
       )}
       
+      {/* Coba muat gambar. Kalau sukses, teks link di atas otomatis disembunyikan. */}
       <span className={status === 'is-image' ? 'block mt-1' : 'hidden'}>
-        <a href={url} target="_blank" rel="noopener noreferrer" className="block">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block relative">
           <img 
             src={url} 
             alt="Attachment" 
-            className="max-w-full h-auto max-h-60 rounded-xl object-contain border border-slate-200/30 bg-black/5 shadow-sm transition-transform hover:scale-[1.02]"
+            className="max-w-[200px] sm:max-w-[240px] h-auto max-h-[250px] rounded-[16px] object-cover bg-slate-100 shadow-sm transition-transform hover:scale-[1.02]"
             loading="lazy"
-            onLoad={() => setStatus('is-image')} 
-            onError={() => setStatus('is-link')} 
+            onLoad={() => {
+              setStatus('is-image'); // Sukses dimuat sebagai gambar
+              if (onImageLoaded) onImageLoaded(); // Beritahu Bubble Utama untuk transparan
+            }} 
+            onError={() => {
+              setStatus('is-link'); // Error dimuat (Bukan gambar/web HTML biasa), balik ke link teks
+            }} 
           />
         </a>
       </span>
@@ -40,16 +46,124 @@ const AutoEmbedLink = ({ url, isMine }) => {
   );
 };
 
-const renderMessageWithImages = (text, isMine) => {
+const renderMessageWithImages = (text, isMine, onImageLoaded) => {
   if (!text) return null;
   const parts = text.split(/(\s+)/);
 
   return parts.map((part, index) => {
     if (/^https?:\/\/[^\s]+/i.test(part)) {
-      return <AutoEmbedLink key={index} url={part} isMine={isMine} />;
+      return <AutoEmbedLink key={index} url={part} isMine={isMine} onImageLoaded={onImageLoaded} />;
     }
     return <span key={index}>{part}</span>;
   });
+};
+
+// =========================================================
+// KOMPONEN RENDER ITEM PESAN (MENANGANI BUBBLE & AVATAR)
+// =========================================================
+const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatTime, setMessageToDelete }) => {
+  const sender = item.user || {};
+  const avatarUrl = sender?.profile_image_url || sender?.profile_image || '';
+  const isDeleted = Boolean(item.deleted_at || item.is_deleted);
+  
+  // Cek apakah pesan INI isinya HANYA 1 buah URL (Tanpa teks lain)
+  const isOnlyUrl = /^https?:\/\/[^\s]+$/i.test(item.message?.trim() || '');
+  const [isImageMode, setIsImageMode] = useState(false);
+
+  const handleImageLoaded = () => {
+    // Jika isinya hanya URL dan sukses dimuat sebagai gambar, aktifkan Image Mode (Tanpa Bubble)
+    if (isOnlyUrl) {
+      setIsImageMode(true);
+    }
+  };
+
+  // Logika Sudut Melengkung (Jika digabung, lengkungan nyambung)
+  let cornerClass = 'rounded-2xl';
+  if (showAvatar) {
+    cornerClass = isMine ? 'rounded-2xl rounded-tr-[4px]' : 'rounded-2xl rounded-tl-[4px]';
+  }
+
+  // Logika Styling Bubble
+  let bubbleClass = isMine
+    ? isDeleted
+      ? 'bg-slate-200 text-slate-600 border border-slate-200'
+      : 'bg-indigo-600 text-white shadow-sm'
+    : isDeleted
+      ? 'bg-slate-100 border border-slate-200 text-slate-500'
+      : 'bg-white border border-slate-200 text-slate-800 shadow-sm';
+
+  // Transparankan Bubble jika ini HANYA GAMBAR
+  if (isImageMode && !isDeleted) {
+    bubbleClass = 'bg-transparent shadow-none p-0';
+  } else {
+    bubbleClass += ` px-3 pt-2 pb-1.5 ${cornerClass}`;
+  }
+
+  return (
+    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
+      {/* DIUBAH: items-start agar Profile ada di ATAS chat, bukan di bawah */}
+      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+        
+        {/* WADAH AVATAR: Tetap memakan ruang (w-7) agar chat lurus, walau avatarnya disembunyikan */}
+        <div className="flex flex-col items-center shrink-0 w-7 mt-0.5">
+          {showAvatar && (
+            <div className={`h-7 w-7 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
+              <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="text-[10px] font-black text-slate-600 uppercase">
+                    {getDisplayName(sender).charAt(0)}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* WADAH CHAT */}
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.5rem)]`}>
+          
+          {/* NAMA PENGIRIM: Hanya muncul jika Avatarnya muncul */}
+          {showAvatar && !isMine && (
+            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
+              {getDisplayName(sender)}
+            </span>
+          )}
+
+          <div 
+            onClick={() => {
+              if (isMine && !isDeleted) setMessageToDelete(item);
+            }}
+            className={`relative max-w-full cursor-pointer active:scale-[0.98] transition-all ${bubbleClass}`}
+          >
+            
+            <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : (isImageMode ? '' : 'pr-11')} pt-0.5`}>
+              {isDeleted ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="italic">Pesan ini telah dihapus</span>
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
+                </span>
+              ) : (
+                // Panggil render teks & embed gambar
+                renderMessageWithImages(item.message, isMine, handleImageLoaded)
+              )}
+            </div>
+            
+            {/* LOGIKA JAM (TIMESTAMP) */}
+            <span className={`text-[9px] absolute font-medium ${
+              isImageMode 
+                ? 'bottom-2 right-2 bg-black/50 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm' // Di atas foto langsung
+                : `bottom-1.5 right-2 ${isMine ? 'text-indigo-200' : 'text-slate-400'}` // Di dalam bubble chat
+            }`}>
+              {formatTime(item.created_at)}
+            </span>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default function ChatRoom() {
@@ -65,9 +179,7 @@ export default function ChatRoom() {
   const isAtBottomRef = useRef(true); 
 
   const [messages, setMessages] = useState([]);
-  
-  // Loading awal hanya true saat pertama dirender
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const readUser = () => {
     try {
@@ -78,7 +190,6 @@ export default function ChatRoom() {
   };
 
   const getDisplayName = (member) => member?.name || member?.username || 'Anggota';
-  const getDisplayAvatar = (member) => member?.profile_image_url || member?.profile_image || '';
   
   const formatTime = (value) => {
     if (!value) return '';
@@ -92,20 +203,17 @@ export default function ChatRoom() {
   const markMessagesAsRead = async (currentUserId = user?.id, currentRoomId = room?.id) => {
     if (!currentUserId || !currentRoomId) return;
     try {
-      // Tidak di-await agar tidak menghambat flow loading chat utama
       API.post('/chat-room/read', {
         user_id: currentUserId,
         room_id: currentRoomId,
-      }).catch(() => {}); // catch diredam agar console bersih
+      }).catch(() => {}); 
     } catch (e) {}
   };
 
-  // Fungsi loadMessages dioptimasi untuk mengurangi beban spinner
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
     
-    // Hanya tampilkan loading besar kalau messages benar-benar kosong 
-    // DAN ini bukan silent update (background polling)
+    // Tampilkan loading HANYA jika list pesan masih 0 (kosong)
     if (!silent && messages.length === 0) setLoading(true);
 
     try {
@@ -113,9 +221,7 @@ export default function ChatRoom() {
       if (response.data.status === 'success') {
         const nextRoom = response.data.room;
         setRoom(nextRoom);
-        
-        const incomingMessages = response.data.messages || [];
-        setMessages(incomingMessages);
+        setMessages(response.data.messages || []);
 
         if (!silent && nextRoom?.id) {
           markMessagesAsRead(currentUserId, nextRoom.id);
@@ -124,7 +230,6 @@ export default function ChatRoom() {
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
     } finally {
-      // Selalu matikan loading setelah request selesai
       setLoading(false);
     }
   };
@@ -137,18 +242,15 @@ export default function ChatRoom() {
     }
 
     setUser(savedUser);
-    
-    // Panggil pertama kali saat komponen mount
     loadMessages(savedUser.id, false);
 
-    // Polling background setiap 3 detik (wajib silent = true)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
 
     return () => window.clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]); // navigate diset sebagai dependensi aman
+  }, [navigate]);
 
   const handleScroll = () => {
     if (!listRef.current) return;
@@ -158,7 +260,6 @@ export default function ChatRoom() {
 
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
-      // Timeout 50ms untuk memberi ruang render React
       setTimeout(() => {
         if (listRef.current) {
           listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -167,7 +268,9 @@ export default function ChatRoom() {
     }
   }, [messages]);
 
-  // Handle Kirim: MURNI TUNGGU SERVER
+  // =========================================================
+  // LOGIKA KIRIM CHAT: TAHAN INPUT SAMPAI SERVER SUKSES
+  // =========================================================
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -177,39 +280,37 @@ export default function ChatRoom() {
 
     const trimmedDraft = draft.trim();
     
-    // 1. Tampilkan spinner di tombol (teks di input tetep ada, NO FLICKER)
+    // 1. TAHAN INPUT. Teks tidak dihapus, hanya memutar spinner.
     setSending(true);
 
     try {
-      // 2. Murni POST ke database
+      // 2. Lempar ke Database
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
         message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
-        // 3. Sukses masuk DB -> Kosongkan input text
+        // 3. JIKA SUKSES BARU KOSONGKAN INPUT
         setDraft(''); 
         
-        // 4. Langsung tambahkan ke list messages UI agar seketika muncul di layar
         const sentChat = response.data.chat;
         if (sentChat) {
           setMessages((prev) => {
-            // Hindari duplikat jika polling 3 detikan keburu menarik pesan yang sama
             if (prev.find(m => m.id === sentChat.id)) return prev; 
             return [...prev, sentChat];
           });
-          isAtBottomRef.current = true; // Paksa auto scroll kebawah
+          isAtBottomRef.current = true; // Paksa scroll bawah
         }
         
-        setCooldownUntil(Date.now() + 500); // Cooldown spam
+        setCooldownUntil(Date.now() + 500);
       } else {
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
-      // 5. Matikan spinner tombol kirim (baik sukses maupun error)
+      // 4. Selesai request (Matikan Spinner)
       setSending(false);
     }
   };
@@ -248,7 +349,7 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
         
-        {/* === HEADER === */}
+        {/* HEADER */}
         <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
@@ -271,8 +372,7 @@ export default function ChatRoom() {
           </div>
         </div>
 
-        {/* === LOADING SPINNER === */}
-        {/* Hanya muncul kalau beneran loading DAN belum ada pesan sama sekali */}
+        {/* LOADING SPINNER */}
         {loading && messages.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-slate-400">
@@ -291,8 +391,9 @@ export default function ChatRoom() {
           <div 
             ref={listRef} 
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto scroll-smooth space-y-4 pb-20 pr-1" 
+            className="flex-1 overflow-y-auto scroll-smooth space-y-[2px] pb-20 pr-1" 
           >
+            {/* space-y-[2px] dibikin rapat banget biar antar pesan grup keliatan nyatu */}
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100">
@@ -300,70 +401,26 @@ export default function ChatRoom() {
                 </div>
               </div>
             ) : (
-              messages.map((item) => {
-                const sender = item.user || {};
-                const isMine = String(sender.id) === String(user.id);
-                const avatarUrl = getDisplayAvatar(sender);
-                const isDeleted = Boolean(item.deleted_at || item.is_deleted);
-                const preset = getExclusiveUserPreset(sender.email || user?.email);
+              messages.map((item, index) => {
+                const isMine = String(item.user_id) === String(user.id);
+                const preset = getExclusiveUserPreset(item.user?.email || user?.email);
+                
+                // LOGIKA GROUPING CHAT: Cek pesan sebelumnya untuk Avatar
+                const prevMessage = messages[index - 1];
+                const isSameUserAsPrev = prevMessage && String(prevMessage.user_id) === String(item.user_id);
+                const showAvatar = !isSameUserAsPrev;
 
                 return (
-                  <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex max-w-[90%] md:max-w-[75%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
-                      
-                      <div className={`h-7 w-7 shrink-0 mb-0.5 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
-                        <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
-                          {avatarUrl ? (
-                            <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="text-[10px] font-black text-slate-600 uppercase">
-                              {getDisplayName(sender).charAt(0)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                        {!isMine && (
-                          <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
-                            {getDisplayName(sender)}
-                          </span>
-                        )}
-
-                        <div 
-                          onClick={() => {
-                            if (isMine && !isDeleted) setMessageToDelete(item);
-                          }}
-                          className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
-                          isMine
-                            ? isDeleted
-                              ? 'bg-slate-200 text-slate-600 rounded-2xl rounded-br-sm border border-slate-200'
-                              : 'bg-indigo-600 text-white rounded-2xl rounded-br-sm cursor-pointer active:scale-[0.97] transition-transform'
-                            : isDeleted
-                              ? 'bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl rounded-bl-sm'
-                              : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
-                        }`}>
-                          
-                          <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
-                            {isDeleted ? (
-                              <span className="flex items-center gap-1.5">
-                                <span className="italic">Pesan ini telah dihapus</span>
-                                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
-                              </span>
-                            ) : (
-                              // TAMPILAN SMART AUTO-EMBED
-                              renderMessageWithImages(item.message, isMine)
-                            )}
-                          </div>
-                          
-                          <span className={`text-[9px] absolute bottom-1.5 right-2 leading-none font-medium ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>
-                            {formatTime(item.created_at)}
-                          </span>
-
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <MessageItem 
+                    key={item.id}
+                    item={item}
+                    isMine={isMine}
+                    showAvatar={showAvatar}
+                    preset={preset}
+                    getDisplayName={getDisplayName}
+                    formatTime={formatTime}
+                    setMessageToDelete={setMessageToDelete}
+                  />
                 );
               })
             )}
@@ -371,7 +428,7 @@ export default function ChatRoom() {
         )}
       </div>
 
-      {/* === INPUT CHAT === */}
+      {/* INPUT BAR */}
       {user?.kelas_id && (
         <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-slate-50/95 backdrop-blur-md border-t border-slate-200/60 px-4 py-2">
           <div className="max-w-4xl mx-auto">
@@ -384,7 +441,7 @@ export default function ChatRoom() {
                 className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
-                disabled={sending} // Matikan input saat sedang mengirim
+                disabled={sending} 
               />
 
               <button
@@ -392,7 +449,6 @@ export default function ChatRoom() {
                 disabled={sending || !draft.trim()}
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
               >
-                {/* Efek spinner murni hanya muncul saat sending = true */}
                 {sending ? (
                   <FontAwesomeIcon icon={faSpinner} spin className="text-lg" />
                 ) : (
@@ -404,7 +460,7 @@ export default function ChatRoom() {
         </div>
       )}
 
-      {/* === MODAL DELETE === */}
+      {/* MODAL HAPUS */}
       {messageToDelete && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
           <div 
