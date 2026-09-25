@@ -4,7 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
 import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightFromBracket, faTrash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 const IMGBB_API_KEY = '4bee746ba64cbd55467c63342a529be0';
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
@@ -50,6 +50,8 @@ export default function SettingProfile() {
   });
   const [loading, setLoading] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   useEffect(() => {
     if (!savedUser) {
@@ -183,6 +185,51 @@ export default function SettingProfile() {
     navigate('/login');
   };
 
+  const deleteConfirmationText = `Saya ingin menghapus akun ${savedUser?.username || username || getGeneratedUsername(savedUser)} secara permanen`;
+
+  const handleDeleteAccount = async () => {
+    if (!savedUser?.id) return;
+
+    const normalizedInput = deleteConfirmText.trim();
+    const normalizedExpected = deleteConfirmationText.trim();
+
+    if (normalizedInput.toLowerCase() !== normalizedExpected.toLowerCase()) {
+      alert('Ketik ulang kalimat konfirmasi dengan benar untuk menghapus akun.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await API.delete('/delete-account', {
+        data: {
+          user_id: savedUser.id,
+          confirmation_text: normalizedInput,
+        },
+      });
+
+      if (response.data.status === 'success') {
+        const profileTable = readProfileTable();
+        delete profileTable[savedUser.id];
+        writeProfileTable(profileTable);
+
+        localStorage.removeItem('user');
+        localStorage.removeItem(`finclass-history-${savedUser.id}`);
+        localStorage.removeItem(`finclass-qris-${savedUser.id}`);
+        navigate('/login');
+        return;
+      }
+
+      alert(response.data.message || 'Gagal menghapus akun.');
+    } catch (error) {
+      alert(error?.response?.data?.message || 'Gagal menghapus akun.');
+    } finally {
+      setLoading(false);
+      setShowDeleteModal(false);
+      setDeleteConfirmText('');
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-4 pb-2">
@@ -292,6 +339,29 @@ export default function SettingProfile() {
             </div>
           </form>
         </div>
+
+        <div className="rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 via-white to-red-50 p-4 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+              <FontAwesomeIcon icon={faTriangleExclamation} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-slate-900">Danger Zone</p>
+              <p className="text-[10px] text-slate-500">Tindakan ini bersifat permanen.</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full rounded-2xl border border-rose-200 bg-rose-600 px-4 py-3 text-xs font-black text-white shadow-md shadow-rose-200 transition hover:bg-rose-700 active:scale-[0.98]"
+          >
+            <span className="inline-flex items-center gap-2">
+              <FontAwesomeIcon icon={faTrash} />
+              Hapus Akun Saya
+            </span>
+          </button>
+        </div>
       </div>
 
       <ConfirmModal
@@ -306,6 +376,45 @@ export default function SettingProfile() {
           handleLogout();
         }}
       />
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+              <FontAwesomeIcon icon={faTriangleExclamation} />
+            </div>
+
+            <h2 className="mt-4 text-center text-base font-black text-slate-900">Hapus akun secara permanen?</h2>
+            <p className="mt-2 text-center text-xs leading-relaxed text-slate-500">
+              Semua data akun, chat, dan riwayat yang terkait akan dihapus. Tindakan ini tidak bisa dibatalkan.
+            </p>
+
+            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3">
+              <p className="text-[10px] font-black uppercase tracking-wider text-rose-600">Konfirmasi</p>
+              <p className="mt-2 text-xs text-slate-700">Ketik kalimat berikut untuk melanjutkan:</p>
+              <p className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 break-words">
+                {deleteConfirmationText}
+              </p>
+            </div>
+
+            <label className="mt-4 block text-[10px] font-black uppercase tracking-wider text-slate-500">Ketik ulang konfirmasi</label>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(event) => setDeleteConfirmText(event.target.value)}
+              placeholder={deleteConfirmationText}
+              className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs font-semibold text-slate-800 outline-none focus:border-rose-500 focus:bg-white"
+            />
+
+            <div className="mt-5 flex gap-2">
+              <button type="button" onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }} className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600">Batal</button>
+              <button type="button" onClick={handleDeleteAccount} disabled={loading} className="w-full rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
+                {loading ? 'Menghapus...' : 'Hapus akun'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
