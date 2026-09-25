@@ -6,51 +6,56 @@ import { getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-// ==========================================
-// FUNGSI PINTAR: DETEKSI URL GAMBAR & RENDER
-// ==========================================
-const renderMessageWithImages = (text) => {
-  if (!text) return null;
+// =========================================================
+// KOMPONEN CERDAS: AUTO-EMBED LINK JADI GAMBAR ALA DISCORD
+// =========================================================
+const AutoEmbedLink = ({ url, isMine }) => {
+  // Cek apakah url secara eksplisit punya ekstensi gambar
+  const isKnownImage = /\.(jpeg|jpg|gif|png|svg|webp)(\?.*)?$/i.test(url);
   
-  // Regex mencari URL yang berakhiran ekstensi gambar (png, jpg, jpeg, gif, webp, svg)
-  const imgRegex = /(https?:\/\/[^\s]+(?:\.jpg|\.jpeg|\.png|\.gif|\.webp|\.svg)[^\s]*)/gi;
-  const parts = text.split(imgRegex);
+  // Status: 'checking', 'is-image', 'is-link'
+  const [status, setStatus] = useState(isKnownImage ? 'is-image' : 'checking');
+  
+  const linkStyle = isMine ? "text-indigo-100 underline font-bold break-all" : "text-blue-600 underline font-bold break-all";
 
-  return parts.map((part, i) => {
-    if (part.match(imgRegex)) {
-      // Jika part adalah URL gambar, render teks link yang bisa diklik + preview gambarnya di bawah
-      return (
-        <React.Fragment key={i}>
-          <a href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
-            {part}
-          </a>
-          <span className="block mt-2 mb-1">
-            <a href={part} target="_blank" rel="noopener noreferrer">
-              <img 
-                src={part} 
-                alt="Attachment" 
-                className="max-w-full max-h-56 rounded-xl object-contain border border-slate-200/50 bg-slate-50 shadow-sm transition-transform hover:scale-[1.02]" 
-                loading="lazy"
-                onError={(e) => { e.target.style.display = 'none'; }} // Sembunyikan otomatis kalau link gambarnya rusak/mati
-              />
-            </a>
-          </span>
-        </React.Fragment>
-      );
+  return (
+    <span className="inline-block max-w-full align-bottom">
+      {/* Tampilkan teks URL HANYA JIKA statusnya BUKAN gambar */}
+      {status !== 'is-image' && (
+        <a href={url} target="_blank" rel="noopener noreferrer" className={linkStyle}>
+          {url}
+        </a>
+      )}
+      
+      {/* Coba muat gambar. Kalau sukses, teks link di atas akan disembunyikan. */}
+      <span className={status === 'is-image' ? 'block mt-1' : 'hidden'}>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block">
+          <img 
+            src={url} 
+            alt="Attachment" 
+            className="max-w-full h-auto max-h-60 rounded-xl object-contain border border-slate-200/30 bg-black/5 shadow-sm transition-transform hover:scale-[1.02]"
+            loading="lazy"
+            onLoad={() => setStatus('is-image')} // BEGITU GAMBAR MUNCUL, URL TEKS HILANG
+            onError={() => setStatus('is-link')} // KALAU BUKAN GAMBAR MURNI (MISAL PIN.IT WEB), BALIK KE TEKS LINK
+          />
+        </a>
+      </span>
+    </span>
+  );
+};
+
+const renderMessageWithImages = (text, isMine) => {
+  if (!text) return null;
+  // Pisahkan teks berdasarkan spasi/enter tanpa menghilangkan spasinya
+  const parts = text.split(/(\s+)/);
+
+  return parts.map((part, index) => {
+    // Kalau potongan teks ini adalah URL, masukkan ke komponen cerdas kita
+    if (/^https?:\/\/[^\s]+/i.test(part)) {
+      return <AutoEmbedLink key={index} url={part} isMine={isMine} />;
     }
-    // Cek juga kalau ada URL biasa (non-gambar) biar bisa diklik
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const subParts = part.split(urlRegex);
-    return subParts.map((subPart, j) => {
-      if (subPart.match(urlRegex)) {
-        return (
-          <a key={j} href={subPart} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
-            {subPart}
-          </a>
-        );
-      }
-      return <span key={j}>{subPart}</span>;
-    });
+    // Selain URL, tampilkan sebagai teks biasa
+    return <span key={index}>{part}</span>;
   });
 };
 
@@ -133,8 +138,10 @@ export default function ChatRoom() {
 
     setUser(savedUser);
     
+    // Tarik data pertama kali (loading muncul)
     loadMessages(savedUser.id, false);
 
+    // Polling background setiap 3 detik (tanpa loading visual)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
@@ -148,6 +155,7 @@ export default function ChatRoom() {
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
+  // Auto-scroll ke bawah saat ada pesan baru
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
       setTimeout(() => {
@@ -158,6 +166,7 @@ export default function ChatRoom() {
     }
   }, [messages]);
 
+  // Handle Kirim REALTIME MURNI
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -325,9 +334,6 @@ export default function ChatRoom() {
                               : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
                         }`}>
                           
-                          {/* ======================================================== */}
-                          {/* INI BAGIAN AJAIB YANG NGERENDER GAMBAR DARI LINK URL     */}
-                          {/* ======================================================== */}
                           <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
                             {isDeleted ? (
                               <span className="flex items-center gap-1.5">
@@ -335,7 +341,8 @@ export default function ChatRoom() {
                                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
                               </span>
                             ) : (
-                              renderMessageWithImages(item.message)
+                              // TAMPILAN SMART AUTO-EMBED
+                              renderMessageWithImages(item.message, isMine)
                             )}
                           </div>
                           
