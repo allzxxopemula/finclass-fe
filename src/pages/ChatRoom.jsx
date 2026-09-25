@@ -18,7 +18,7 @@ export default function ChatRoom() {
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true); 
 
-  // 1. Inisialisasi State dengan CACHE LOCAL STORAGE biar loading INSTAN (0 detik)
+  // Inisialisasi State dengan CACHE LOCAL STORAGE agar loading instan
   const [messages, setMessages] = useState(() => {
     try {
       const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
@@ -30,7 +30,6 @@ export default function ChatRoom() {
     return [];
   });
   
-  // Jika pesan sudah ada dari cache, loading awal langsung false
   const [loading, setLoading] = useState(messages.length === 0);
 
   const readUser = () => {
@@ -53,6 +52,7 @@ export default function ChatRoom() {
     }
   };
 
+  // Fungsi memuat pesan realtime dari database murni
   const loadMessages = async (currentUserId = user?.id, silent = true) => {
     if (!currentUserId) return;
     if (!silent && messages.length === 0) setLoading(true);
@@ -62,16 +62,8 @@ export default function ChatRoom() {
       if (response.data.status === 'success') {
         setRoom(response.data.room);
         const incomingMessages = response.data.messages || [];
-
-        // 2. FIX PESAN ILANG: Gabungkan pesan asli server dengan pesan yang 'masih dikirim'
-        setMessages((prevMessages) => {
-          const sendingMessages = prevMessages.filter((msg) => msg.is_sending);
-          const finalMessages = [...incomingMessages, ...sendingMessages];
-          
-          // 3. Simpan ke cache agar buka chat selanjutnya super instan
-          localStorage.setItem(`finclass_chat_${currentUserId}`, JSON.stringify(incomingMessages));
-          return finalMessages;
-        });
+        setMessages(incomingMessages);
+        localStorage.setItem(`finclass_chat_${currentUserId}`, JSON.stringify(incomingMessages));
       }
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
@@ -90,7 +82,6 @@ export default function ChatRoom() {
     setUser(savedUser);
     loadMessages(savedUser.id, false);
 
-    // Auto-refresh / realtime polling tiap 3 detik
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
@@ -104,12 +95,18 @@ export default function ChatRoom() {
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
+  // Auto-scroll dengan jeda 100ms agar browser selesai menggambar UI dari Cache
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
+      setTimeout(() => {
+        if (listRef.current) {
+          listRef.current.scrollTop = listRef.current.scrollHeight;
+        }
+      }, 100);
     }
   }, [messages, loading]);
 
+  // Handle Kirim REALTIME MURNI (Tanpa visual palsu)
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -118,51 +115,42 @@ export default function ChatRoom() {
     if (now < cooldownUntil) return;
 
     const trimmedDraft = draft.trim();
-    const optimisticId = `temp-${Date.now()}`;
-    
-    // Pesan optimis (Pesan Abu-abu)
-    const optimisticMessage = {
-      id: optimisticId,
-      message: trimmedDraft,
-      created_at: new Date().toISOString(),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        username: user.username,
-        profile_image_url: user.profile_image_url || user.profile_image || '',
-      },
-      is_deleted: false,
-      is_sending: true, // Tanda ini masih proses
-    };
-
     setSending(true);
-    setDraft('');
-    // Munculkan instan di UI
-    setMessages((prev) => [...prev, optimisticMessage]);
-    isAtBottomRef.current = true;
     setCooldownUntil(Date.now() + 1000);
 
     try {
+      // 1. Langsung tembak API Database
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
         message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
-        // Hapus marker 'is_sending' agar digantikan oleh data asli saat loadMessages ditarik
-        setMessages((prev) => prev.map((item) => item.id === optimisticId ? { ...item, is_sending: false } : item));
-        // Langsung paksa tarik data terbaru dari database tanpa nunggu jeda 3 detik
-        await loadMessages(user.id, true);
+        // 2. Kosongkan input LANGSUNG setelah DB bilang sukses
+        setDraft(''); 
+        
+        // 3. Masukkan data balasan resmi dari API langsung ke UI agar tak perlu nunggu loadMessages
+        const sentChat = response.data.chat;
+        if (sentChat) {
+          setMessages((prev) => {
+            // Cek agar tidak duplikat jika polling 3 detik kebetulan jalan bersamaan
+            if (prev.find(m => m.id === sentChat.id)) return prev; 
+            const newMsgs = [...prev, sentChat];
+            localStorage.setItem(`finclass_chat_${user.id}`, JSON.stringify(newMsgs));
+            return newMsgs;
+          });
+          isAtBottomRef.current = true;
+        }
+
+        // 4. Tarik sinkronisasi tipis-tipis di background (tanpa await agar spinner kirim langsung berhenti)
+        loadMessages(user.id, true);
       } else {
-        // Jika API error, hapus pesan bayangan
-        setMessages((prev) => prev.filter((item) => item.id !== optimisticId));
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
-      setMessages((prev) => prev.filter((item) => item.id !== optimisticId));
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
+      // 5. Matikan spinner dengan cepat!
       setSending(false);
     }
   };
@@ -201,7 +189,6 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
         
-        {/* Header Kelas */}
         <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
           <button
             type="button"
@@ -262,7 +249,6 @@ export default function ChatRoom() {
                   <div key={item.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex max-w-[90%] md:max-w-[75%] items-end gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
                       
-                      {/* Avatar Profile */}
                       <div className={`h-7 w-7 shrink-0 mb-0.5 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
                         <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
                           {avatarUrl ? (
@@ -275,7 +261,6 @@ export default function ChatRoom() {
                         </div>
                       </div>
 
-                      {/* Konten Chat */}
                       <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                         {!isMine && (
                           <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
@@ -285,7 +270,7 @@ export default function ChatRoom() {
 
                         <div 
                           onClick={() => {
-                            if (isMine && !isDeleted && !item.is_sending) setMessageToDelete(item);
+                            if (isMine && !isDeleted) setMessageToDelete(item);
                           }}
                           className={`relative px-3 pt-2 pb-1.5 shadow-sm max-w-full ${
                           isMine
@@ -297,8 +282,7 @@ export default function ChatRoom() {
                               : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
                         }`}>
                           
-                          {/* Transisi warna abu-abu (opacity-70) untuk visual saat masih dikirim */}
-                          <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5 transition-opacity duration-300 ${item.is_sending ? 'opacity-60' : 'opacity-100'}`}>
+                          <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
                             {isDeleted ? (
                               <span className="flex items-center gap-1.5">
                                 <span className="italic">Pesan ini telah dihapus</span>
@@ -309,7 +293,7 @@ export default function ChatRoom() {
                             )}
                           </div>
                           
-                          <span className={`text-[9px] absolute bottom-1.5 right-2 leading-none font-medium transition-opacity duration-300 ${isMine ? 'text-indigo-200' : 'text-slate-400'} ${item.is_sending ? 'opacity-60' : 'opacity-100'}`}>
+                          <span className={`text-[9px] absolute bottom-1.5 right-2 leading-none font-medium ${isMine ? 'text-indigo-200' : 'text-slate-400'}`}>
                             {formatTime(item.created_at)}
                           </span>
 
@@ -354,7 +338,6 @@ export default function ChatRoom() {
         </div>
       )}
 
-      {/* MODAL ACTION SHEET: HAPUS PESAN */}
       {messageToDelete && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
           <div 
