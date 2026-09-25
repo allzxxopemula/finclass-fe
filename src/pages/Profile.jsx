@@ -212,10 +212,10 @@ export default function Profile() {
     }).format(Number(number) || 0);
   };
 
-  const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null }) => (
+  const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null, cardClassName = '' }) => (
     <div 
       onClick={onClick} 
-      className="group flex items-center justify-between p-3.5 bg-white hover:bg-slate-50 border border-slate-200/60 rounded-2xl cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md"
+      className={`group flex items-center justify-between p-3.5 bg-white hover:bg-slate-50 border border-slate-200/60 rounded-2xl cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md ${cardClassName}`}
     >
       <div className="flex items-center gap-3.5">
         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base transition-transform group-hover:scale-105 shadow-inner ${badgeColor}`}>
@@ -438,6 +438,7 @@ export default function Profile() {
                     badgeColor="bg-violet-50 text-violet-600"
                     onClick={() => navigate('/chat-room')}
                     rightBadge={chatUnreadCount}
+                    cardClassName="border-violet-200/80 bg-gradient-to-r from-violet-50/80 via-white to-indigo-50/80 shadow-[0_0_0_1px_rgba(167,139,250,0.2),0_14px_32px_rgba(124,58,237,0.12)] hover:border-violet-300 hover:shadow-[0_0_0_1px_rgba(167,139,250,0.28),0_16px_36px_rgba(124,58,237,0.18)]"
                   />
                 </>
               )}
