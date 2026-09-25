@@ -47,7 +47,10 @@ export default function ChatRoom() {
       setLoading(false);
       return;
     }
-    if (!silent) setLoading(true);
+
+    if (!silent) {
+      setLoading(true);
+    }
 
     try {
       const response = await API.get(`/chat-room?user_id=${currentUserId}`);
@@ -63,7 +66,9 @@ export default function ChatRoom() {
       setRoom(null);
       setMessages([]);
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -79,7 +84,7 @@ export default function ChatRoom() {
 
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
-    }, 3000);
+    }, 15000);
 
     return () => window.clearInterval(timer);
   }, [navigate]);
@@ -103,23 +108,57 @@ export default function ChatRoom() {
     const now = Date.now();
     if (now < cooldownUntil) return;
 
+    const trimmedDraft = draft.trim();
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticMessage = {
+      id: optimisticId,
+      message: trimmedDraft,
+      created_at: new Date().toISOString(),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        profile_image_url: user.profile_image_url || user.profile_image || '',
+      },
+      is_deleted: false,
+    };
+
     setSending(true);
+    setDraft('');
+    setMessages((currentMessages) => [...currentMessages, optimisticMessage]);
+    isAtBottomRef.current = true;
+    setCooldownUntil(Date.now() + 1200);
 
     try {
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
-        message: draft.trim(),
+        message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
-        setDraft('');
-        setCooldownUntil(Date.now() + 5000);
-        isAtBottomRef.current = true; 
-        await loadMessages(user.id, true);
+        const sentChat = response.data.chat || {};
+        setMessages((currentMessages) =>
+          currentMessages.map((item) =>
+            item.id === optimisticId
+              ? {
+                  ...item,
+                  id: sentChat.id || item.id,
+                  message: sentChat.message || item.message,
+                  created_at: sentChat.created_at || item.created_at,
+                  user: sentChat.user || item.user,
+                  is_deleted: false,
+                  deleted_at: null,
+                }
+              : item
+          )
+        );
       } else {
+        setMessages((currentMessages) => currentMessages.filter((item) => item.id !== optimisticId));
         alert(response.data.message || 'Pesan gagal terkirim.');
       }
     } catch (error) {
+      setMessages((currentMessages) => currentMessages.filter((item) => item.id !== optimisticId));
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
       setSending(false);
