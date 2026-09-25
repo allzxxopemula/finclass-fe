@@ -215,10 +215,10 @@ export default function Profile() {
 
   const getChatUnreadLabel = (count) => {
     if (!count || count <= 0) {
-      return 'Pesan telah terbaca semua';
+      return 'Semua sudah dibaca';
     }
 
-    return count === 1 ? '1 pesan belum terbaca' : `${count} pesan belum terbaca`;
+    return count === 1 ? '1 belum dibaca' : `${count} belum dibaca`;
   };
 
   const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null, rightText = null, cardClassName = '' }) => (
