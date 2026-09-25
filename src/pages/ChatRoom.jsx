@@ -6,6 +6,54 @@ import { getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
+// ==========================================
+// FUNGSI PINTAR: DETEKSI URL GAMBAR & RENDER
+// ==========================================
+const renderMessageWithImages = (text) => {
+  if (!text) return null;
+  
+  // Regex mencari URL yang berakhiran ekstensi gambar (png, jpg, jpeg, gif, webp, svg)
+  const imgRegex = /(https?:\/\/[^\s]+(?:\.jpg|\.jpeg|\.png|\.gif|\.webp|\.svg)[^\s]*)/gi;
+  const parts = text.split(imgRegex);
+
+  return parts.map((part, i) => {
+    if (part.match(imgRegex)) {
+      // Jika part adalah URL gambar, render teks link yang bisa diklik + preview gambarnya di bawah
+      return (
+        <React.Fragment key={i}>
+          <a href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
+            {part}
+          </a>
+          <span className="block mt-2 mb-1">
+            <a href={part} target="_blank" rel="noopener noreferrer">
+              <img 
+                src={part} 
+                alt="Attachment" 
+                className="max-w-full max-h-56 rounded-xl object-contain border border-slate-200/50 bg-slate-50 shadow-sm transition-transform hover:scale-[1.02]" 
+                loading="lazy"
+                onError={(e) => { e.target.style.display = 'none'; }} // Sembunyikan otomatis kalau link gambarnya rusak/mati
+              />
+            </a>
+          </span>
+        </React.Fragment>
+      );
+    }
+    // Cek juga kalau ada URL biasa (non-gambar) biar bisa diklik
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const subParts = part.split(urlRegex);
+    return subParts.map((subPart, j) => {
+      if (subPart.match(urlRegex)) {
+        return (
+          <a key={j} href={subPart} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-600 break-all">
+            {subPart}
+          </a>
+        );
+      }
+      return <span key={j}>{subPart}</span>;
+    });
+  });
+};
+
 export default function ChatRoom() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -18,7 +66,6 @@ export default function ChatRoom() {
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true); 
 
-  // Murni State biasa tanpa Local Storage
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +89,6 @@ export default function ChatRoom() {
     }
   };
 
-  // Fungsi memuat pesan realtime dari database murni
   const markMessagesAsRead = async (currentUserId = user?.id, currentRoomId = room?.id) => {
     if (!currentUserId || !currentRoomId) return;
 
@@ -87,10 +133,8 @@ export default function ChatRoom() {
 
     setUser(savedUser);
     
-    // Tarik data pertama kali (loading muncul)
     loadMessages(savedUser.id, false);
 
-    // Polling background setiap 3 detik (tanpa loading visual)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
@@ -104,7 +148,6 @@ export default function ChatRoom() {
     isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 100;
   };
 
-  // Auto-scroll ke bawah saat ada pesan baru
   useEffect(() => {
     if (listRef.current && isAtBottomRef.current) {
       setTimeout(() => {
@@ -115,7 +158,6 @@ export default function ChatRoom() {
     }
   }, [messages]);
 
-  // Handle Kirim LOGIKA BARU: Murni tunggu server baru update UI
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -125,22 +167,17 @@ export default function ChatRoom() {
 
     const trimmedDraft = draft.trim();
     
-    // 1. Mulai animasi muter di tombol (Teks di input TETAP ADA)
     setSending(true);
 
     try {
-      // 2. Murni tunggu balasan API Database
       const response = await API.post('/chat-room/send', {
         user_id: user.id,
         message: trimmedDraft,
       });
 
       if (response.data.status === 'success') {
-        // 3. JIKA SUKSES MASUK DATABASE:
-        // Kosongkan teks di inputan
         setDraft(''); 
         
-        // Langsung masukkan pesan dari database ke layar
         const sentChat = response.data.chat;
         if (sentChat) {
           setMessages((prev) => {
@@ -157,7 +194,6 @@ export default function ChatRoom() {
     } catch (error) {
       alert(error?.response?.data?.message || 'Gagal mengirim pesan.');
     } finally {
-      // 4. Matikan animasi muter di tombol enter
       setSending(false);
     }
   };
@@ -289,6 +325,9 @@ export default function ChatRoom() {
                               : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'
                         }`}>
                           
+                          {/* ======================================================== */}
+                          {/* INI BAGIAN AJAIB YANG NGERENDER GAMBAR DARI LINK URL     */}
+                          {/* ======================================================== */}
                           <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : 'pr-11'} pt-0.5`}>
                             {isDeleted ? (
                               <span className="flex items-center gap-1.5">
@@ -296,7 +335,7 @@ export default function ChatRoom() {
                                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
                               </span>
                             ) : (
-                              item.message
+                              renderMessageWithImages(item.message)
                             )}
                           </div>
                           
@@ -323,7 +362,7 @@ export default function ChatRoom() {
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Ketik pesan..."
+                placeholder="Ketik pesan atau paste URL gambar..."
                 className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
