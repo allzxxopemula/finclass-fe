@@ -2,7 +2,7 @@ import React from 'react';
 
 export const EXCLUSIVE_USER_EMAILS = [
   {
-    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (DARK FLAME TEMPEST) ===
+    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (COMET ORBIT) ===
     emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
@@ -26,7 +26,7 @@ export const EXCLUSIVE_USER_EMAILS = [
     accent: 'from-[#FDE047] via-[#F59E0B] to-[#EA580C]',
     chip: 'bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 text-white border border-white/50 font-black shadow-md shadow-amber-500/40',
     glow: 'shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_25px_rgba(253,224,71,0.8),0_0_50px_rgba(234,88,12,0.6)]',
-    isDonatur: true 
+    isDonatur: true // Trigger khusus Sultan
   },
   {
     // === 4. EXCLUSIVE ===
@@ -50,15 +50,14 @@ export const getExclusiveUserPreset = (email) => {
   }) || null;
 };
 
-// ==========================================
-// ASSET SVG EKSKLUSIF (BINTANG & KOIN)[cite: 6]
-// ==========================================
+// SVG Komponen: Bintang Discord Nitro
 const StarSparkle = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 0C12 0 12 9.5 17.5 12C12 14.5 12 24 12 24C12 24 12 14.5 6.5 12C12 9.5 12 0 12 0Z" />
   </svg>
 );
 
+// SVG Komponen: Koin Emas Sultan (Donatur)
 const GoldenCoin = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="url(#goldGradient)" stroke="#FDE047" strokeWidth="1.5"/>
@@ -72,7 +71,6 @@ const GoldenCoin = ({ className }) => (
     </defs>
   </svg>
 );
-
 
 export function ExclusiveProfileShell({ email, className = '', children, variant = 'card' }) {
   const preset = getExclusiveUserPreset(email);
@@ -90,13 +88,12 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   const isDonatur = preset.isDonatur;
   const isRegular = !isDeveloper && !isDevTeam && !isDonatur;
 
+  // --- STYLE UNTUK FOTO PROFIL (AVATAR) ---
   if (variant === 'avatar') {
     return (
       <div className="relative inline-block">
         
-        {/* ======================================= */}
-        {/* EFEK RIPPLE PULSE KHUSUS DEVELOPER[cite: 6] */}
-        {/* ======================================= */}
+        {/* === DOUBLE RIPPLE PULSE (KHUSUS DEVELOPER) === */}
         {isDeveloper && (
           <>
             <div className="absolute -inset-1 rounded-full border-[1.5px] border-white/80 animate-[rippleFast_2s_ease-out_infinite] pointer-events-none z-0" />
@@ -104,23 +101,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </>
         )}
 
-        {/* EFEK API EMBER MONOCHROME DI PANGKALAN BAWAH PROFIL */}
-        {isDeveloper && (
-          <div className="absolute inset-[-2px] pointer-events-none overflow-visible z-[5]">
-            <div className="absolute bottom-1 left-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadLeft_2.8s_ease-in-out_infinite_0s]" />
-            <div className="absolute bottom-0 left-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadLeft_3.4s_ease-in-out_infinite_1.2s]" />
-            <div className="absolute bottom-2 left-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadLeft_2.2s_ease-in-out_infinite_0.7s]" />
-
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rounded-full shadow-[0_0_6px_#000] animate-[emberSpreadCenter_3s_ease-in-out_infinite_0.2s]" />
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-slate-700 rounded-full animate-[emberSpreadCenter_3.6s_ease-in-out_infinite_1.5s]" />
-
-            <div className="absolute bottom-1 right-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadRight_3s_ease-in-out_infinite_0.4s]" />
-            <div className="absolute bottom-0 right-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadRight_3.8s_ease-in-out_infinite_1.6s]" />
-            <div className="absolute bottom-2 right-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadRight_2.5s_ease-in-out_infinite_1s]" />
-          </div>
-        )}
-
-        {/* === WADAH UTAMA FOTO PROFIL === */}
+        {/* === WADAH UTAMA === */}
         <div 
           className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
             ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
@@ -130,41 +111,57 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             ${preset.glow} ${className} transition-all duration-300 hover:scale-105 z-10`}
         >
           
-          {/* Efek Lingkaran Developer[cite: 6] */}
+          {/* ======================================= */}
+          {/* 1. DEVELOPER EFEK (LEVEL INFINITY)      */}
+          {/* ======================================= */}
           {isDeveloper && (
             <>
+              {/* Liquid Platinum Conic Gradient */}
               <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-100" />
               
+              {/* Orbiting Comet (Komet Mengelilingi Border) */}
               <div className="absolute inset-[-4px] animate-[spin_1.5s_linear_infinite] pointer-events-none rounded-full z-10">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_4px_#ffffff] blur-[1px]" />
+                {/* Trail/Ekor Komet */}
                 <div className="absolute top-0 left-1/2 w-16 h-2 bg-gradient-to-l from-white to-transparent opacity-70 origin-left rounded-full blur-[2px]" />
               </div>
 
+              {/* 3D Reverse Orbiting Ring */}
               <div className="absolute -inset-[3px] rounded-full animate-[spin_5s_linear_infinite_reverse] border-[2px] border-dashed border-white/60 opacity-80 pointer-events-none" />
               <div className="absolute inset-0 bg-white opacity-0 animate-[lightningFlash_4s_steps(2,start)_infinite]" />
               <div className="absolute inset-0 bg-white/30 animate-[pulse_2.5s_ease-in-out_infinite]" />
             </>
           )}
 
-          {/* Efek Dev Team[cite: 6] */}
+          {/* ======================================= */}
+          {/* 2. EFEK DEV TEAM (TURBO ACCELERATION)   */}
+          {/* ======================================= */}
           {isDevTeam && (
             <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
           )}
 
-          {/* Efek Donatur[cite: 6] */}
+          {/* ======================================= */}
+          {/* 3. EFEK DONATUR (SULTAN TIER)           */}
+          {/* ======================================= */}
           {isDonatur && (
             <>
+              {/* Golden Spin Border yang Elegan & Lambat */}
               <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-100" />
+              {/* Golden Shimmer Pulse */}
               <div className="absolute inset-0 bg-yellow-200 opacity-0 animate-[pulse_3s_ease-in-out_infinite]" />
+              {/* Inner Glowing Ring */}
               <div className="absolute inset-1 rounded-full border border-yellow-300/50 shadow-[inset_0_0_10px_rgba(253,224,71,0.5)] z-10 pointer-events-none" />
             </>
           )}
 
-          {/* Efek Reguler[cite: 6] */}
+          {/* ======================================= */}
+          {/* 4. EFEK ROLE REGULAR                    */}
+          {/* ======================================= */}
           {isRegular && (
             <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
           )}
           
+          {/* === WADAH FOTO PROFIL === */}
           <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-20">
             <div className={`w-full h-full ${isDeveloper ? 'animate-[counterSmooth_6s_ease-in-out_infinite]' : ''}`}>
               {children}
@@ -172,51 +169,198 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         </div>
 
+        {/* ====================================================== */}
+        {/* ========================================================= */}
+        {/* MONOCHROME FIRE PARTICLES — Developer decoration only     */}
+        {/* Partikel bara mengelilingi belakang profile seperti api.  */}
+        {/* Border dan efek Developer asli tetap tidak disentuh.      */}
+        {/* ========================================================= */}
+        {isDeveloper && (
+          <div className="absolute inset-0 pointer-events-none overflow-visible z-[5]" aria-hidden="true">
+            <svg
+              className="absolute -inset-[34px] w-[calc(100%+68px)] h-[calc(100%+68px)] overflow-visible"
+              viewBox="0 0 100 100"
+              fill="none"
+            >
+              <path
+                id="developerFirePath"
+                d="M50 4 C76 2 95 21 96 48 C98 73 78 95 51 97 C24 99 3 78 4 51 C4 24 25 5 50 4 Z"
+                stroke="white"
+                strokeOpacity="0.08"
+                strokeWidth="1"
+                strokeDasharray="1 5"
+              />
+
+              {/* Bara besar */}
+              {[...Array(8)].map((_, i) => (
+                <circle
+                  key={`fire-big-${i}`}
+                  r={i % 3 === 0 ? 1.15 : 0.75}
+                  fill="white"
+                  opacity={i % 2 === 0 ? 0.9 : 0.58}
+                  filter="url(#fireGlow)"
+                >
+                  <animateMotion
+                    dur={`${4.8 + i * 0.43}s`}
+                    begin={`${i * -0.57}s`}
+                    repeatCount="indefinite"
+                    rotate="auto"
+                  >
+                    <mpath href="#developerFirePath" />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0.1;0.95;0.4;1;0.1"
+                    dur={`${1.5 + (i % 3) * 0.35}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              ))}
+
+              {/* Percikan kecil yang mengitari jalur */}
+              {[...Array(16)].map((_, i) => (
+                <circle
+                  key={`fire-small-${i}`}
+                  r={i % 4 === 0 ? 0.55 : 0.32}
+                  fill="white"
+                  opacity={0.45 + (i % 3) * 0.12}
+                >
+                  <animateMotion
+                    dur={`${3.2 + i * 0.29}s`}
+                    begin={`${i * -0.31}s`}
+                    repeatCount="indefinite"
+                  >
+                    <mpath href="#developerFirePath" />
+                  </animateMotion>
+                  <animate
+                    attributeName="r"
+                    values="0.15;0.65;0.25;0.5;0.15"
+                    dur={`${1.1 + (i % 4) * 0.22}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              ))}
+
+              <defs>
+                <filter id="fireGlow" x="-200%" y="-200%" width="400%" height="400%">
+                  <feGaussianBlur stdDeviation="1.6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+            </svg>
+
+            {/* Percikan bebas seperti api yang naik dari sisi profile */}
+            <span className="absolute -left-2 top-1/3 w-1 h-1 rounded-full bg-white opacity-0 shadow-[0_0_8px_2px_rgba(255,255,255,0.65)] animate-[fireSparkLeft_2.8s_ease-out_infinite]" />
+            <span className="absolute -right-2 top-2/3 w-[3px] h-[3px] rounded-full bg-white opacity-0 shadow-[0_0_7px_2px_rgba(255,255,255,0.6)] animate-[fireSparkRight_3.1s_ease-out_infinite_0.8s]" />
+            <span className="absolute left-1/3 -top-2 w-[3px] h-[3px] rounded-full bg-white opacity-0 shadow-[0_0_7px_2px_rgba(255,255,255,0.6)] animate-[fireSparkTop_3.4s_ease-out_infinite_1.4s]" />
+            <span className="absolute right-1/3 -bottom-2 w-1 h-1 rounded-full bg-white opacity-0 shadow-[0_0_8px_2px_rgba(255,255,255,0.65)] animate-[fireSparkBottom_3s_ease-out_infinite_0.4s]" />
+          </div>
+        )}
+
         {/* ======================================= */}
-        {/* BINTANG SPARKLE (DEVELOPER, z-[100])[cite: 6] */}
+        {/* EFEK NITRO STAR SPARKLES (DEVELOPER)    */}
         {/* ======================================= */}
         {isDeveloper && (
-          <div className="absolute inset-0 pointer-events-none overflow-visible z-[100]">
+          <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
             <StarSparkle className="absolute -top-3 left-1/4 w-3.5 h-3.5 text-white filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.5s_ease-in-out_infinite]" />
             <StarSparkle className="absolute top-1/4 -right-3 w-4 h-4 text-slate-100 filter drop-shadow-[0_0_8px_#ffffff] animate-[starFloat_3s_ease-in-out_infinite_0.7s]" />
             <StarSparkle className="absolute -bottom-2 left-1/3 w-3 h-3 text-white filter drop-shadow-[0_0_4px_#ffffff] animate-[starFloat_2s_ease-in-out_infinite_1.4s]" />
             <StarSparkle className="absolute bottom-1/4 -left-3 w-4 h-4 text-zinc-200 filter drop-shadow-[0_0_6px_#ffffff] animate-[starFloat_3.5s_ease-in-out_infinite_0.4s]" />
+            <StarSparkle className="absolute top-0 right-1/4 w-2 h-2 text-white filter drop-shadow-[0_0_3px_#ffffff] animate-[starFloat_2.2s_ease-in-out_infinite_1.1s]" />
+            <StarSparkle className="absolute bottom-0 right-1/4 w-2.5 h-2.5 text-slate-200 filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.8s_ease-in-out_infinite_0.9s]" />
           </div>
         )}
 
-        {/* EFEK KOIN EMAS SULTAN (DONATUR)[cite: 6] */}
+        {/* ======================================= */}
+        {/* EFEK KOIN EMAS SULTAN (DONATUR)         */}
+        {/* ======================================= */}
         {isDonatur && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
+            {/* Hujan Koin Emas Melayang ke Atas */}
             <GoldenCoin className="absolute -bottom-2 left-1/4 w-4 h-4 filter drop-shadow-[0_0_4px_#F59E0B] animate-[coinRise_3s_ease-in_infinite]" />
             <GoldenCoin className="absolute -bottom-1 right-1/4 w-3 h-3 filter drop-shadow-[0_0_3px_#F59E0B] animate-[coinRise_3.5s_ease-in_infinite_1s]" />
             <GoldenCoin className="absolute top-1/2 -left-3 w-3.5 h-3.5 filter drop-shadow-[0_0_5px_#F59E0B] animate-[coinRise_2.5s_ease-in_infinite_0.5s]" />
+            {/* Sparkle Bintang Emas */}
             <StarSparkle className="absolute -top-2 right-1/3 w-3 h-3 text-yellow-300 filter drop-shadow-[0_0_5px_#FDE047] animate-[starFloat_3s_ease-in-out_infinite_0.2s]" />
+            <StarSparkle className="absolute bottom-1/3 -right-2 w-2.5 h-2.5 text-yellow-100 filter drop-shadow-[0_0_5px_#FDE047] animate-[starFloat_2.5s_ease-in-out_infinite_1.2s]" />
           </div>
         )}
 
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
-          @keyframes emberSpreadLeft {
-            0% { transform: translate(0px, 0px) scale(0.3); opacity: 0; }
-            20% { opacity: 1; transform: translate(-4px, -8px) scale(1.1); }
-            60% { opacity: 0.8; transform: translate(-14px, -20px) scale(1.3); }
-            100% { transform: translate(-22px, -35px) scale(0.2); opacity: 0; }
+          /* =========================================================
+             MONOCHROME FIRE PARTICLES — Developer only
+             Bara bergerak mengelilingi profile dengan percikan bebas.
+          ========================================================= */
+
+          @keyframes fireSparkLeft {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 18px, 0) scale(0.3);
+            }
+            18% { opacity: 0.95; }
+            58% {
+              opacity: 0.85;
+              transform: translate3d(-9px, -10px, 0) scale(1);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(7px, -34px, 0) scale(0.15);
+            }
           }
 
-          @keyframes emberSpreadCenter {
-            0% { transform: translate(0px, 0px) scale(0.4); opacity: 0; }
-            25% { opacity: 1; transform: translate(0px, -10px) scale(1.3); }
-            65% { opacity: 0.9; transform: translate(0px, -25px) scale(1); }
-            100% { transform: translate(0px, -42px) scale(0.2); opacity: 0; }
+          @keyframes fireSparkRight {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 16px, 0) scale(0.25);
+            }
+            22% { opacity: 0.9; }
+            60% {
+              opacity: 0.72;
+              transform: translate3d(10px, -12px, 0) scale(1.05);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(-5px, -38px, 0) scale(0.1);
+            }
           }
 
-          @keyframes emberSpreadRight {
-            0% { transform: translate(0px, 0px) scale(0.3); opacity: 0; }
-            20% { opacity: 1; transform: translate(4px, -8px) scale(1.1); }
-            60% { opacity: 0.8; transform: translate(14px, -20px) scale(1.3); }
-            100% { transform: translate(22px, -35px) scale(0.2); opacity: 0; }
+          @keyframes fireSparkTop {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 8px, 0) scale(0.25);
+            }
+            20% { opacity: 0.9; }
+            55% {
+              opacity: 0.7;
+              transform: translate3d(-10px, -10px, 0) scale(1);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(8px, -35px, 0) scale(0.12);
+            }
           }
 
+          @keyframes fireSparkBottom {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, -5px, 0) scale(0.25);
+            }
+            20% { opacity: 0.9; }
+            58% {
+              opacity: 0.75;
+              transform: translate3d(10px, 11px, 0) scale(1);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(-7px, 35px, 0) scale(0.12);
+            }
+          }
+
+          /* Ripple Rings (Developer) */
           @keyframes rippleFast {
             0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
             100% { transform: scale(1.35); opacity: 0; border-width: 0px; }
@@ -225,6 +369,8 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             0% { transform: scale(1); opacity: 0.6; border-width: 3px; }
             100% { transform: scale(1.6); opacity: 0; border-width: 0px; }
           }
+
+          /* Morphing Base (Developer) */
           @keyframes smoothMorph {
             0%, 100% { border-radius: 50%; transform: scale(1); }
             25% { border-radius: 42% 58% 65% 35% / 55% 42% 58% 45%; transform: scale(1.03, 0.97); }
@@ -237,20 +383,28 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             50% { transform: scale(1); }
             75% { transform: scale(1.03, 0.97); }
           }
+          
+          /* Turbo Spin (Dev Team) */
           @keyframes devTeamSpin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
+
+          /* Lightning (Developer) */
           @keyframes lightningFlash {
             0%, 85%, 89%, 93% { opacity: 0; }
             87%, 91% { opacity: 0.7; }
           }
+
+          /* Bintang Mengambang (Developer & Donatur) */
           @keyframes starFloat {
             0%, 100% { transform: translateY(0px) translateX(0px) scale(0.5) rotate(0deg); opacity: 0; }
             20% { opacity: 1; }
             50% { transform: translateY(-20px) translateX(8px) scale(1.2) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
             80% { opacity: 0; }
           }
+
+          /* Koin Emas Melayang (Donatur) */
           @keyframes coinRise {
             0% { transform: translateY(10px) rotate(0deg) scale(0.5); opacity: 0; }
             20% { opacity: 1; }
@@ -262,23 +416,27 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // --- STYLE UNTUK KOTAK (CARD)[cite: 6] ---
+  // --- STYLE UNTUK KOTAK (CARD) ---
   return (
     <div className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 p-[2.5px] ${preset.glow} ${className} transition-all duration-300
       ${isDeveloper || isDevTeam || isDonatur ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`}`}
     >
+      {/* Background Card Developer */}
       {isDeveloper && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
       )}
       
+      {/* Background Card Dev Team */}
       {isDevTeam && (
         <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
       )}
 
+      {/* Background Card Donatur */}
       {isDonatur && (
         <div className="absolute -inset-[150%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-95" />
       )}
 
+      {/* Background Card Reguler */}
       {isRegular && (
         <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
       )}
