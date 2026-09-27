@@ -198,7 +198,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
                   r={i % 3 === 0 ? 1.2 : 0.8}
                   fill="black"
                   opacity={i % 2 === 0 ? 0.9 : 0.6}
-                  filter="url(#fireGlow)"
                 >
                   <animateMotion
                     dur={`${4.4 + i * 0.36}s`}
@@ -266,7 +265,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               return (
                 <span
                   key={`fire-spark-${i}`}
-                  className="absolute rounded-full bg-black opacity-0 shadow-[0_0_7px_2px_rgba(0,0,0,0.8)]"
+                  className="absolute rounded-full bg-black opacity-0"
                   style={{
                     left: `${leftPct}%`,
                     top: `${topPct}%`,
@@ -323,40 +322,32 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           @keyframes fireSparkLeft {
             0% {
               opacity: 0;
-              transform: translate3d(0, 20px, 0) scale(0.3);
+              transform: translate3d(0, 18px, 0) scale(0.3);
             }
-            14% { opacity: 0.95; }
-            40% {
-              opacity: 0.9;
-              transform: translate3d(-24px, -18px, 0) scale(1);
-            }
-            70% {
-              opacity: 0.6;
-              transform: translate3d(-10px, -58px, 0) scale(0.6);
+            18% { opacity: 0.95; }
+            58% {
+              opacity: 0.85;
+              transform: translate3d(-12px, -14px, 0) scale(1);
             }
             100% {
               opacity: 0;
-              transform: translate3d(16px, -105px, 0) scale(0.1);
+              transform: translate3d(9px, -42px, 0) scale(0.15);
             }
           }
 
           @keyframes fireSparkRight {
             0% {
               opacity: 0;
-              transform: translate3d(0, 18px, 0) scale(0.25);
+              transform: translate3d(0, 16px, 0) scale(0.25);
             }
-            16% { opacity: 0.9; }
-            42% {
-              opacity: 0.8;
-              transform: translate3d(26px, -20px, 0) scale(1.05);
-            }
-            72% {
-              opacity: 0.55;
-              transform: translate3d(12px, -60px, 0) scale(0.55);
+            22% { opacity: 0.9; }
+            60% {
+              opacity: 0.72;
+              transform: translate3d(13px, -15px, 0) scale(1.05);
             }
             100% {
               opacity: 0;
-              transform: translate3d(-16px, -110px, 0) scale(0.08);
+              transform: translate3d(-7px, -46px, 0) scale(0.1);
             }
           }
 
@@ -365,18 +356,14 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               opacity: 0;
               transform: translate3d(0, 8px, 0) scale(0.25);
             }
-            16% { opacity: 0.9; }
-            42% {
-              opacity: 0.75;
-              transform: translate3d(-22px, -16px, 0) scale(1);
-            }
-            72% {
-              opacity: 0.5;
-              transform: translate3d(-6px, -55px, 0) scale(0.55);
+            20% { opacity: 0.9; }
+            55% {
+              opacity: 0.7;
+              transform: translate3d(-12px, -12px, 0) scale(1);
             }
             100% {
               opacity: 0;
-              transform: translate3d(20px, -100px, 0) scale(0.1);
+              transform: translate3d(10px, -43px, 0) scale(0.12);
             }
           }
 
@@ -385,18 +372,14 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               opacity: 0;
               transform: translate3d(0, -5px, 0) scale(0.25);
             }
-            16% { opacity: 0.9; }
-            44% {
-              opacity: 0.8;
-              transform: translate3d(24px, -14px, 0) scale(1);
-            }
-            74% {
-              opacity: 0.5;
-              transform: translate3d(8px, -52px, 0) scale(0.5);
+            20% { opacity: 0.9; }
+            58% {
+              opacity: 0.75;
+              transform: translate3d(12px, -13px, 0) scale(1);
             }
             100% {
               opacity: 0;
-              transform: translate3d(-18px, -98px, 0) scale(0.1);
+              transform: translate3d(-9px, -40px, 0) scale(0.12);
             }
           }
 
