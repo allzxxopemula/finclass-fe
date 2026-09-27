@@ -24,7 +24,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(5);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -44,7 +44,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setShowConfirmModal(true);
-    setCountdown(3);
+    setCountdown(5);
     setErrorMessage('');
   };
 
