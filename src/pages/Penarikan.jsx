@@ -52,13 +52,15 @@ export default function Penarikan() {
     <MainLayout>
       <div className="space-y-4 pb-2">
         {/* Top Bar Header */}
-        <div className="flex justify-between items-center pt-2">
-          <div>
-            <h1 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <FontAwesomeIcon icon={faHandHoldingDollar} className="text-indigo-600" />
-              Penarikan Kas
-            </h1>
-            <p className="text-xs text-slate-400">Riwayat log pencatatan dan penarikan kas kelas</p>
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <FontAwesomeIcon icon={faHandHoldingDollar} className="text-indigo-600" />
+                Penarikan Kas
+              </h1>
+              <p className="text-xs text-slate-400">Riwayat log pencatatan dan penarikan kas kelas</p>
+            </div>
           </div>
         </div>
 

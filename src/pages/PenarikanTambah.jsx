@@ -105,17 +105,19 @@ export default function PenarikanTambah() {
       <div className="space-y-4 pb-4">
         
         {/* Top Header dengan Tombol Kembali */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/penarikan')}
-              className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </button>
-            <div>
-              <h1 className="text-base font-black text-slate-900">Buku Kas Bulanan</h1>
-              <p className="text-[10px] text-slate-400">Centang pembayaran pada tanggal yang sesuai</p>
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => navigate('/penarikan')}
+                className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+              <div>
+                <h1 className="text-base font-black text-slate-900">Buku Kas Bulanan</h1>
+                <p className="text-[10px] text-slate-400">Centang pembayaran pada tanggal yang sesuai</p>
+              </div>
             </div>
           </div>
         </div>
