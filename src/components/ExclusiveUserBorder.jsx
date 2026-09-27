@@ -2,7 +2,7 @@ import React from 'react';
 
 export const EXCLUSIVE_USER_EMAILS = [
   {
-    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (DARK ASH TEMPEST) ===
+    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (DARK FLAME TEMPEST) ===
     emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
@@ -51,7 +51,7 @@ export const getExclusiveUserPreset = (email) => {
 };
 
 // ==========================================
-// ASSET SVG EKSKLUSIF (BINTANG & KOIN)
+// ASSET SVG EKSKLUSIF (BINTANG & KOIN)[cite: 6]
 // ==========================================
 const StarSparkle = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +95,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
       <div className="relative inline-block">
         
         {/* ======================================= */}
-        {/* EFEK RIPPLE PULSE KHUSUS DEVELOPER      */}
+        {/* EFEK RIPPLE PULSE KHUSUS DEVELOPER[cite: 6] */}
         {/* ======================================= */}
         {isDeveloper && (
           <>
@@ -104,43 +104,31 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </>
         )}
 
-        {/* ========================================================= */}
-        {/* BADAI ABU HITAM (DARK ASH TEMPEST) - DI BAWAH PROFIL (z-5) */}
-        {/* ========================================================= */}
+        {/* ==================================================================== */}
+        {/* 🔥 EFEK API MONOCHROME / DARK FLAMES (MUNCUL DARI LUAR BAWAH KE ATAS) */}
+        {/* ==================================================================== */}
         {isDeveloper && (
-          <div className="absolute inset-0 pointer-events-none overflow-visible z-[5]">
-            {/* PARTIKEL KIRI */}
-            <div className="absolute -bottom-2 -left-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_4px_#000] animate-[ashUpLeft_4s_ease-in-out_infinite_0s]" />
-            <div className="absolute -bottom-4 -left-1 w-1 h-1 bg-slate-700 rounded-full animate-[ashUpRight_5s_ease-in-out_infinite_1.2s]" />
-            <div className="absolute -bottom-1 -left-4 w-0.5 h-0.5 bg-slate-400 rounded-full animate-[ashUpStraight_3.5s_ease-in-out_infinite_0.5s]" />
-            <div className="absolute -bottom-5 -left-2 w-1 h-1 bg-white/70 rounded-full shadow-[0_0_3px_#fff] animate-[ashUpWide_6s_ease-in-out_infinite_2.1s]" />
+          <div className="absolute -inset-6 pointer-events-none overflow-visible z-[30]">
+            {/* SISI KIRI (Membara naik dari bawah melewati sisi kiri) */}
+            <div className="absolute bottom-0 left-1 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_6px_rgba(0,0,0,0.9)] animate-[fireFlameLeft_3.2s_ease-in-out_infinite_0s]" />
+            <div className="absolute -bottom-2 left-0 w-2 h-2 bg-slate-800 rounded-full shadow-[0_0_5px_#000] animate-[fireFlameLeft_3.8s_ease-in-out_infinite_1.2s]" />
+            <div className="absolute bottom-1 -left-2 w-1 h-1 bg-white/80 rounded-full shadow-[0_0_4px_#fff] animate-[fireFlameLeft_2.8s_ease-in-out_infinite_0.6s]" />
+            <div className="absolute -bottom-4 left-2 w-1.5 h-1.5 bg-slate-900 rounded-full animate-[fireFlameLeft_4.2s_ease-in-out_infinite_2.1s]" />
 
-            {/* PARTIKEL KIRI TENGAH */}
-            <div className="absolute -bottom-3 left-1/4 w-1 h-1 bg-slate-900 rounded-full animate-[ashUpRight_4.5s_ease-in-out_infinite_0.3s]" />
-            <div className="absolute -bottom-6 left-[20%] w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_#000] animate-[ashUpLeft_5.5s_ease-in-out_infinite_1.8s]" />
-            <div className="absolute -bottom-2 left-1/3 w-0.5 h-0.5 bg-slate-600 rounded-full animate-[ashUpStraight_3s_ease-in-out_infinite_0.9s]" />
-            <div className="absolute -bottom-4 left-[30%] w-1 h-1 bg-[#111827] rounded-full animate-[ashUpWide_4.8s_ease-in-out_infinite_2.6s]" />
-            
-            {/* PARTIKEL TENGAH */}
-            <div className="absolute -bottom-4 left-1/2 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_6px_#000] animate-[ashUpWide_4.2s_ease-in-out_infinite_0.1s]" />
-            <div className="absolute -bottom-2 left-[48%] w-1 h-1 bg-slate-800 rounded-full animate-[ashUpLeft_4.6s_ease-in-out_infinite_1.5s]" />
-            <div className="absolute -bottom-5 left-[52%] w-0.5 h-0.5 bg-slate-500 rounded-full animate-[ashUpRight_3.8s_ease-in-out_infinite_2.4s]" />
+            {/* PUSAT BAWAH (Membara naik pas di bawah lingkaran) */}
+            <div className="absolute -bottom-4 left-1/3 w-2 h-2 bg-black rounded-full shadow-[0_0_8px_rgba(0,0,0,0.9)] animate-[fireFlameCenter_3.5s_ease-in-out_infinite_0.3s]" />
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 rounded-full shadow-[0_0_10px_#000] animate-[fireFlameCenter_3s_ease-in-out_infinite_1.5s]" />
+            <div className="absolute -bottom-3 left-2/3 w-1.5 h-1.5 bg-white/70 rounded-full shadow-[0_0_5px_#fff] animate-[fireFlameCenter_4s_ease-in-out_infinite_0.9s]" />
 
-            {/* PARTIKEL KANAN TENGAH */}
-            <div className="absolute -bottom-3 right-1/4 w-1 h-1 bg-slate-900 rounded-full animate-[ashUpLeft_5s_ease-in-out_infinite_0.6s]" />
-            <div className="absolute -bottom-5 right-1/3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_4px_#000] animate-[ashUpStraight_4.4s_ease-in-out_infinite_1.9s]" />
-            <div className="absolute -bottom-2 right-[20%] w-1 h-1 bg-white/60 rounded-full shadow-[0_0_2px_#fff] animate-[ashUpWide_5.2s_ease-in-out_infinite_2.7s]" />
-            <div className="absolute -bottom-6 right-[30%] w-0.5 h-0.5 bg-[#111827] rounded-full animate-[ashUpRight_4.1s_ease-in-out_infinite_1.1s]" />
-
-            {/* PARTIKEL KANAN */}
-            <div className="absolute -bottom-4 -right-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_#000] animate-[ashUpRight_4s_ease-in-out_infinite_0.8s]" />
-            <div className="absolute -bottom-2 -right-1 w-1 h-1 bg-slate-700 rounded-full animate-[ashUpLeft_4.6s_ease-in-out_infinite_1.3s]" />
-            <div className="absolute -bottom-6 -right-4 w-0.5 h-0.5 bg-slate-400 rounded-full animate-[ashUpStraight_3.6s_ease-in-out_infinite_2.2s]" />
-            <div className="absolute -bottom-3 -right-2 w-1 h-1 bg-slate-900 rounded-full animate-[ashUpWide_5.8s_ease-in-out_infinite_0.4s]" />
+            {/* SISI KANAN (Membara naik dari bawah melewati sisi kanan) */}
+            <div className="absolute bottom-0 right-1 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_6px_rgba(0,0,0,0.9)] animate-[fireFlameRight_3.4s_ease-in-out_infinite_0.4s]" />
+            <div className="absolute -bottom-2 right-0 w-2 h-2 bg-slate-800 rounded-full shadow-[0_0_5px_#000] animate-[fireFlameRight_4s_ease-in-out_infinite_1.8s]" />
+            <div className="absolute bottom-1 -right-2 w-1 h-1 bg-slate-600 rounded-full animate-[fireFlameRight_2.6s_ease-in-out_infinite_1.1s]" />
+            <div className="absolute -bottom-5 right-2 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_7px_#000] animate-[fireFlameRight_3.6s_ease-in-out_infinite_2.5s]" />
           </div>
         )}
 
-        {/* === WADAH UTAMA FOTO PROFIL (z-10, DI ATAS ABU HITAM) === */}
+        {/* === WADAH UTAMA FOTO PROFIL (z-10, DI ATAS EFEK API) === */}
         <div 
           className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
             ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
@@ -150,13 +138,13 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             ${preset.glow} ${className} transition-all duration-300 hover:scale-105 z-10`}
         >
           
-          {/* Efek Lingkaran Developer (Aman 100%) */}
+          {/* Efek Lingkaran Developer[cite: 6] */}
           {isDeveloper && (
             <>
               {/* Spinning Base Gradient */}
               <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-100" />
               
-              {/* Orbiting White Comet */}
+              {/* Orbiting White Comet[cite: 6] */}
               <div className="absolute inset-[-4px] animate-[spin_1.5s_linear_infinite] pointer-events-none rounded-full z-10">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_4px_#ffffff] blur-[1px]" />
                 <div className="absolute top-0 left-1/2 w-16 h-2 bg-gradient-to-l from-white to-transparent opacity-70 origin-left rounded-full blur-[2px]" />
@@ -168,12 +156,12 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* Efek Dev Team */}
+          {/* Efek Dev Team[cite: 6] */}
           {isDevTeam && (
             <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
           )}
 
-          {/* Efek Donatur */}
+          {/* Efek Donatur[cite: 6] */}
           {isDonatur && (
             <>
               <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-100" />
@@ -182,7 +170,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* Efek Reguler */}
+          {/* Efek Reguler[cite: 6] */}
           {isRegular && (
             <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
           )}
@@ -195,7 +183,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         </div>
 
         {/* ======================================= */}
-        {/* BINTANG SPARKLE (DEVELOPER, DI ATAS PROFIL, z-100) */}
+        {/* BINTANG SPARKLE (DEVELOPER, z-[100])[cite: 6] */}
         {/* ======================================= */}
         {isDeveloper && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-[100]">
@@ -206,7 +194,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         )}
 
-        {/* EFEK KOIN EMAS SULTAN (DONATUR) */}
+        {/* EFEK KOIN EMAS SULTAN (DONATUR)[cite: 6] */}
         {isDonatur && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
             <GoldenCoin className="absolute -bottom-2 left-1/4 w-4 h-4 filter drop-shadow-[0_0_4px_#F59E0B] animate-[coinRise_3s_ease-in_infinite]" />
@@ -219,43 +207,32 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
           /* ========================================================
-             BADAI ABU HITAM (DARK ASH TEMPEST ANIMATIONS) - SMOOTH!
+             🔥 EFEK API MONOCHROME (SMOOTH & ORGANIC FLAMES)
              ======================================================== */
           
-          /* Melayang Lembut Ke Kiri Atas */
-          @keyframes ashUpLeft {
-            0% { transform: translate(10px, 30px) scale(0.5); opacity: 0; }
-            30% { opacity: 0.9; transform: translate(0px, 5px) scale(1); }
-            70% { opacity: 0.9; transform: translate(-15px, -20px) scale(1.2); }
-            100% { transform: translate(-25px, -50px) scale(0.5); opacity: 0; }
+          @keyframes fireFlameLeft {
+            0% { transform: translate(0px, 15px) scale(0.4); opacity: 0; }
+            20% { opacity: 0.9; transform: translate(-8px, -5px) scale(1); }
+            60% { opacity: 0.8; transform: translate(-18px, -30px) scale(1.3); }
+            100% { transform: translate(-28px, -65px) scale(0.2); opacity: 0; }
           }
 
-          /* Melayang Lembut Ke Kanan Atas */
-          @keyframes ashUpRight {
-            0% { transform: translate(-10px, 30px) scale(0.5); opacity: 0; }
-            30% { opacity: 0.8; transform: translate(0px, 5px) scale(1.1); }
-            70% { opacity: 0.8; transform: translate(15px, -20px) scale(1.3); }
-            100% { transform: translate(25px, -50px) scale(0.6); opacity: 0; }
+          @keyframes fireFlameCenter {
+            0% { transform: translate(0px, 20px) scale(0.5); opacity: 0; }
+            25% { opacity: 1; transform: translate(2px, -10px) scale(1.2); }
+            65% { opacity: 0.9; transform: translate(-4px, -35px) scale(1.4); }
+            100% { transform: translate(2px, -70px) scale(0.3); opacity: 0; }
           }
 
-          /* Melayang Lembut Lurus Ke Atas (Bergetar Dikit) */
-          @keyframes ashUpStraight {
-            0% { transform: translate(0px, 30px) scale(0.3); opacity: 0; }
-            35% { opacity: 1; transform: translate(3px, 0px) scale(1.5); }
-            65% { opacity: 1; transform: translate(-3px, -25px) scale(1); }
-            100% { transform: translate(0px, -50px) scale(0.4); opacity: 0; }
-          }
-
-          /* Melayang Lebar Ke Atas (Arah Acak/Nyapu) */
-          @keyframes ashUpWide {
-            0% { transform: translate(20px, 40px) scale(0.5); opacity: 0; }
-            30% { opacity: 0.7; transform: translate(5px, 0px) scale(1.2); }
-            70% { opacity: 0.7; transform: translate(-25px, -30px) scale(1.4); }
-            100% { transform: translate(-40px, -60px) scale(0.5); opacity: 0; }
+          @keyframes fireFlameRight {
+            0% { transform: translate(0px, 15px) scale(0.4); opacity: 0; }
+            20% { opacity: 0.9; transform: translate(8px, -5px) scale(1); }
+            60% { opacity: 0.8; transform: translate(18px, -30px) scale(1.3); }
+            100% { transform: translate(28px, -65px) scale(0.2); opacity: 0; }
           }
 
           /* ========================================================
-             BASE ANIMATIONS (TIDAK DISENTUH SAMA SEKALI)
+             BASE ANIMATIONS (UTUH TIDAK DIUBAH)[cite: 6]
              ======================================================== */
           @keyframes rippleFast {
             0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
@@ -302,7 +279,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // --- STYLE UNTUK KOTAK (CARD) ---
+  // --- STYLE UNTUK KOTAK (CARD)[cite: 6] ---
   return (
     <div className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 p-[2.5px] ${preset.glow} ${className} transition-all duration-300
       ${isDeveloper || isDevTeam || isDonatur ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`}`}
