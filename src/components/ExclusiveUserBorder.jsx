@@ -104,28 +104,23 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </>
         )}
 
-        {/* ==================================================================== */}
-        /* 🔥 EFEK API MONOCHROME (MUNCUL TEPAT DI GARIS BAWAH, MENYEBAR KE KIRI-KANAN-ATAS) */
-        /* ==================================================================== */}
+        {/* EFEK API EMBER MONOCHROME DI PANGKALAN BAWAH PROFIL */}
         {isDeveloper && (
           <div className="absolute inset-[-2px] pointer-events-none overflow-visible z-[5]">
-            {/* Titik Asal: Pangkalan Bawah Profil, Menyebar ke Sisi Kiri */}
             <div className="absolute bottom-1 left-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadLeft_2.8s_ease-in-out_infinite_0s]" />
             <div className="absolute bottom-0 left-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadLeft_3.4s_ease-in-out_infinite_1.2s]" />
             <div className="absolute bottom-2 left-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadLeft_2.2s_ease-in-out_infinite_0.7s]" />
 
-            {/* Titik Asal: Pas di Tengah Bawah Profil, Naik dan Membelah ke Kiri-Kanan */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rounded-full shadow-[0_0_6px_#000] animate-[emberSpreadCenter_3s_ease-in-out_infinite_0.2s]" />
             <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-slate-700 rounded-full animate-[emberSpreadCenter_3.6s_ease-in-out_infinite_1.5s]" />
 
-            {/* Titik Asal: Pangkalan Bawah Profil, Menyebar ke Sisi Kanan */}
             <div className="absolute bottom-1 right-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadRight_3s_ease-in-out_infinite_0.4s]" />
             <div className="absolute bottom-0 right-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadRight_3.8s_ease-in-out_infinite_1.6s]" />
             <div className="absolute bottom-2 right-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadRight_2.5s_ease-in-out_infinite_1s]" />
           </div>
         )}
 
-        {/* === WADAH UTAMA FOTO PROFIL (z-10, DI ATAS ABU API) === */}
+        {/* === WADAH UTAMA FOTO PROFIL === */}
         <div 
           className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
             ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
@@ -138,10 +133,8 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           {/* Efek Lingkaran Developer[cite: 6] */}
           {isDeveloper && (
             <>
-              {/* Spinning Base Gradient */}
               <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-100" />
               
-              {/* Orbiting White Comet[cite: 6] */}
               <div className="absolute inset-[-4px] animate-[spin_1.5s_linear_infinite] pointer-events-none rounded-full z-10">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_4px_#ffffff] blur-[1px]" />
                 <div className="absolute top-0 left-1/2 w-16 h-2 bg-gradient-to-l from-white to-transparent opacity-70 origin-left rounded-full blur-[2px]" />
@@ -203,10 +196,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
-          /* ========================================================
-             🔥 EFEK EMBER / API MONOCHROME (MENYEBAR DARI BAWAH PROFIL)
-             ======================================================== */
-          
           @keyframes emberSpreadLeft {
             0% { transform: translate(0px, 0px) scale(0.3); opacity: 0; }
             20% { opacity: 1; transform: translate(-4px, -8px) scale(1.1); }
@@ -228,9 +217,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             100% { transform: translate(22px, -35px) scale(0.2); opacity: 0; }
           }
 
-          /* ========================================================
-             BASE ANIMATIONS (UTUH TIDAK DIUBAH)[cite: 6]
-             ======================================================== */
           @keyframes rippleFast {
             0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
             100% { transform: scale(1.35); opacity: 0; border-width: 0px; }
