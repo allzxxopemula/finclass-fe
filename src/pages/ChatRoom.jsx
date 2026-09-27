@@ -7,10 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 // =========================================================
-// CACHE RINGAN DI LOCALSTORAGE
-// Tujuannya cuma satu: begitu room chat dibuka, kalau sebelumnya
-// pernah dibuka, pesan lama langsung tampil INSTAN tanpa nunggu
-// spinner, sambil data terbaru tetap ditarik diam-diam di background.
+// CACHE RINGAN DI LOCALSTORAGE (ANTI LOADING LAMA)
 // =========================================================
 const CHAT_CACHE_PREFIX = 'chatroom_cache_v1_';
 const CHAT_CACHE_MAX_MESSAGES = 50;
@@ -26,7 +23,7 @@ const readChatCache = (userId) => {
     if (!parsed || !Array.isArray(parsed.messages)) return null;
     return parsed;
   } catch {
-    return null; // cache korup / tidak bisa dibaca -> abaikan saja, tidak fatal
+    return null; 
   }
 };
 
@@ -39,7 +36,7 @@ const writeChatCache = (userId, room, messages) => {
       JSON.stringify({ room: room || null, messages: trimmed, savedAt: Date.now() })
     );
   } catch {
-    // localStorage penuh / mode private dsb -> tidak masalah, fitur ini cuma bonus
+    // Abaikan jika storage penuh
   }
 };
 
@@ -206,16 +203,14 @@ export default function ChatRoom() {
 
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true);
-  const hasAutoScrolledRef = useRef(false); // Memastikan chat auto-scroll ke bawah SEKALI saat room pertama dibuka
+  const hasAutoScrolledRef = useRef(false);
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Pesan yang BARU SAJA dikirim/dihapus secara lokal, sebelum server
-  // sempat "menyusul" di snapshot polling berikutnya. Dipakai supaya
-  // pesan tidak sempat kedip hilang saat polling menimpa state.
-  const recentSentRef = useRef(new Map());   // id -> objek pesan
-  const recentDeletedRef = useRef(new Map()); // id -> deleted_at
+  // Penahan pesan agar tidak kedip (Optimistic UI)
+  const recentSentRef = useRef(new Map());   
+  const recentDeletedRef = useRef(new Map()); 
 
   const readUser = () => {
     try {
@@ -246,15 +241,13 @@ export default function ChatRoom() {
     } catch (e) {}
   };
 
-  // Gabungkan hasil dari server dengan pesan lokal yang masih "pending"
-  // (baru dikirim / baru dihapus) supaya tidak ada efek kedip-hilang.
   const reconcileMessages = (serverMessages) => {
     const serverIds = new Set(serverMessages.map((m) => m.id));
 
     const stillPendingSent = [];
     recentSentRef.current.forEach((msg, id) => {
       if (serverIds.has(id)) {
-        recentSentRef.current.delete(id); // server sudah punya, tak perlu ditahan lagi
+        recentSentRef.current.delete(id); 
       } else {
         stillPendingSent.push(msg);
       }
@@ -269,7 +262,7 @@ export default function ChatRoom() {
     if (recentDeletedRef.current.size > 0) {
       merged = merged.map((item) => {
         if (item.deleted_at || item.is_deleted) {
-          recentDeletedRef.current.delete(item.id); // server sudah update, tak perlu ditahan lagi
+          recentDeletedRef.current.delete(item.id); 
           return item;
         }
         if (recentDeletedRef.current.has(item.id)) {
@@ -299,10 +292,21 @@ export default function ChatRoom() {
         const incomingMessages = response.data.messages || [];
         const reconciled = reconcileMessages(incomingMessages);
 
-        // Cek dulu apakah ada bedanya dengan yang di layar. Kalau tidak ada
-        // beda, jangan trigger re-render sama sekali (biar hemat & halus).
+        // ===============================================================
+        // LOGIC SMART DIFFING (SUPER AKURAT):
+        // Membandingkan ID, status hapus, dan isi pesan.
+        // Jika tidak ada perubahan sama sekali, React TIDAK AKAN me-render ulang!
+        // ===============================================================
         setMessages((prev) => {
-          const isChanged = JSON.stringify(prev) !== JSON.stringify(reconciled);
+          if (prev.length !== reconciled.length) return reconciled;
+          
+          const isChanged = prev.some((p, i) => 
+            p.id !== reconciled[i].id || 
+            p.is_deleted !== reconciled[i].is_deleted || 
+            p.deleted_at !== reconciled[i].deleted_at ||
+            p.message !== reconciled[i].message
+          );
+
           return isChanged ? reconciled : prev;
         });
 
@@ -315,8 +319,6 @@ export default function ChatRoom() {
     } catch (error) {
       console.error('Gagal memuat room chat:', error);
     } finally {
-      // PENTING: selalu matikan loading di sini tanpa syarat tambahan apa
-      // pun, supaya spinner "Memuat percakapan..." tidak pernah nyangkut.
       setLoading(false);
     }
   };
@@ -330,8 +332,6 @@ export default function ChatRoom() {
 
     setUser(savedUser);
 
-    // Tampilkan dulu cache lokal (kalau ada) biar user gak lihat spinner
-    // lama-lama. Data ini langsung disegarkan lewat loadMessages di bawah.
     const cached = readChatCache(savedUser.id);
     if (cached) {
       setRoom(cached.room || null);
@@ -341,14 +341,12 @@ export default function ChatRoom() {
 
     loadMessages(savedUser.id, false);
 
-    // Jaring pengaman: kalau karena sebab apa pun request pertama tidak
-    // pernah selesai, paksa spinner mati setelah 8 detik.
-    const safetyTimer = window.setTimeout(() => setLoading(false), 8000);
+    const safetyTimer = window.setTimeout(() => setLoading(false), 5000);
 
-    // Polling tiap 8 detik agar ringan & santai
+    // DIKEMBALIKAN KE 3 DETIK (REAL-TIME SEJATI!)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
-    }, 8000);
+    }, 3000);
 
     return () => {
       window.clearInterval(timer);
@@ -366,8 +364,6 @@ export default function ChatRoom() {
   useEffect(() => {
     if (!listRef.current) return;
 
-    // Saat room BARU PERTAMA KALI dibuka dan pesan sudah tampil, paksa
-    // scroll ke bawah satu kali, apa pun posisi scroll sebelumnya.
     const isFirstReveal = !hasAutoScrolledRef.current && messages.length > 0;
 
     if (isFirstReveal || isAtBottomRef.current) {
@@ -393,7 +389,6 @@ export default function ChatRoom() {
 
     const trimmedDraft = draft.trim();
 
-    // TAHAN INPUT. Teks di kolom input TIDAK akan dikosongkan dulu
     setSending(true);
 
     try {
@@ -403,13 +398,10 @@ export default function ChatRoom() {
       });
 
       if (response.data.status === 'success') {
-        // SUKSES DARI SERVER, baru input teks dikosongkan
         setDraft('');
 
         const sentChat = response.data.chat;
         if (sentChat) {
-          // Catat sebagai pesan "baru dikirim" supaya tidak kedip hilang
-          // kalau ada polling lama yang snapshot-nya belum punya pesan ini.
           recentSentRef.current.set(sentChat.id, sentChat);
 
           setMessages((prev) => {
@@ -443,8 +435,6 @@ export default function ChatRoom() {
       if (response.data.status === 'success') {
         const deletedAt = response.data.chat?.deleted_at || new Date().toISOString();
 
-        // Catat sebagai pesan "baru dihapus" supaya tidak sempat muncul
-        // lagi versi lamanya kalau ada polling lama yang belum update.
         recentDeletedRef.current.set(messageId, deletedAt);
 
         setMessages((currentMessages) => {
@@ -524,12 +514,10 @@ export default function ChatRoom() {
               </div>
             ) : (
               messages.map((item, index) => {
-                // LOGIKA SENDER SUPER AKURAT
                 const senderId = item.user_id || item.user?.id;
                 const isMine = String(senderId) === String(user.id);
                 const preset = getExclusiveUserPreset(item.user?.email || user?.email);
 
-                // LOGIKA GROUPING AVATAR
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
                 const isSameUserAsPrev = prevMessage && String(prevSenderId) === String(senderId);
