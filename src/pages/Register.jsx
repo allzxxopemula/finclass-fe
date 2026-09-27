@@ -23,12 +23,18 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
+
+  const roleLabel = role
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,8 +43,14 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setShowConfirmModal(true);
+    setCountdown(3);
     setErrorMessage('');
+  };
+
+  const confirmRoleRegistration = async () => {
+    setIsLoading(true);
+    setShowConfirmModal(false);
 
     try {
       const payload = { 
@@ -64,6 +76,21 @@ export default function Register() {
       setIsLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    if (!showConfirmModal) return;
+
+    if (countdown === 0) {
+      confirmRoleRegistration();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [showConfirmModal, countdown]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between font-sans px-4 py-6">
@@ -228,6 +255,50 @@ export default function Register() {
           </div>
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+              <FontAwesomeIcon icon={faTriangleExclamation} className="text-lg" />
+            </div>
+
+            <h2 className="text-center text-lg font-black text-slate-900 uppercase">APAKAH ANDA YAKIN INGIN DAFTAR SEBAGAI</h2>
+            <p className="mt-3 text-center text-base font-black text-slate-900">
+              {roleLabel}
+            </p>
+
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-center">
+              <p className="text-[10px] font-black uppercase tracking-wider text-amber-700">Peringatan penting</p>
+              <p className="mt-1 text-xs font-bold text-slate-700">Peran ini menentukan akses, fitur, dan hak yang bisa Anda gunakan di dalam kelas.</p>
+            </div>
+
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs font-black text-slate-600">
+              <span>Auto lanjut dalam</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-800">{countdown}</span>
+              <span>detik</span>
+            </div>
+
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={confirmRoleRegistration}
+                disabled={isLoading}
+                className="w-full rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white disabled:opacity-60"
+              >
+                {isLoading ? 'Mendaftar...' : 'Ya, lanjut'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="text-center text-[10px] text-slate-400">
