@@ -105,30 +105,27 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         )}
 
         {/* ==================================================================== */}
-        {/* 🔥 EFEK API MONOCHROME / DARK FLAMES (MUNCUL DARI LUAR BAWAH KE ATAS) */}
-        {/* ==================================================================== */}
+        /* 🔥 EFEK API MONOCHROME (MUNCUL TEPAT DI GARIS BAWAH, MENYEBAR KE KIRI-KANAN-ATAS) */
+        /* ==================================================================== */}
         {isDeveloper && (
-          <div className="absolute -inset-6 pointer-events-none overflow-visible z-[30]">
-            {/* SISI KIRI (Membara naik dari bawah melewati sisi kiri) */}
-            <div className="absolute bottom-0 left-1 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_6px_rgba(0,0,0,0.9)] animate-[fireFlameLeft_3.2s_ease-in-out_infinite_0s]" />
-            <div className="absolute -bottom-2 left-0 w-2 h-2 bg-slate-800 rounded-full shadow-[0_0_5px_#000] animate-[fireFlameLeft_3.8s_ease-in-out_infinite_1.2s]" />
-            <div className="absolute bottom-1 -left-2 w-1 h-1 bg-white/80 rounded-full shadow-[0_0_4px_#fff] animate-[fireFlameLeft_2.8s_ease-in-out_infinite_0.6s]" />
-            <div className="absolute -bottom-4 left-2 w-1.5 h-1.5 bg-slate-900 rounded-full animate-[fireFlameLeft_4.2s_ease-in-out_infinite_2.1s]" />
+          <div className="absolute inset-[-2px] pointer-events-none overflow-visible z-[5]">
+            {/* Titik Asal: Pangkalan Bawah Profil, Menyebar ke Sisi Kiri */}
+            <div className="absolute bottom-1 left-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadLeft_2.8s_ease-in-out_infinite_0s]" />
+            <div className="absolute bottom-0 left-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadLeft_3.4s_ease-in-out_infinite_1.2s]" />
+            <div className="absolute bottom-2 left-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadLeft_2.2s_ease-in-out_infinite_0.7s]" />
 
-            {/* PUSAT BAWAH (Membara naik pas di bawah lingkaran) */}
-            <div className="absolute -bottom-4 left-1/3 w-2 h-2 bg-black rounded-full shadow-[0_0_8px_rgba(0,0,0,0.9)] animate-[fireFlameCenter_3.5s_ease-in-out_infinite_0.3s]" />
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 rounded-full shadow-[0_0_10px_#000] animate-[fireFlameCenter_3s_ease-in-out_infinite_1.5s]" />
-            <div className="absolute -bottom-3 left-2/3 w-1.5 h-1.5 bg-white/70 rounded-full shadow-[0_0_5px_#fff] animate-[fireFlameCenter_4s_ease-in-out_infinite_0.9s]" />
+            {/* Titik Asal: Pas di Tengah Bawah Profil, Naik dan Membelah ke Kiri-Kanan */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rounded-full shadow-[0_0_6px_#000] animate-[emberSpreadCenter_3s_ease-in-out_infinite_0.2s]" />
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-slate-700 rounded-full animate-[emberSpreadCenter_3.6s_ease-in-out_infinite_1.5s]" />
 
-            {/* SISI KANAN (Membara naik dari bawah melewati sisi kanan) */}
-            <div className="absolute bottom-0 right-1 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_6px_rgba(0,0,0,0.9)] animate-[fireFlameRight_3.4s_ease-in-out_infinite_0.4s]" />
-            <div className="absolute -bottom-2 right-0 w-2 h-2 bg-slate-800 rounded-full shadow-[0_0_5px_#000] animate-[fireFlameRight_4s_ease-in-out_infinite_1.8s]" />
-            <div className="absolute bottom-1 -right-2 w-1 h-1 bg-slate-600 rounded-full animate-[fireFlameRight_2.6s_ease-in-out_infinite_1.1s]" />
-            <div className="absolute -bottom-5 right-2 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_7px_#000] animate-[fireFlameRight_3.6s_ease-in-out_infinite_2.5s]" />
+            {/* Titik Asal: Pangkalan Bawah Profil, Menyebar ke Sisi Kanan */}
+            <div className="absolute bottom-1 right-3 w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.9)] animate-[emberSpreadRight_3s_ease-in-out_infinite_0.4s]" />
+            <div className="absolute bottom-0 right-1 w-1 h-1 bg-slate-800 rounded-full animate-[emberSpreadRight_3.8s_ease-in-out_infinite_1.6s]" />
+            <div className="absolute bottom-2 right-4 w-0.5 h-0.5 bg-white rounded-full shadow-[0_0_3px_#fff] animate-[emberSpreadRight_2.5s_ease-in-out_infinite_1s]" />
           </div>
         )}
 
-        {/* === WADAH UTAMA FOTO PROFIL (z-10, DI ATAS EFEK API) === */}
+        {/* === WADAH UTAMA FOTO PROFIL (z-10, DI ATAS ABU API) === */}
         <div 
           className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
             ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
@@ -207,28 +204,28 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
           /* ========================================================
-             🔥 EFEK API MONOCHROME (SMOOTH & ORGANIC FLAMES)
+             🔥 EFEK EMBER / API MONOCHROME (MENYEBAR DARI BAWAH PROFIL)
              ======================================================== */
           
-          @keyframes fireFlameLeft {
-            0% { transform: translate(0px, 15px) scale(0.4); opacity: 0; }
-            20% { opacity: 0.9; transform: translate(-8px, -5px) scale(1); }
-            60% { opacity: 0.8; transform: translate(-18px, -30px) scale(1.3); }
-            100% { transform: translate(-28px, -65px) scale(0.2); opacity: 0; }
+          @keyframes emberSpreadLeft {
+            0% { transform: translate(0px, 0px) scale(0.3); opacity: 0; }
+            20% { opacity: 1; transform: translate(-4px, -8px) scale(1.1); }
+            60% { opacity: 0.8; transform: translate(-14px, -20px) scale(1.3); }
+            100% { transform: translate(-22px, -35px) scale(0.2); opacity: 0; }
           }
 
-          @keyframes fireFlameCenter {
-            0% { transform: translate(0px, 20px) scale(0.5); opacity: 0; }
-            25% { opacity: 1; transform: translate(2px, -10px) scale(1.2); }
-            65% { opacity: 0.9; transform: translate(-4px, -35px) scale(1.4); }
-            100% { transform: translate(2px, -70px) scale(0.3); opacity: 0; }
+          @keyframes emberSpreadCenter {
+            0% { transform: translate(0px, 0px) scale(0.4); opacity: 0; }
+            25% { opacity: 1; transform: translate(0px, -10px) scale(1.3); }
+            65% { opacity: 0.9; transform: translate(0px, -25px) scale(1); }
+            100% { transform: translate(0px, -42px) scale(0.2); opacity: 0; }
           }
 
-          @keyframes fireFlameRight {
-            0% { transform: translate(0px, 15px) scale(0.4); opacity: 0; }
-            20% { opacity: 0.9; transform: translate(8px, -5px) scale(1); }
-            60% { opacity: 0.8; transform: translate(18px, -30px) scale(1.3); }
-            100% { transform: translate(28px, -65px) scale(0.2); opacity: 0; }
+          @keyframes emberSpreadRight {
+            0% { transform: translate(0px, 0px) scale(0.3); opacity: 0; }
+            20% { opacity: 1; transform: translate(4px, -8px) scale(1.1); }
+            60% { opacity: 0.8; transform: translate(14px, -20px) scale(1.3); }
+            100% { transform: translate(22px, -35px) scale(0.2); opacity: 0; }
           }
 
           /* ========================================================
