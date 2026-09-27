@@ -17,6 +17,10 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState(null);
   const [showCreditModal, setShowCreditModal] = useState(false);
 
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
   const toggleFaq = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
@@ -63,17 +67,19 @@ export default function Faq() {
       <div className="space-y-4 pb-6">
         
         {/* Top Header dengan Tombol Kembali */}
-        <div className="flex items-center gap-3 pt-2">
-          <button 
-            type="button"
-            onClick={() => navigate('/profile')} 
-            className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm active:scale-95"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <div>
-            <h1 className="text-base font-black text-slate-900">Bantuan & FAQ</h1>
-            <p className="text-[10px] text-slate-400 font-semibold">Panduan penggunaan aplikasi kas</p>
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={() => navigate('/profile')} 
+              className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm active:scale-95"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+            </button>
+            <div>
+              <h1 className="text-base font-black text-slate-900">Bantuan & FAQ</h1>
+              <p className="text-[10px] text-slate-400 font-semibold">Panduan penggunaan aplikasi kas</p>
+            </div>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -21,11 +21,22 @@ import Faq from './pages/Faq';
 import InputSaldoAwal from './pages/InputSaldoAwal';
 import ChatRoom from './pages/ChatRoom';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   const savedUser = localStorage.getItem('user');
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={savedUser ? <Navigate to="/home" replace /> : <LandingPage />} />
         <Route path="/login" element={<Login />} />
