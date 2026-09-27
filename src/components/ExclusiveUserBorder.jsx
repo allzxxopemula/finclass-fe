@@ -76,7 +76,11 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   const preset = getExclusiveUserPreset(email);
 
   if (!preset) {
-    return <div className={className}>{children}</div>;
+    return (
+      <div className={`relative inline-flex items-center justify-center overflow-hidden rounded-full ${className}`}>
+        {children}
+      </div>
+    );
   }
 
   const isDeveloper = preset.isDeveloper;
@@ -99,11 +103,11 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
         {/* === WADAH UTAMA === */}
         <div 
-          className={`group relative isolate overflow-hidden p-[3.5px] 
-            ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite] rounded-full' : ''} 
-            ${isDevTeam ? 'bg-transparent rounded-full' : ''} 
-            ${isDonatur ? 'bg-transparent rounded-full' : ''} 
-            ${isRegular ? `bg-gradient-to-br ${preset.accent} rounded-full` : ''} 
+          className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
+            ${isDeveloper ? 'bg-transparent animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
+            ${isDevTeam ? 'bg-transparent' : ''} 
+            ${isDonatur ? 'bg-transparent' : ''} 
+            ${isRegular ? `bg-gradient-to-br ${preset.accent}` : ''} 
             ${preset.glow} ${className} transition-all duration-300 hover:scale-105 z-10`}
         >
           
