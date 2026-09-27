@@ -241,7 +241,7 @@ export default function Profile() {
     },
     {
       version: 'v0.9.0-alpha',
-      date: 'Agustus 2026',
+      date: 'September 2026',
       label: 'Internal Phase & Optimization',
       summary: 'Fase pengujian internal, penyesuaian alur kerja aplikasi, dan stabilisasi sistem secara menyeluruh.',
       bullets: [
