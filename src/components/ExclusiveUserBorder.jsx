@@ -191,18 +191,18 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
                 strokeDasharray="1 5"
               />
 
-              {/* Bara besar */}
-              {[...Array(8)].map((_, i) => (
+              {/* Bara besar — hitam, jumlah diperbanyak biar rame */}
+              {[...Array(16)].map((_, i) => (
                 <circle
                   key={`fire-big-${i}`}
-                  r={i % 3 === 0 ? 1.15 : 0.75}
-                  fill="white"
-                  opacity={i % 2 === 0 ? 0.9 : 0.58}
+                  r={i % 3 === 0 ? 1.2 : 0.8}
+                  fill="black"
+                  opacity={i % 2 === 0 ? 0.9 : 0.6}
                   filter="url(#fireGlow)"
                 >
                   <animateMotion
-                    dur={`${4.8 + i * 0.43}s`}
-                    begin={`${i * -0.57}s`}
+                    dur={`${4.4 + i * 0.36}s`}
+                    begin={`${i * -0.48}s`}
                     repeatCount="indefinite"
                     rotate="auto"
                   >
@@ -217,24 +217,24 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
                 </circle>
               ))}
 
-              {/* Percikan kecil yang mengitari jalur */}
-              {[...Array(16)].map((_, i) => (
+              {/* Percikan kecil yang mengitari jalur — hitam, jumlah diperbanyak */}
+              {[...Array(28)].map((_, i) => (
                 <circle
                   key={`fire-small-${i}`}
-                  r={i % 4 === 0 ? 0.55 : 0.32}
-                  fill="white"
-                  opacity={0.45 + (i % 3) * 0.12}
+                  r={i % 4 === 0 ? 0.6 : 0.35}
+                  fill="black"
+                  opacity={0.5 + (i % 3) * 0.12}
                 >
                   <animateMotion
-                    dur={`${3.2 + i * 0.29}s`}
-                    begin={`${i * -0.31}s`}
+                    dur={`${2.7 + i * 0.21}s`}
+                    begin={`${i * -0.23}s`}
                     repeatCount="indefinite"
                   >
                     <mpath href="#developerFirePath" />
                   </animateMotion>
                   <animate
                     attributeName="r"
-                    values="0.15;0.65;0.25;0.5;0.15"
+                    values="0.15;0.7;0.25;0.55;0.15"
                     dur={`${1.1 + (i % 4) * 0.22}s`}
                     repeatCount="indefinite"
                   />
@@ -252,11 +252,35 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               </defs>
             </svg>
 
-            {/* Percikan bebas seperti api yang naik dari sisi profile */}
-            <span className="absolute -left-2 top-1/3 w-1 h-1 rounded-full bg-white opacity-0 shadow-[0_0_8px_2px_rgba(255,255,255,0.65)] animate-[fireSparkLeft_2.8s_ease-out_infinite]" />
-            <span className="absolute -right-2 top-2/3 w-[3px] h-[3px] rounded-full bg-white opacity-0 shadow-[0_0_7px_2px_rgba(255,255,255,0.6)] animate-[fireSparkRight_3.1s_ease-out_infinite_0.8s]" />
-            <span className="absolute left-1/3 -top-2 w-[3px] h-[3px] rounded-full bg-white opacity-0 shadow-[0_0_7px_2px_rgba(255,255,255,0.6)] animate-[fireSparkTop_3.4s_ease-out_infinite_1.4s]" />
-            <span className="absolute right-1/3 -bottom-2 w-1 h-1 rounded-full bg-white opacity-0 shadow-[0_0_8px_2px_rgba(255,255,255,0.65)] animate-[fireSparkBottom_3s_ease-out_infinite_0.4s]" />
+            {/* Percikan bebas hitam seperti api — melebar kekiri/kekanan lalu naik tinggi, jumlah diperbanyak biar rame */}
+            {[...Array(22)].map((_, i) => {
+              const angle = (i / 22) * Math.PI * 2;
+              const radius = 44; // % dari pusat, dekat tepi lingkaran profile
+              const leftPct = 50 + radius * Math.cos(angle);
+              const topPct = 50 + radius * Math.sin(angle);
+              const variants = ['fireSparkLeft', 'fireSparkRight', 'fireSparkTop', 'fireSparkBottom'];
+              const variant = variants[i % variants.length];
+              const size = i % 3 === 0 ? 3 : i % 2 === 0 ? 2.2 : 1.4;
+              const duration = 2.4 + (i % 6) * 0.32;
+              const delay = -(i * 0.27);
+              return (
+                <span
+                  key={`fire-spark-${i}`}
+                  className="absolute rounded-full bg-black opacity-0 shadow-[0_0_7px_2px_rgba(0,0,0,0.8)]"
+                  style={{
+                    left: `${leftPct}%`,
+                    top: `${topPct}%`,
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    animationName: variant,
+                    animationDuration: `${duration}s`,
+                    animationTimingFunction: 'ease-out',
+                    animationIterationCount: 'infinite',
+                    animationDelay: `${delay}s`,
+                  }}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -299,32 +323,40 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           @keyframes fireSparkLeft {
             0% {
               opacity: 0;
-              transform: translate3d(0, 18px, 0) scale(0.3);
+              transform: translate3d(0, 20px, 0) scale(0.3);
             }
-            18% { opacity: 0.95; }
-            58% {
-              opacity: 0.85;
-              transform: translate3d(-9px, -10px, 0) scale(1);
+            14% { opacity: 0.95; }
+            40% {
+              opacity: 0.9;
+              transform: translate3d(-24px, -18px, 0) scale(1);
+            }
+            70% {
+              opacity: 0.6;
+              transform: translate3d(-10px, -58px, 0) scale(0.6);
             }
             100% {
               opacity: 0;
-              transform: translate3d(7px, -34px, 0) scale(0.15);
+              transform: translate3d(16px, -105px, 0) scale(0.1);
             }
           }
 
           @keyframes fireSparkRight {
             0% {
               opacity: 0;
-              transform: translate3d(0, 16px, 0) scale(0.25);
+              transform: translate3d(0, 18px, 0) scale(0.25);
             }
-            22% { opacity: 0.9; }
-            60% {
-              opacity: 0.72;
-              transform: translate3d(10px, -12px, 0) scale(1.05);
+            16% { opacity: 0.9; }
+            42% {
+              opacity: 0.8;
+              transform: translate3d(26px, -20px, 0) scale(1.05);
+            }
+            72% {
+              opacity: 0.55;
+              transform: translate3d(12px, -60px, 0) scale(0.55);
             }
             100% {
               opacity: 0;
-              transform: translate3d(-5px, -38px, 0) scale(0.1);
+              transform: translate3d(-16px, -110px, 0) scale(0.08);
             }
           }
 
@@ -333,14 +365,18 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               opacity: 0;
               transform: translate3d(0, 8px, 0) scale(0.25);
             }
-            20% { opacity: 0.9; }
-            55% {
-              opacity: 0.7;
-              transform: translate3d(-10px, -10px, 0) scale(1);
+            16% { opacity: 0.9; }
+            42% {
+              opacity: 0.75;
+              transform: translate3d(-22px, -16px, 0) scale(1);
+            }
+            72% {
+              opacity: 0.5;
+              transform: translate3d(-6px, -55px, 0) scale(0.55);
             }
             100% {
               opacity: 0;
-              transform: translate3d(8px, -35px, 0) scale(0.12);
+              transform: translate3d(20px, -100px, 0) scale(0.1);
             }
           }
 
@@ -349,14 +385,18 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               opacity: 0;
               transform: translate3d(0, -5px, 0) scale(0.25);
             }
-            20% { opacity: 0.9; }
-            58% {
-              opacity: 0.75;
-              transform: translate3d(10px, 11px, 0) scale(1);
+            16% { opacity: 0.9; }
+            44% {
+              opacity: 0.8;
+              transform: translate3d(24px, -14px, 0) scale(1);
+            }
+            74% {
+              opacity: 0.5;
+              transform: translate3d(8px, -52px, 0) scale(0.5);
             }
             100% {
               opacity: 0;
-              transform: translate3d(-7px, 35px, 0) scale(0.12);
+              transform: translate3d(-18px, -98px, 0) scale(0.1);
             }
           }
 
