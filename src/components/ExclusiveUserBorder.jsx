@@ -57,6 +57,77 @@ const StarSparkle = ({ className }) => (
   </svg>
 );
 
+// SVG Komponen: Sayap Naga Monokrom — hanya overlay dekoratif untuk Developer
+const DragonWing = ({ side = 'left', className = '' }) => (
+  <svg
+    className={className}
+    viewBox="0 0 180 150"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform={side === 'right' ? 'translate(180 0) scale(-1 1)' : undefined}>
+      <path
+        d="M166 12C151 6 133 10 118 19C101 29 86 43 73 58C58 75 45 96 29 113C22 121 14 129 6 136C16 128 27 120 36 111C50 97 57 83 60 69C62 57 58 47 52 39C68 44 79 52 86 63C94 76 95 91 91 108C103 93 111 78 113 61C114 48 109 36 101 27C119 34 132 45 139 59C145 72 145 87 142 103C154 88 162 69 164 51C166 37 165 24 166 12Z"
+        fill="currentColor"
+        fillOpacity="0.9"
+      />
+      <path
+        d="M154 19C136 26 120 38 106 52C92 67 82 82 75 101"
+        stroke="white"
+        strokeOpacity="0.18"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M124 25C130 40 132 54 128 68C125 80 118 92 108 103"
+        stroke="white"
+        strokeOpacity="0.13"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M94 31C103 45 108 58 106 72C104 84 99 95 91 108"
+        stroke="white"
+        strokeOpacity="0.1"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </g>
+  </svg>
+);
+
+// SVG Komponen: Naga Kecil — silhouette monokrom yang terbang melewati avatar
+const MiniDragon = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="0 0 150 72"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g fill="currentColor">
+      {/* sayap */}
+      <path d="M61 30C45 5 27 4 10 13C25 17 36 25 44 36C50 32 55 30 61 30Z" />
+      <path d="M89 30C105 5 123 4 140 13C125 17 114 25 106 36C100 32 95 30 89 30Z" />
+      {/* badan */}
+      <path d="M45 35C55 26 73 25 87 34C96 40 101 45 112 44C104 54 93 57 80 52C67 47 56 46 45 50C39 46 39 40 45 35Z" />
+      {/* kepala + moncong */}
+      <path d="M39 34C32 28 23 31 21 37C27 36 30 39 34 43C40 42 44 39 45 35L39 34Z" />
+      <path d="M21 37L13 39L21 42L27 40Z" />
+      {/* tanduk */}
+      <path d="M31 31L29 21L36 29Z" />
+      <path d="M37 29L39 20L43 32Z" />
+      {/* ekor */}
+      <path d="M82 48C102 56 120 59 136 50C125 65 104 66 84 57L76 52Z" />
+      {/* kaki */}
+      <path d="M58 47L54 58L60 55L64 62L67 50Z" />
+      <path d="M79 49L78 60L84 56L88 62L89 51Z" />
+    </g>
+    <circle cx="29" cy="36" r="1.8" fill="white" />
+  </svg>
+);
+
 // SVG Komponen: Koin Emas Sultan (Donatur)
 const GoldenCoin = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -169,6 +240,36 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         </div>
 
+        {/* ====================================================== */}
+        {/* DRAGON WINGS + MINI DRAGON — DEVELOPER DECORATION ONLY */}
+        {/* Tidak mengubah border/effect asli di dalam avatar.      */}
+        {/* ====================================================== */}
+        {isDeveloper && (
+          <div className="absolute inset-0 pointer-events-none overflow-visible z-40" aria-hidden="true">
+            {/* Sayap kiri: muncul dari luar -> melipat masuk -> menghilang */}
+            <DragonWing
+              side="left"
+              className="absolute left-[-74px] top-1/2 -translate-y-1/2 w-[150px] h-[128px] text-[#111827] drop-shadow-[0_0_8px_rgba(255,255,255,0.28)] animate-[dragonWingLeft_6.2s_cubic-bezier(0.22,0.75,0.25,1)_infinite]"
+            />
+
+            {/* Sayap kanan: mirror dari sayap kiri */}
+            <DragonWing
+              side="right"
+              className="absolute right-[-74px] top-1/2 -translate-y-1/2 w-[150px] h-[128px] text-[#111827] drop-shadow-[0_0_8px_rgba(255,255,255,0.28)] animate-[dragonWingRight_6.2s_cubic-bezier(0.22,0.75,0.25,1)_infinite_0.18s]"
+            />
+
+            {/* Naga utama: lintasan melengkung melewati foto */}
+            <MiniDragon
+              className="absolute left-1/2 top-1/2 w-[54px] h-auto text-[#0B0B0C] drop-shadow-[0_0_7px_rgba(255,255,255,0.22)] animate-[dragonFlight_7.5s_cubic-bezier(0.45,0.05,0.25,1)_infinite]"
+            />
+
+            {/* Naga kedua lebih kecil, delay agar lintasannya terasa hidup */}
+            <MiniDragon
+              className="absolute left-1/2 top-1/2 w-[34px] h-auto text-[#2A2A2D] opacity-70 drop-shadow-[0_0_5px_rgba(255,255,255,0.18)] animate-[dragonFlightAlt_9.5s_cubic-bezier(0.45,0.05,0.25,1)_infinite_3.2s]"
+            />
+          </div>
+        )}
+
         {/* ======================================= */}
         {/* EFEK NITRO STAR SPARKLES (DEVELOPER)    */}
         {/* ======================================= */}
@@ -200,6 +301,119 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
+          /* =========================================================
+             DRAGON DECORATION — Developer only
+             Semua ini overlay terpisah; border asli tidak disentuh.
+          ========================================================= */
+
+          @keyframes dragonWingLeft {
+            0%, 8% {
+              opacity: 0;
+              transform: translate3d(-34px, -50%, 0) scale(0.58) rotate(-13deg);
+              filter: blur(2px);
+            }
+            18% {
+              opacity: 0.96;
+              transform: translate3d(-7px, -50%, 0) scale(0.96) rotate(-2deg);
+              filter: blur(0);
+            }
+            34% {
+              opacity: 0.9;
+              transform: translate3d(5px, -50%, 0) scale(1) rotate(2deg);
+            }
+            52% {
+              opacity: 0.72;
+              transform: translate3d(-1px, -50%, 0) scale(0.96) rotate(-2deg);
+            }
+            68%, 100% {
+              opacity: 0;
+              transform: translate3d(-42px, -50%, 0) scale(0.58) rotate(-15deg);
+              filter: blur(2px);
+            }
+          }
+
+          @keyframes dragonWingRight {
+            0%, 8% {
+              opacity: 0;
+              transform: translate3d(34px, -50%, 0) scale(0.58) rotate(13deg);
+              filter: blur(2px);
+            }
+            18% {
+              opacity: 0.96;
+              transform: translate3d(7px, -50%, 0) scale(0.96) rotate(2deg);
+              filter: blur(0);
+            }
+            34% {
+              opacity: 0.9;
+              transform: translate3d(-5px, -50%, 0) scale(1) rotate(-2deg);
+            }
+            52% {
+              opacity: 0.72;
+              transform: translate3d(1px, -50%, 0) scale(0.96) rotate(2deg);
+            }
+            68%, 100% {
+              opacity: 0;
+              transform: translate3d(42px, -50%, 0) scale(0.58) rotate(15deg);
+              filter: blur(2px);
+            }
+          }
+
+          @keyframes dragonFlight {
+            0% {
+              opacity: 0;
+              transform: translate3d(-105px, 48px, 0) rotate(-12deg) scale(0.55);
+            }
+            10% {
+              opacity: 0.92;
+            }
+            28% {
+              opacity: 1;
+              transform: translate3d(-38px, -42px, 0) rotate(9deg) scale(0.82);
+            }
+            46% {
+              opacity: 1;
+              transform: translate3d(10px, 26px, 0) rotate(-7deg) scale(1);
+            }
+            66% {
+              opacity: 0.9;
+              transform: translate3d(62px, -30px, 0) rotate(11deg) scale(0.84);
+            }
+            82% {
+              opacity: 0.52;
+              transform: translate3d(112px, 42px, 0) rotate(-8deg) scale(0.62);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(150px, -18px, 0) rotate(4deg) scale(0.42);
+            }
+          }
+
+          @keyframes dragonFlightAlt {
+            0% {
+              opacity: 0;
+              transform: translate3d(105px, 40px, 0) rotate(14deg) scale(0.5);
+            }
+            12% {
+              opacity: 0.72;
+            }
+            30% {
+              opacity: 0.9;
+              transform: translate3d(38px, -35px, 0) rotate(-8deg) scale(0.8);
+            }
+            52% {
+              opacity: 0.8;
+              transform: translate3d(-22px, 22px, 0) rotate(8deg) scale(1);
+            }
+            74% {
+              opacity: 0.58;
+              transform: translate3d(-72px, -38px, 0) rotate(-12deg) scale(0.76);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(-142px, 30px, 0) rotate(8deg) scale(0.4);
+            }
+          }
+
           /* Ripple Rings (Developer) */
           @keyframes rippleFast {
             0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
