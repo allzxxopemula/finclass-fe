@@ -37,6 +37,7 @@ export default function Profile() {
   const [copied, setCopied] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('finclass-theme') || 'blue');
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showChangelogModal, setShowChangelogModal] = useState(false);
   const [qrisUrl, setQrisUrl] = useState('');
   const [qrisDraft, setQrisDraft] = useState('');
   const [showQrisModal, setShowQrisModal] = useState(false);
@@ -220,6 +221,35 @@ export default function Profile() {
 
     return count === 1 ? '1 belum dibaca' : `${count} belum dibaca`;
   };
+
+  const changelogEntries = [
+    {
+      version: 'v1.0.0-beta',
+      date: 'September 2026',
+      label: 'Release & Core Ecosystem',
+      summary: 'Peluncuran perdana platform FinClass sebagai solusi digital terpadu untuk pengelolaan administrasi keuangan kelas yang modern, cepat, transparan, dan terhubung secara real-time.',
+      bullets: [
+        'Sistem Identitas & Profil Pengguna: Penambahan fitur pengaturan Username personal untuk identitas akun yang unik di dalam sistem.',
+        'Dukungan fleksibel pengunggahan foto profil (Avatar), yang dapat diakses melalui tautan URL eksternal maupun diunggah langsung dari galeri perangkat.',
+        'Manajemen Kas & Informasi Kelas Terpusat: Modul pencatatan uang masuk dan pengeluaran kas secara terstruktur bagi Bendahara.',
+        'Kehadiran fitur Info Kelas komprehensif untuk memantau ringkasan data, status anggota, dan transparansi saldo secara menyeluruh.',
+        'Room Chat Kelas Interaktif Berperforma Tinggi: Sistem obrolan langsung real-time yang dioptimalkan untuk koordinasi dan komunikasi antar anggota kelas.',
+        'Implementasi LocalStorage Caching cerdas agar riwayat obrolan dan data aplikasi tersimpan serta termuat lebih cepat.',
+        'Fitur interaktif Lihat Profil Pengguna, di mana anggota dapat langsung mengecek profil dan informasi pengguna lain melalui daftar anggota di dalam Info Kelas.',
+        'Pusat Bantuan & Panduan Pengguna: Pembaruan halaman Bantuan & FAQ yang lebih lengkap, interaktif, dan informatif.'
+      ]
+    },
+    {
+      version: 'v0.9.0-alpha',
+      date: 'Agustus 2026',
+      label: 'Internal Phase & Optimization',
+      summary: 'Fase pengujian internal, penyesuaian alur kerja aplikasi, dan stabilisasi sistem secara menyeluruh.',
+      bullets: [
+        'Penyempurnaan Antarmuka (UI/UX): Pengujian stabilitas tampilan responsif yang disesuaikan secara optimal untuk perangkat seluler maupun komputer.',
+        'Optimalisasi Kinerja Sistem: Peningkatan kecepatan muat aplikasi dan perbaikan logika sinkronisasi data agar berjalan lebih presisi dan mulus.'
+      ]
+    }
+  ];
 
   const MenuItem = ({ icon, title, description, badgeColor, onClick, rightBadge = null, rightText = null, cardClassName = '' }) => (
     <div 
@@ -577,9 +607,80 @@ export default function Profile() {
               </div>
             </div>
           )}
+
+          {showChangelogModal && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+              <div className="w-full max-w-2xl rounded-[28px] bg-white shadow-2xl border border-slate-200 overflow-hidden">
+                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-indigo-600">FinClass</p>
+                    <h3 className="mt-1 text-base font-black text-slate-900">Changelog</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowChangelogModal(false)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 border border-slate-200 hover:bg-slate-100"
+                    aria-label="Tutup changelog"
+                  >
+                    &times;
+                  </button>
+                </div>
+
+                <div className="max-h-[72vh] overflow-y-auto bg-white p-5 sm:p-6">
+                  <div className="mb-5 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4">
+                    <p className="text-[11px] font-black uppercase tracking-[0.12em] text-indigo-600">Catatan resmi pembaruan</p>
+                    <h4 className="mt-2 text-sm font-black text-slate-900"># FinClass Changelog</h4>
+                    <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
+                      Catatan resmi pembaruan, peningkatan performa, dan rilis fitur pada platform manajemen kas kelas FinClass.
+                    </p>
+                  </div>
+
+                  <div className="space-y-5">
+                    {changelogEntries.map((entry) => (
+                      <section key={entry.version} className="border-b border-slate-200 pb-5 last:border-b-0 last:pb-0">
+                        <div className="mb-2 flex items-center justify-between gap-3 flex-wrap">
+                          <h5 className="text-base font-black text-slate-900">{entry.version}</h5>
+                          <span className="text-[10px] font-bold text-slate-500">{entry.date}</span>
+                        </div>
+
+                        <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-indigo-600">{entry.label}</p>
+                        <p className="text-[11px] leading-relaxed text-slate-600">{entry.summary}</p>
+
+                        <div className="mt-3 space-y-2">
+                          {entry.bullets.map((bullet, bulletIndex) => (
+                            <div key={`${entry.version}-${bulletIndex}`} className="flex gap-2 text-[11px] leading-relaxed text-slate-600">
+                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
+                              <p>{bullet}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[11px] leading-relaxed text-slate-600">
+                      <span className="font-black text-slate-800">FinClass</span> terus dikembangkan secara berkala untuk menghadirkan pengalaman manajemen keuangan kelas yang paling andal, efisien, dan mudah digunakan.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      <footer className="pb-1 pt-2 text-center text-[10px] font-medium tracking-wide text-slate-400 print:hidden">FinClass by Allzxxo Dev and Team</footer>
+      <footer className="pb-1 pt-2 text-center print:hidden">
+        <div className="flex items-center justify-center gap-2 text-[10px] font-medium tracking-wide text-slate-400">
+          <span>FinClass by Allzxxo Dev and Team</span>
+          <button
+            type="button"
+            onClick={() => setShowChangelogModal(true)}
+            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1 font-bold text-[9px] text-slate-500 transition hover:border-indigo-200 hover:text-indigo-600 shadow-sm"
+          >
+            Changelog
+          </button>
+        </div>
+      </footer>
     </MainLayout>
   );
 }
