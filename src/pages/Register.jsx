@@ -148,7 +148,6 @@ export default function Register() {
                   required 
                   value={formData.name} 
                   onChange={handleChange} 
-                  placeholder="contoh: Aldo Rendy" 
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:bg-white focus:border-indigo-500 transition-all text-slate-800" 
                 />
               </div>
@@ -165,7 +164,7 @@ export default function Register() {
                   required 
                   value={formData.email} 
                   onChange={handleChange} 
-                  placeholder="contoh: aldo@gmail.com" 
+                  placeholder="example@gmail.com" 
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:bg-white focus:border-indigo-500 transition-all text-slate-800" 
                 />
               </div>
