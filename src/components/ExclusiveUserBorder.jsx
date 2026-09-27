@@ -2,7 +2,7 @@ import React from 'react';
 
 export const EXCLUSIVE_USER_EMAILS = [
   {
-    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (GLASS SWEEP GLOW) ===
+    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (THIN GLASS SWEEP GLOW) ===
     emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
@@ -151,16 +151,16 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
           )}
           
-          {/* FOTO PROFIL & DIAGONAL GLASS SWEEP GLOW */}
+          {/* FOTO PROFIL & GARIS SWEEP TIPIS & SMOOTH */}
           <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-20">
             <div className={`w-full h-full ${isDeveloper ? 'animate-[counterSmooth_6s_ease-in-out_infinite]' : ''}`}>
               {children}
             </div>
 
-            {/* ✨ EFEK DIAGONAL GLASSMORPHIC LIGHT SWEEP (KIRI ATAS KE KANAN BAWAH /) DENGAN DELAY PANJANG */}
+            {/* ✨ GARIS SWEEP TIPIS & LAMBAT (SMOOTH SLIM GLOW) */}
             {isDeveloper && (
               <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden rounded-full">
-                <div className="absolute -inset-full w-[250%] h-[250%] bg-gradient-to-r from-transparent via-white/50 to-transparent rotate-[35deg] animate-[glassSweep_6s_ease-in-out_infinite]" />
+                <div className="absolute -inset-full w-[250%] h-[250%] bg-gradient-to-r from-transparent via-white/70 to-transparent rotate-[35deg] animate-[thinGlassSweep_8s_ease-in-out_infinite]" />
               </div>
             )}
           </div>
@@ -191,13 +191,13 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
           /* ========================================================
-             ✨ DIAGONAL GLASSMORPHIC LIGHT SWEEP (KIRI ATAS -> KANAN BAWAH /)
+             ✨ THIN SLIM DIAGONAL GLASS SWEEP (LAMBAT & TIPIS)
              ======================================================== */
-          @keyframes glassSweep {
-            0% { transform: translateX(-150%) translateY(-150%); opacity: 0; }
-            15% { opacity: 0.8; }
-            30% { transform: translateX(150%) translateY(150%); opacity: 0; }
-            100% { transform: translateX(150%) translateY(150%); opacity: 0; /* Jeda panjang sebelum nyala lagi */ }
+          @keyframes thinGlassSweep {
+            0% { transform: translateX(-180%) translateY(-180%); opacity: 0; }
+            10% { opacity: 0.9; }
+            25% { transform: translateX(180%) translateY(180%); opacity: 0; }
+            100% { transform: translateX(180%) translateY(180%); opacity: 0; /* Jeda panjang diam */ }
           }
 
           /* ========================================================
