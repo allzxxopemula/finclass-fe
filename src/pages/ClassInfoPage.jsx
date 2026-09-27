@@ -103,13 +103,15 @@ export default function ClassInfoPage() {
   const handleOpenProfile = (profile, roleLabel) => {
     if (!profile) return;
 
+    const createdAt = profile.created_at || profile.createdAt || null;
+
     setSelectedProfile({
       ...profile,
       roleLabel,
       displayName: profile.displayName || profile.name || 'Pengguna',
       displayUsername: profile.displayUsername || profile.username || buildUsername(profile.displayName || profile.name || 'user', 'user'),
       displayAvatar: profile.displayAvatar || profile.image || profile.profile_image_url || '',
-      createdAt: profile.created_at || profile.createdAt || null,
+      createdAt,
       email: profile.email || '',
       exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.email || ''),
       kelasName: kelasData?.nama_kelas || 'Kelas belum ditentukan',
