@@ -283,15 +283,16 @@ export default function Register() {
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600"
+                disabled={countdown > 0 || isLoading}
+                className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={confirmRoleRegistration}
-                disabled={isLoading}
-                className="w-full rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white disabled:opacity-60"
+                disabled={countdown > 0 || isLoading}
+                className="w-full rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isLoading ? 'Mendaftar...' : 'Ya, lanjut'}
               </button>
