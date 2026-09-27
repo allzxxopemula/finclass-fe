@@ -627,9 +627,9 @@ export default function Profile() {
                 </div>
 
                 <div className="max-h-[72vh] overflow-y-auto bg-white p-5 sm:p-6">
-                  <div className="mb-5 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4">
-                    <p className="text-[11px] font-black uppercase tracking-[0.12em] text-indigo-600">Catatan resmi pembaruan</p>
-                    <h4 className="mt-2 text-sm font-black text-slate-900"># FinClass Changelog</h4>
+                  <div className="mb-5 border-b border-slate-200 pb-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Changelog</p>
+                    <h4 className="mt-2 text-lg font-black text-slate-900">FinClass</h4>
                     <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
                       Catatan resmi pembaruan, peningkatan performa, dan rilis fitur pada platform manajemen kas kelas FinClass.
                     </p>
@@ -637,30 +637,29 @@ export default function Profile() {
 
                   <div className="space-y-5">
                     {changelogEntries.map((entry) => (
-                      <section key={entry.version} className="border-b border-slate-200 pb-5 last:border-b-0 last:pb-0">
-                        <div className="mb-2 flex items-center justify-between gap-3 flex-wrap">
-                          <h5 className="text-base font-black text-slate-900">{entry.version}</h5>
-                          <span className="text-[10px] font-bold text-slate-500">{entry.date}</span>
+                      <section key={entry.version} className="space-y-2">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <h5 className="text-sm font-black text-slate-900">{entry.version}</h5>
+                          <span className="text-[10px] font-bold text-slate-400">{entry.date}</span>
                         </div>
 
-                        <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-indigo-600">{entry.label}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-indigo-600">{entry.label}</p>
                         <p className="text-[11px] leading-relaxed text-slate-600">{entry.summary}</p>
 
-                        <div className="mt-3 space-y-2">
+                        <ul className="space-y-2 pl-4 text-[11px] leading-relaxed text-slate-600">
                           {entry.bullets.map((bullet, bulletIndex) => (
-                            <div key={`${entry.version}-${bulletIndex}`} className="flex gap-2 text-[11px] leading-relaxed text-slate-600">
-                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
-                              <p>{bullet}</p>
-                            </div>
+                            <li key={`${entry.version}-${bulletIndex}`} className="list-disc marker:text-indigo-500">
+                              {bullet}
+                            </li>
                           ))}
-                        </div>
+                        </ul>
                       </section>
                     ))}
                   </div>
 
-                  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mt-6 border-t border-slate-200 pt-4">
                     <p className="text-[11px] leading-relaxed text-slate-600">
-                      <span className="font-black text-slate-800">FinClass</span> terus dikembangkan secara berkala untuk menghadirkan pengalaman manajemen keuangan kelas yang paling andal, efisien, dan mudah digunakan.
+                      FinClass terus dikembangkan secara berkala untuk menghadirkan pengalaman manajemen keuangan kelas yang paling andal, efisien, dan mudah digunakan.
                     </p>
                   </div>
                 </div>
@@ -670,15 +669,15 @@ export default function Profile() {
         </div>
       </div>
       <footer className="pb-1 pt-2 text-center print:hidden">
-        <div className="flex items-center justify-center gap-2 text-[10px] font-medium tracking-wide text-slate-400">
-          <span>FinClass by Allzxxo Dev and Team</span>
+        <div className="flex flex-col items-center justify-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowChangelogModal(true)}
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1 font-bold text-[9px] text-slate-500 transition hover:border-indigo-200 hover:text-indigo-600 shadow-sm"
+            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 font-bold text-[9px] text-slate-500 transition hover:border-indigo-200 hover:text-indigo-600 shadow-sm"
           >
             Changelog
           </button>
+          <span className="text-[10px] font-medium tracking-wide text-slate-400">FinClass by Allzxxo Dev and Team</span>
         </div>
       </footer>
     </MainLayout>
