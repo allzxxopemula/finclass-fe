@@ -80,7 +80,6 @@ export default function ClassInfoPage() {
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
   const ownerBanner = ownerLocal?.banner || ownerData?.banner || '';
   const ownerBorderToken = ownerData?.custom_border_color || ownerData?.border_type || ownerLocal?.custom_border_color || ownerLocal?.border_type || '';
-  const ownerCustomBorder = ownerBorderToken;
   const ownerExclusivePreset = getExclusiveUserPreset(ownerBorderToken);
 
   const memberList = members
@@ -91,7 +90,7 @@ export default function ClassInfoPage() {
       const username = member.username || local?.username || buildUsername(name, 'user');
       const avatar = local?.image || member.profile_image_url || '';
       const banner = local?.banner || member.banner || '';
-      const customBorderColor = local?.custom_border_color || member.custom_border_color || local?.border_type || member.border_type || '';
+      const customBorderColor = member.custom_border_color || member.border_type || local?.custom_border_color || local?.border_type || '';
       const preset = getExclusiveUserPreset(customBorderColor || email);
 
       return {
@@ -111,6 +110,7 @@ export default function ClassInfoPage() {
     if (!profile) return;
 
     const createdAt = profile.created_at || profile.createdAt || null;
+    const borderVal = profile.customBorderColor || profile.custom_border_color || profile.border_type || profile.email || '';
 
     setSelectedProfile({
       ...profile,
@@ -121,8 +121,8 @@ export default function ClassInfoPage() {
       banner: profile.displayBanner || profile.banner || profile.banner_url || '',
       createdAt,
       email: profile.email || '',
-      customBorderColor: profile.customBorderColor || profile.custom_border_color || '',
-      exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.customBorderColor || profile.custom_border_color || profile.border_type || profile.email || ''),
+      customBorderColor: borderVal,
+      exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(borderVal),
       kelasName: kelasData?.nama_kelas || 'Kelas belum ditentukan',
     });
   };
@@ -133,7 +133,7 @@ export default function ClassInfoPage() {
     <MainLayout>
       <div className="space-y-4 pb-4">
         
-        {/* Header Tetap Sama Persis */}
+        {/* Header */}
         <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
@@ -159,7 +159,7 @@ export default function ClassInfoPage() {
         ) : (
           <div className="space-y-4">
             
-            {/* Card 1: Informasi Kelas & Statistik (Clean, Solid, No Gradient) */}
+            {/* Card 1: Informasi Kelas & Statistik */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="h-1.5 w-full bg-indigo-500"></div>
 
@@ -176,11 +176,6 @@ export default function ClassInfoPage() {
                       Ruang Kelas Terdaftar
                     </p>
                   </div>
-                  {ownerExclusivePreset && (
-                    <span className={`ml-auto rounded-full px-2 py-1 text-[9px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-md`}>
-                      {ownerExclusivePreset.label}
-                    </span>
-                  )}
                 </div>
 
                 <div className="h-px w-full bg-slate-100"></div>
@@ -214,7 +209,7 @@ export default function ClassInfoPage() {
               </div>
             </div>
 
-            {/* Card 2: Daftar Anggota Kelas (List View Rapih) */}
+            {/* Card 2: Daftar Anggota Kelas */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <h3 className="text-sm font-black text-slate-800">Struktur Anggota</h3>
@@ -236,13 +231,20 @@ export default function ClassInfoPage() {
                     displayBanner: ownerBanner,
                     banner: ownerBanner,
                     email: ownerData?.email || user?.email || '',
+                    customBorderColor: ownerBorderToken,
                     exclusivePreset: ownerExclusivePreset,
                     created_at: ownerData?.created_at || null,
                   }, 'Bendahara')}
-                  className="flex w-full items-center gap-3 rounded-xl bg-indigo-50/30 border border-indigo-50 p-3 text-left transition-all hover:bg-indigo-50/60 hover:shadow-sm focus:outline-none"
+                  className="flex w-full items-center gap-3 rounded-xl bg-indigo-50/30 border border-indigo-50 p-3 text-left transition-all hover:bg-indigo-50/60 hover:shadow-sm focus:outline-none cursor-pointer"
                 >
                   <div className="relative">
-                    <ExclusiveProfileShell email={ownerData?.email || user?.email} customBorderColor={ownerCustomBorder} variant="avatar" className="h-14 w-14 shrink-0">
+                    <ExclusiveProfileShell 
+                      email={ownerData?.email || user?.email} 
+                      customBorderColor={ownerBorderToken} 
+                      borderValue={ownerBorderToken}
+                      variant="avatar" 
+                      className="h-14 w-14 shrink-0"
+                    >
                       <div className="h-full w-full overflow-hidden rounded-full bg-white">
                         {ownerAvatar ? (
                           <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
@@ -259,24 +261,24 @@ export default function ClassInfoPage() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-900">{ownerName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-bold text-slate-900">{ownerName}</p>
+                      {Boolean(ownerExclusivePreset?.label && String(ownerExclusivePreset.label).trim()) && (
+                        <span className={`rounded-full px-2 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-sm`}>
+                          {ownerExclusivePreset.label}
+                        </span>
+                      )}
+                    </div>
                     <p className="truncate text-[11px] font-medium text-slate-500">@{ownerUsername}</p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    {ownerExclusivePreset && ownerExclusivePreset.label && String(ownerExclusivePreset.label).trim() && (
-                      <span className={`rounded-full px-2 py-1 text-[8px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-sm`}>
-                        {ownerExclusivePreset.label}
-                      </span>
-                    )}
-                    <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
-                      Bendahara
-                    </span>
-                  </div>
+                  <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
+                    Bendahara
+                  </span>
                 </button>
 
-                {/* Garis Pemisah (Jika ada anggota) */}
+                {/* Garis Pemisah */}
                 {memberList.length > 0 && (
-                  <div className="w-full px-4 py-2">
+                  <div className="w-full px-4 py-1">
                     <div className="h-px w-full bg-slate-100"></div>
                   </div>
                 )}
@@ -292,9 +294,15 @@ export default function ClassInfoPage() {
                       key={member.id}
                       type="button"
                       onClick={() => handleOpenProfile(member, 'Siswa')}
-                      className={`flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-slate-50 focus:outline-none ${index > 0 ? '-mt-0.5' : ''}`}
+                      className={`flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-slate-50 focus:outline-none cursor-pointer ${index > 0 ? '-mt-0.5' : ''}`}
                     >
-                      <ExclusiveProfileShell email={member.email} variant="avatar" className="h-14 w-14 shrink-0">
+                      <ExclusiveProfileShell 
+                        email={member.email} 
+                        customBorderColor={member.customBorderColor} 
+                        borderValue={member.customBorderColor}
+                        variant="avatar" 
+                        className="h-14 w-14 shrink-0"
+                      >
                         <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                           {member.displayAvatar ? (
                             <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
@@ -305,10 +313,11 @@ export default function ClassInfoPage() {
                           )}
                         </div>
                       </ExclusiveProfileShell>
+
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-bold text-slate-800">{member.displayName}</p>
-                          {member.exclusivePreset && member.exclusivePreset.label && String(member.exclusivePreset.label).trim() && (
+                          {Boolean(member.exclusivePreset?.label && String(member.exclusivePreset.label).trim()) && (
                             <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${member.exclusivePreset.accent} border border-white/30`}>
                               {member.exclusivePreset.label}
                             </span>
@@ -316,6 +325,7 @@ export default function ClassInfoPage() {
                         </div>
                         <p className="truncate text-[11px] font-medium text-slate-500">@{member.displayUsername}</p>
                       </div>
+
                       <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">
                         Siswa
                       </span>
@@ -329,6 +339,7 @@ export default function ClassInfoPage() {
           </div>
         )}
 
+        {/* Modal Detail Profil */}
         {selectedProfile && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
@@ -347,7 +358,7 @@ export default function ClassInfoPage() {
                 <button
                   type="button"
                   onClick={closeProfileModal}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20"
+                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -355,7 +366,13 @@ export default function ClassInfoPage() {
 
               <div className="relative -mt-12 px-5 pb-5">
                 <div className="flex items-end justify-between gap-3">
-                  <ExclusiveProfileShell borderValue={selectedProfile.customBorderColor || selectedProfile.custom_border_color || selectedProfile.border_type || ''} customBorderColor={selectedProfile.customBorderColor || selectedProfile.custom_border_color || selectedProfile.border_type || ''} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
+                  <ExclusiveProfileShell 
+                    email={selectedProfile.email}
+                    borderValue={selectedProfile.customBorderColor} 
+                    customBorderColor={selectedProfile.customBorderColor} 
+                    variant="avatar" 
+                    className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]"
+                  >
                     <div className="h-full w-full overflow-hidden rounded-full border-[2px] border-white bg-slate-100">
                       {selectedProfile.displayAvatar ? (
                         <img src={selectedProfile.displayAvatar} alt={selectedProfile.displayName} className="h-full w-full object-cover" />
@@ -367,7 +384,7 @@ export default function ClassInfoPage() {
                     </div>
                   </ExclusiveProfileShell>
 
-                  {selectedProfile.exclusivePreset && selectedProfile.exclusivePreset.label && String(selectedProfile.exclusivePreset.label).trim() && (
+                  {Boolean(selectedProfile.exclusivePreset?.label && String(selectedProfile.exclusivePreset.label).trim()) && (
                     <span className={`rounded-full px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} border border-white/40 shadow-md`}>
                       {selectedProfile.exclusivePreset.label}
                     </span>

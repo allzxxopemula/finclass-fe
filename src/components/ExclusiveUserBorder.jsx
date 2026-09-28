@@ -107,7 +107,7 @@ const GoldenCoin = ({ className }) => (
 );
 
 export function ExclusiveProfileShell({ email, className = '', children, variant = 'card', customBorderColor = '', borderValue = '', borderType = '' }) {
-  const resolvedBorderValue = normalizeBorderValue(borderType || customBorderColor || borderValue || '');
+  const resolvedBorderValue = normalizeBorderValue(customBorderColor || borderValue || borderType || email || '');
   const preset = getExclusiveUserPreset(resolvedBorderValue);
   const isHexBorder = preset?.kind === 'hex';
   const isDeveloper = preset?.kind === 'preset' && preset.value === 'DEVELOPER';
