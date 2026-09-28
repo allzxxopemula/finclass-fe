@@ -17,8 +17,6 @@ const fixImgbbUrl = (url) => {
   return url.replace(/i\.ibb\.co(?!\.com)/g, 'i.ibb.co.com');
 };
 
-const suspiciousUrlPattern = /(porn|xxx|adult|nsfw|nude|sexy|erotic|hentai|gore|lewd|fuck)/i;
-
 const validateRemoteImageUrl = (url, label = 'Gambar') => new Promise((resolve, reject) => {
   const cleanUrl = String(url || '').trim();
 
@@ -29,11 +27,6 @@ const validateRemoteImageUrl = (url, label = 'Gambar') => new Promise((resolve, 
 
   if (!/^https?:\/\//i.test(cleanUrl)) {
     reject(new Error(`${label} harus menggunakan URL yang valid.`));
-    return;
-  }
-
-  if (suspiciousUrlPattern.test(cleanUrl)) {
-    reject(new Error(`${label} terdeteksi berisi konten yang tidak aman.`));
     return;
   }
 
