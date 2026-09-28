@@ -106,7 +106,6 @@ const GoldenCoin = ({ className }) => (
   </svg>
 );
 
-// Partikel animasi kunang-kunang khusus ungu & pink
 const Firefly = ({ className, color = '#FFFFFF' }) => (
   <div 
     className={`absolute rounded-full ${className}`} 
@@ -230,10 +229,10 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
         {isPurpleBorder && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
-            <Firefly className="w-1.5 h-1.5 -top-2 left-1/4 animate-[fireflyFloat_4s_ease-in-out_infinite]" color="#D8B4FE" />
-            <Firefly className="w-1 h-1 top-1/4 -right-1.5 animate-[fireflyFloat_3.5s_ease-in-out_infinite_1s]" color="#F3E8FF" />
-            <Firefly className="w-1.5 h-1.5 -bottom-1.5 left-1/2 animate-[fireflyFloat_5s_ease-in-out_infinite_0.5s]" color="#C084FC" />
-            <Firefly className="w-1 h-1 bottom-1/4 -left-2 animate-[fireflyFloat_4.5s_ease-in-out_infinite_2s]" color="#E9D5FF" />
+            <StarSparkle className="absolute -top-2 left-1/3 w-3.5 h-3.5 text-purple-200 filter drop-shadow-[0_0_6px_#C084FC] animate-[starFloat_2.8s_ease-in-out_infinite]" />
+            <StarSparkle className="absolute top-1/3 -right-2.5 w-3 h-3 text-white filter drop-shadow-[0_0_5px_#D8B4FE] animate-[starFloat_3.2s_ease-in-out_infinite_0.6s]" />
+            <Firefly className="w-1.5 h-1.5 -bottom-2 left-1/4 animate-[fireflyFloat_4s_ease-in-out_infinite]" color="#D8B4FE" />
+            <Firefly className="w-1 h-1 bottom-1/3 -left-2 animate-[fireflyFloat_4.5s_ease-in-out_infinite_1.5s]" color="#E9D5FF" />
           </div>
         )}
 
@@ -308,7 +307,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // --- RENDERING VARIANT CARD (Bukan Avatar, Kotak Besar) ---
   return (
     <div
       className={`group relative isolate overflow-hidden rounded-[28px] p-[3px] ${preset.glow || ''} ${className} transition-all duration-300
