@@ -9,10 +9,9 @@ import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightF
 const IMGBB_API_KEY = '4bee746ba64cbd55467c63342a529be0';
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
-// Batas Maksimal Ukuran File (2 MB dalam Bytes)
-const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
+const MAX_GIF_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
-// Helper: Bypass Blokir DNS/ISP untuk ImgBB
 const fixImgbbUrl = (url) => {
   if (!url) return '';
   return url.replace(/i\.ibb\.co(?!\.com)/g, 'i.ibb.co.com');
@@ -105,11 +104,22 @@ export default function SettingProfile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
+  // Upload Confirm Modal State
+  const [showUploadConfirmModal, setShowUploadConfirmModal] = useState(false);
+  const [uploadCountdown, setUploadCountdown] = useState(5);
+  const [pendingUploadFile, setPendingUploadFile] = useState(null);
+
   useEffect(() => {
     if (!savedUser) {
       navigate('/login');
     }
   }, [savedUser, navigate]);
+
+  useEffect(() => {
+    if (!showUploadConfirmModal || uploadCountdown === 0) return;
+    const timer = setTimeout(() => setUploadCountdown((prev) => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [showUploadConfirmModal, uploadCountdown]);
 
   const persistProfile = (nextUser) => {
     const safeImageUrl = fixImgbbUrl(nextUser.profile_image_url || nextUser.profile_image || '');
@@ -171,27 +181,39 @@ export default function SettingProfile() {
     return result.data?.url || '';
   };
 
-  const handleImageUpload = async (event) => {
+  const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // === VALIDASI BATAS MAKSIMAL UKURAN FILE (2 MB) ===
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      alert(`Ukuran file terlalu besar (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maksimal ukuran foto profil adalah 2 MB!`);
+    const isGif = file.type === 'image/gif';
+    const maxSize = isGif ? MAX_GIF_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
+
+    if (file.size > maxSize) {
+      alert(`Ukuran file terlalu besar. Maksimal untuk ${isGif ? 'GIF adalah 10 MB' : 'gambar adalah 3 MB'}.`);
       event.target.value = '';
       return;
     }
 
+    setPendingUploadFile(file);
+    setUploadCountdown(5);
+    setShowUploadConfirmModal(true);
+    event.target.value = ''; 
+  };
+
+  const executeUpload = async () => {
+    if (!pendingUploadFile) return;
+    
     setLoading(true);
+    setShowUploadConfirmModal(false);
     try {
-      const uploadedUrl = await uploadToImgBB(file);
+      const uploadedUrl = await uploadToImgBB(pendingUploadFile);
       setProfileImage(fixImgbbUrl(uploadedUrl)); 
       appendHistoryEvent('Ganti foto profil');
     } catch (error) {
       alert(error.message || 'Gagal mengunggah foto profil');
     } finally {
       setLoading(false);
-      event.target.value = '';
+      setPendingUploadFile(null);
     }
   };
 
@@ -350,9 +372,8 @@ export default function SettingProfile() {
                   <label htmlFor="profile-image-upload" className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600">
                     <FontAwesomeIcon icon={faImage} /> Pilih Foto
                   </label>
-                  {/* Terima file gambar JPG, PNG, WEBP, GIF */}
-                  <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  <p className="mt-2 text-[10px] text-slate-400">Mendukung format JPG, PNG, GIF (Maksimal 2 MB).</p>
+                  <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                  <p className="mt-2 text-[10px] text-slate-400">JPG/PNG maks 3MB, GIF maks 10MB.</p>
                 </div>
               </div>
             </div>
@@ -481,6 +502,68 @@ export default function SettingProfile() {
           handleLogout();
         }}
       />
+
+      {/* MODAL KONFIRMASI UPLOAD */}
+      {showUploadConfirmModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl overflow-hidden relative">
+            
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner">
+              <FontAwesomeIcon icon={faImage} className="text-xl" />
+            </div>
+
+            <h2 className="text-center text-sm font-black text-slate-400 tracking-wider">KONFIRMASI UPLOAD</h2>
+            <p className="mt-1 text-center text-lg font-black text-slate-900">
+              Unggah Foto Profil?
+            </p>
+
+            <div className="mt-4 rounded-2xl border border-indigo-100 bg-slate-50 p-4 text-center">
+              <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                File akan diunggah ke server. Pastikan gambar mematuhi pedoman komunitas.
+              </p>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2 text-xs font-black">
+              {uploadCountdown > 0 ? (
+                <>
+                  <span className="text-slate-400">Harap baca dalam</span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-700">{uploadCountdown}</span>
+                  <span className="text-slate-400">detik</span>
+                </>
+              ) : (
+                <span className="text-indigo-600 animate-pulse">Siap diunggah!</span>
+              )}
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUploadConfirmModal(false);
+                  setPendingUploadFile(null);
+                }}
+                disabled={loading}
+                className="w-full rounded-xl bg-slate-100 hover:bg-slate-200 py-3 text-xs font-bold text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                Batal
+              </button>
+              
+              <button
+                type="button"
+                onClick={executeUpload}
+                disabled={uploadCountdown > 0 || loading}
+                className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-xs font-bold text-white transition-all shadow-md shadow-indigo-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <FontAwesomeIcon icon={faSpinner} spin />
+                ) : (
+                  'Ya, Unggah'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
