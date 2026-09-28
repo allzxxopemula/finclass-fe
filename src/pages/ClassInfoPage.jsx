@@ -78,6 +78,7 @@ export default function ClassInfoPage() {
   const ownerName = ownerData?.name || ownerLocal?.name || 'Bendahara Kelas';
   const ownerUsername = ownerData?.username || ownerLocal?.username || buildUsername(ownerName, 'bendahara');
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
+  const ownerBanner = ownerLocal?.banner || ownerData?.banner || '';
   const ownerExclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
 
   const memberList = members
@@ -87,6 +88,7 @@ export default function ClassInfoPage() {
       const name = member.name || local?.name || 'Anggota';
       const username = member.username || local?.username || buildUsername(name, 'user');
       const avatar = local?.image || member.profile_image_url || '';
+      const banner = local?.banner || member.banner || '';
       const preset = getExclusiveUserPreset(email);
 
       return {
@@ -95,6 +97,7 @@ export default function ClassInfoPage() {
         displayName: name,
         displayUsername: username,
         displayAvatar: avatar,
+        displayBanner: banner,
         exclusivePreset: preset,
       };
     })
@@ -111,7 +114,7 @@ export default function ClassInfoPage() {
       displayName: profile.displayName || profile.name || 'Pengguna',
       displayUsername: profile.displayUsername || profile.username || buildUsername(profile.displayName || profile.name || 'user', 'user'),
       displayAvatar: profile.displayAvatar || profile.image || profile.profile_image_url || '',
-      banner: profile.banner || profile.banner_url || '',
+      banner: profile.displayBanner || profile.banner || profile.banner_url || '',
       createdAt,
       email: profile.email || '',
       exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.email || ''),
@@ -225,6 +228,8 @@ export default function ClassInfoPage() {
                     displayName: ownerName,
                     displayUsername: ownerUsername,
                     displayAvatar: ownerAvatar,
+                    displayBanner: ownerBanner,
+                    banner: ownerBanner,
                     email: ownerData?.email || user?.email || '',
                     exclusivePreset: ownerExclusivePreset,
                     created_at: ownerData?.created_at || null,

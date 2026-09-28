@@ -74,7 +74,8 @@ export default function Home() {
         ...storedProfile,
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
         profile_image: storedProfile?.image || savedUser.profile_image || '',
-        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || ''
+        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || '',
+        banner: savedUser.banner || storedProfile?.banner || ''
       };
 
       setUser(mergedUser);
@@ -91,7 +92,8 @@ export default function Home() {
               ...freshMember,
               username: freshMember.username || savedUser.username || getUserUsername(savedUser),
               profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
-              profile_image: freshMember.profile_image_url || savedUser.profile_image || ''
+              profile_image: freshMember.profile_image_url || savedUser.profile_image || '',
+              banner: freshMember.banner || savedUser.banner || ''
             };
             setUser(refreshedUser);
             localStorage.setItem('user', JSON.stringify(refreshedUser));

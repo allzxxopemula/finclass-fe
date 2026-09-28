@@ -228,15 +228,16 @@ export default function SettingProfile() {
 
     setLoading(true);
     try {
-      await API.post('/update-profile', {
+      const response = await API.post('/update-profile', {
         user_id: savedUser?.id,
         name: cleanedName,
         username: cleanedUsername,
         profile_image_url: safeProfileImage || null,
         banner: safeBannerUrl || null
-      }).catch(() => null);
+      });
 
-      persistProfile(nextUser);
+      const savedProfileUser = response?.data?.user || nextUser;
+      persistProfile(savedProfileUser);
       appendHistoryEvent('Ganti nama profil');
       if (safeProfileImage) {
         appendHistoryEvent('Ganti foto profil');
