@@ -25,7 +25,8 @@ import {
   faTrash,
   faExternalLinkAlt,
   faInfoCircle,
-  faComments
+  faComments,
+  faCrown
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
@@ -77,7 +78,11 @@ export default function Profile() {
   const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
   const userBanner = user?.banner || getStoredProfile(user)?.banner || '';
   const borderToken = user?.custom_border_color || user?.border_type || '';
+  
+  // FIX: Mengecek status border preset eksklusif
   const exclusivePreset = getExclusiveUserPreset(borderToken);
+  const hasExclusiveBorder = exclusivePreset?.kind === 'preset'; 
+
   const customBorderColor = user?.custom_border_color || user?.border_type || '';
   const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -142,7 +147,6 @@ export default function Profile() {
                 const refreshedUser = {
                   ...savedUser,
                   ...freshMember,
-                  // FIX PENTING: Jangan biarkan created_at tertimpa undefined dari freshMember!
                   created_at: freshMember.created_at || savedUser.created_at || null,
                   username: freshMember.username || savedUser.username || getUserUsername(savedUser),
                   profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
@@ -201,6 +205,11 @@ export default function Profile() {
 
   const handleSaveBorderColor = async () => {
     if (!user?.id) return;
+
+    if (hasExclusiveBorder) {
+      setBorderError('Akun kamu adalah akun dengan border eksklusif, kamu tidak dapat menggantinya.');
+      return;
+    }
 
     if (!canUseCustomBorder) {
       setBorderError('Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari.');
@@ -628,7 +637,7 @@ export default function Profile() {
                 <span>
                   <strong className="block text-xs text-slate-800">Edit Border / Color</strong>
                   <small className="text-[10px] text-slate-400">
-                    {canUseCustomBorder ? 'Warna border aktif' : `Akun belum eligible (${accountAgeInDays}/3 hari)`}
+                    {hasExclusiveBorder ? 'Border premium aktif' : canUseCustomBorder ? 'Warna border aktif' : `Akun belum eligible (${accountAgeInDays}/3 hari)`}
                   </small>
                 </span>
               </span>
@@ -715,20 +724,33 @@ export default function Profile() {
                   <button type="button" onClick={() => setShowBorderModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="Tutup border modal">&times;</button>
                 </div>
 
-                {!canUseCustomBorder && (
+                {/* FIX PENTING: Peringatan jika pengguna punya border eksklusif */}
+                {hasExclusiveBorder ? (
+                  <div className="mb-5 flex items-start gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                      <FontAwesomeIcon icon={faCrown} className="text-sm" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-indigo-900">Akses Terkunci</p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-indigo-700">
+                        Akun kamu adalah akun dengan border eksklusif, kamu tidak dapat menggantinya.
+                      </p>
+                    </div>
+                  </div>
+                ) : !canUseCustomBorder ? (
                   <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-[11px] font-semibold text-amber-700">
                     Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari (Umur saat ini: {accountAgeInDays} hari).
                   </div>
-                )}
+                ) : null}
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className={`grid grid-cols-4 gap-3 ${hasExclusiveBorder ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
                   {borderColors.map((color) => (
                     <button
                       key={color}
                       type="button"
-                      disabled={!canUseCustomBorder}
+                      disabled={hasExclusiveBorder || !canUseCustomBorder}
                       onClick={() => setSelectedBorderColor(color)}
-                      className={`h-11 rounded-2xl border-2 transition ${selectedBorderColor === color ? 'border-slate-900 scale-105' : 'border-slate-200'} ${!canUseCustomBorder ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      className={`h-11 rounded-2xl border-2 transition ${selectedBorderColor === color ? 'border-slate-900 scale-105' : 'border-slate-200'} ${(!canUseCustomBorder || hasExclusiveBorder) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                       style={{ backgroundColor: color }}
                       aria-label={`Pilih warna ${color}`}
                     />
@@ -738,8 +760,15 @@ export default function Profile() {
                 {borderError && <p className="mt-3 text-[10px] font-semibold text-rose-500">{borderError}</p>}
 
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-2xl bg-slate-100 px-3 py-3 text-xs font-black text-slate-600 cursor-pointer">Batal</button>
-                  <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-2xl bg-violet-600 px-3 py-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">Simpan</button>
+                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-2xl bg-slate-100 px-3 py-3 text-xs font-black text-slate-600 cursor-pointer">
+                    {hasExclusiveBorder ? 'Kembali' : 'Batal'}
+                  </button>
+                  
+                  {!hasExclusiveBorder && (
+                    <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-2xl bg-violet-600 px-3 py-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
+                      Simpan
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
