@@ -71,8 +71,8 @@ export const getExclusiveUserPreset = (value) => {
       value: token,
       label: '',
       accent: '',
-      chip: 'bg-white/10 border border-white/30 text-white',
-      glow: `shadow-[0_0_0_1px_rgba(255,255,255,0.75),0_0_14px_${token},0_0_28px_${token}]`,
+      chip: 'hidden',
+      glow: '',
       color: token,
     };
   }
@@ -116,9 +116,11 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   const isPurpleBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PURPLE';
   const isPinkBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PINK';
   const hasCustomBackground = Boolean(preset && preset.kind === 'preset' && !isPurpleBorder && !isPinkBorder);
-  const isRegular = !preset;
-  const customGlowStyle = isHexBorder ? {
-    boxShadow: `0 0 0 1px rgba(255,255,255,0.75), 0 0 14px ${preset.color}, 0 0 28px ${preset.color}`,
+
+  // FX: Bikin efek border solid + soft pendaran pudar untuk warna HEX kustom
+  const customHexStyle = isHexBorder ? {
+    backgroundColor: preset.color,
+    boxShadow: `0 0 12px ${preset.color}88, 0 2px 8px rgba(0,0,0,0.15)`,
   } : undefined;
 
   if (!preset) {
@@ -140,11 +142,11 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         )}
 
         <div
-          className={`group relative isolate overflow-hidden rounded-full p-[3.5px]
+          className={`group relative isolate overflow-hidden rounded-full p-[3px]
             ${isDeveloper ? 'animate-[smoothMorph_6s_ease-in-out_infinite]' : ''}
-            ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? 'bg-transparent' : `bg-gradient-to-br ${preset.accent}`}
-            ${preset.glow} ${className} transition-all duration-300 hover:scale-105 z-10`}
-          style={customGlowStyle}
+            ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? '' : `bg-gradient-to-br ${preset.accent}`}
+            ${preset.glow || ''} ${className} transition-all duration-300 hover:scale-105 z-10`}
+          style={customHexStyle}
         >
           {isDeveloper && (
             <>
@@ -183,10 +185,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
               <div className="absolute -inset-[150%] animate-[spinReverse_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#831843_0%,#F9A8D4_25%,#DB2777_50%,#F9A8D4_75%,#831843_100%)] opacity-100" />
               <div className="absolute inset-0 bg-pink-500/20 animate-[pulse_2.5s_ease-in-out_infinite] pointer-events-none" />
             </>
-          )}
-
-          {isRegular && (
-            <div className="absolute inset-0 opacity-100" />
           )}
 
           <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-20">
@@ -278,9 +276,9 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
   return (
     <div
-      className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 p-[2.5px] ${preset.glow} ${className} transition-all duration-300
-        ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`}`}
-      style={customGlowStyle}
+      className={`group relative isolate overflow-hidden rounded-[28px] p-[3px] ${preset.glow || ''} ${className} transition-all duration-300
+        ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? '' : `bg-gradient-to-r ${preset.accent}`}`}
+      style={customHexStyle}
     >
       {isDeveloper && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
@@ -297,9 +295,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
       {isPinkBorder && (
         <div className="absolute -inset-[150%] animate-[spinReverse_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#831843_0%,#F9A8D4_25%,#DB2777_50%,#F9A8D4_75%,#831843_100%)] opacity-95" />
       )}
-      {isHexBorder && (
-        <div className="absolute inset-0 opacity-100" style={{ background: `linear-gradient(135deg, ${preset.color}22, rgba(255,255,255,0.08))` }} />
-      )}
+
       <div className="relative h-full w-full rounded-[24px] bg-white/90 backdrop-blur-md ring-1 ring-white/50 z-10">
         {children}
       </div>
