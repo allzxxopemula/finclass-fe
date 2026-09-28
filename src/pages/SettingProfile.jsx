@@ -129,7 +129,8 @@ export default function SettingProfile() {
       username: nextUser.username,
       image: safeImageUrl,
       profile_image_url: safeImageUrl,
-      banner: nextUser.banner || ''
+      banner: nextUser.banner || '',
+      custom_border_color: nextUser.custom_border_color || ''
     };
 
     const profileTable = readProfileTable();

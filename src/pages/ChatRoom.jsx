@@ -516,7 +516,8 @@ export default function ChatRoom() {
               messages.map((item, index) => {
                 const senderId = item.user_id || item.user?.id;
                 const isMine = String(senderId) === String(user.id);
-                const preset = getExclusiveUserPreset(item.user?.email || user?.email);
+                const borderValue = item.user?.custom_border_color || item.user?.border_type || user?.custom_border_color || user?.border_type || '';
+                const preset = getExclusiveUserPreset(borderValue || item.user?.email || user?.email);
 
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;

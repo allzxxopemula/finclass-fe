@@ -1,76 +1,91 @@
 import React from 'react';
 
-export const EXCLUSIVE_USER_EMAILS = [
-  {
-    // === 1. TIER DEWA (DEVELOPER) - LEVEL INFINITY (THIN GLASS SWEEP GLOW) ===
-    emails: ['allzxxott@gmail.com', 'allzxxo@gmail.com', 'developer@finclass.id'],
+const PRESET_BORDER_TYPES = {
+  DEVELOPER: {
     label: 'DEVELOPER',
     accent: 'from-[#111827] via-[#9CA3AF] to-[#F9FAFB]',
     chip: 'bg-gradient-to-r from-slate-900 via-zinc-700 to-slate-200 text-white border border-white/40 font-black shadow-lg shadow-slate-500/30',
     glow: 'shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_40px_rgba(255,255,255,0.9),0_0_75px_rgba(156,163,175,0.8)]',
-    isDeveloper: true
+    isDeveloper: true,
   },
-  {
-    // === 2. TIM DEVELOPER (DEV TEAM) - TURBO SPIN ===
-    emails: ['team@finclass.id', 'staff@finclass.id', 'jancok123@gmail.com', 'ayubganda@gmail.com', 'ayyubrashifpamungkas@gmail.com'],
+  DEV_TEAM: {
     label: 'DEV TEAM',
     accent: 'from-[#38BDF8] via-[#818CF8] to-[#6366F1]',
     chip: 'bg-gradient-to-r from-sky-400 to-indigo-500 text-white border border-white/50 font-black shadow-md shadow-blue-500/40',
     glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.8),0_0_20px_rgba(56,189,248,0.8),0_0_45px_rgba(99,102,241,0.6)]',
-    isDevTeam: true
+    isDevTeam: true,
   },
-  {
-    // === 3. DONATUR (SULTAN TIER) - GOLDEN COINS & MAJESTIC SPIN ===
-    emails: ['wahyuhanindio@gmail.com'],
+  DONATUR: {
     label: 'DONATUR',
     accent: 'from-[#FDE047] via-[#F59E0B] to-[#EA580C]',
     chip: 'bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 text-white border border-white/50 font-black shadow-md shadow-amber-500/40',
     glow: 'shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_25px_rgba(253,224,71,0.8),0_0_50px_rgba(234,88,12,0.6)]',
-    isDonatur: true 
+    isDonatur: true,
   },
-  {
-    // === 4. EXCLUSIVE ===
-    emails: ['aldorendyjulian@gmail.com'],
+  EXCLUSIVE: {
     label: 'EXCLUSIVE',
     accent: 'from-[#D946EF] via-[#A855F7] to-[#6366F1]',
     chip: 'bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white border border-white/40 font-bold shadow-md shadow-purple-500/30',
     glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_0_15px_rgba(217,70,239,0.6),0_0_30px_rgba(99,102,241,0.4)]',
-    shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(217,70,239,0.7),_transparent_35%),linear-gradient(135deg,_rgba(168,85,247,0.3),_rgba(79,70,229,0.3))]'
+    shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(217,70,239,0.7),_transparent_35%),linear-gradient(135deg,_rgba(168,85,247,0.3),_rgba(79,70,229,0.3))]',
   },
-  {
-    // === 5. SECRET PURPLE (BORDER ONLY) ===
-    emails: ['zeozero601@gmail.com'],
-    label: '', // Sengaja dikosongi agar tidak ada badge text
+  SECRET_PURPLE: {
+    label: '',
     accent: 'from-[#9333EA] to-[#6B21A8]',
-    chip: 'hidden', 
+    chip: 'hidden',
     glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_0_15px_rgba(168,85,247,0.7)]',
-    isPurpleBorder: true
+    isPurpleBorder: true,
   },
-  {
-    // === 6. SECRET PINK (BORDER ONLY) ===
-    emails: ['leroffey@gmail.com'],
-    label: '', // Sengaja dikosongi agar tidak ada badge text
+  SECRET_PINK: {
+    label: '',
     accent: 'from-[#EC4899] to-[#9D174D]',
     chip: 'hidden',
     glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_0_15px_rgba(236,72,153,0.7)]',
-    isPinkBorder: true
-  }
-];
-
-export const normalizeEmail = (email = '') => String(email || '').trim().toLowerCase();
-
-export const getExclusiveUserPreset = (email) => {
-  const target = normalizeEmail(email);
-
-  return EXCLUSIVE_USER_EMAILS.find((item) => {
-    const allowedEmails = item.emails ? item.emails : [item.email];
-    return allowedEmails.some((allowedEmail) => normalizeEmail(allowedEmail) === target);
-  }) || null;
+    isPinkBorder: true,
+  },
 };
 
-// ==========================================
-// ASSET SVG EKSKLUSIF (BINTANG & KOIN)
-// ==========================================
+const HEX_COLOR_RE = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+
+export const normalizeBorderValue = (value = '') => {
+  if (value === null || value === undefined) return '';
+
+  const raw = String(value).trim();
+  if (!raw) return '';
+
+  if (HEX_COLOR_RE.test(raw)) {
+    return raw.toUpperCase();
+  }
+
+  const normalized = raw.replace(/\s+/g, '').toUpperCase();
+  return Object.prototype.hasOwnProperty.call(PRESET_BORDER_TYPES, normalized) ? normalized : '';
+};
+
+export const getExclusiveUserPreset = (value) => {
+  const token = normalizeBorderValue(value);
+  if (!token) return null;
+
+  if (token.startsWith('#')) {
+    return {
+      kind: 'hex',
+      value: token,
+      label: '',
+      accent: '',
+      chip: 'bg-white/10 border border-white/30 text-white',
+      glow: `shadow-[0_0_0_1px_rgba(255,255,255,0.75),0_0_14px_${token},0_0_28px_${token}]`,
+      color: token,
+    };
+  }
+
+  return {
+    ...PRESET_BORDER_TYPES[token],
+    kind: 'preset',
+    value: token,
+  };
+};
+
+export const getUserBorderValue = (user = {}) => normalizeBorderValue(user?.custom_border_color || user?.border_type || '');
+
 const StarSparkle = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 0C12 0 12 9.5 17.5 12C12 14.5 12 24 12 24C12 24 12 14.5 6.5 12C12 9.5 12 0 12 0Z" />
@@ -91,9 +106,20 @@ const GoldenCoin = ({ className }) => (
   </svg>
 );
 
-
-export function ExclusiveProfileShell({ email, className = '', children, variant = 'card' }) {
-  const preset = getExclusiveUserPreset(email);
+export function ExclusiveProfileShell({ email, className = '', children, variant = 'card', customBorderColor = '', borderValue = '', borderType = '' }) {
+  const resolvedBorderValue = normalizeBorderValue(borderType || customBorderColor || borderValue || '');
+  const preset = getExclusiveUserPreset(resolvedBorderValue);
+  const isHexBorder = preset?.kind === 'hex';
+  const isDeveloper = preset?.kind === 'preset' && preset.value === 'DEVELOPER';
+  const isDevTeam = preset?.kind === 'preset' && preset.value === 'DEV_TEAM';
+  const isDonatur = preset?.kind === 'preset' && preset.value === 'DONATUR';
+  const isPurpleBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PURPLE';
+  const isPinkBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PINK';
+  const hasCustomBackground = Boolean(preset && preset.kind === 'preset' && !isPurpleBorder && !isPinkBorder);
+  const isRegular = !preset;
+  const customGlowStyle = isHexBorder ? {
+    boxShadow: `0 0 0 1px rgba(255,255,255,0.75), 0 0 14px ${preset.color}, 0 0 28px ${preset.color}`,
+  } : undefined;
 
   if (!preset) {
     return (
@@ -103,23 +129,9 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  const isDeveloper = preset.isDeveloper;
-  const isDevTeam = preset.isDevTeam;
-  const isDonatur = preset.isDonatur;
-  const isPurpleBorder = preset.isPurpleBorder;
-  const isPinkBorder = preset.isPinkBorder;
-  // Yang termasuk kategori custom gradient murni tanpa background
-  const hasCustomBackground = isDeveloper || isDevTeam || isDonatur || isPurpleBorder || isPinkBorder;
-  
-  const isRegular = !hasCustomBackground;
-
   if (variant === 'avatar') {
     return (
       <div className="relative inline-block">
-        
-        {/* ======================================= */}
-        {/* EFEK RIPPLE PULSE KHUSUS DEVELOPER */}
-        {/* ======================================= */}
         {isDeveloper && (
           <>
             <div className="absolute -inset-1 rounded-full border-[1.5px] border-white/80 animate-[rippleFast_2s_ease-out_infinite] pointer-events-none z-0" />
@@ -127,38 +139,30 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </>
         )}
 
-        {/* === WADAH UTAMA FOTO PROFIL === */}
-        <div 
-          className={`group relative isolate overflow-hidden rounded-full p-[3.5px] 
-            ${isDeveloper ? 'animate-[smoothMorph_6s_ease-in-out_infinite]' : ''} 
-            ${hasCustomBackground ? 'bg-transparent' : `bg-gradient-to-br ${preset.accent}`} 
+        <div
+          className={`group relative isolate overflow-hidden rounded-full p-[3.5px]
+            ${isDeveloper ? 'animate-[smoothMorph_6s_ease-in-out_infinite]' : ''}
+            ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? 'bg-transparent' : `bg-gradient-to-br ${preset.accent}`}
             ${preset.glow} ${className} transition-all duration-300 hover:scale-105 z-10`}
+          style={customGlowStyle}
         >
-          
-          {/* Efek Lingkaran Developer */}
           {isDeveloper && (
             <>
-              {/* Spinning Base Gradient */}
               <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-100" />
-              
-              {/* Orbiting White Comet */}
               <div className="absolute inset-[-4px] animate-[spin_1.5s_linear_infinite] pointer-events-none rounded-full z-10">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_4px_#ffffff] blur-[1px]" />
                 <div className="absolute top-0 left-1/2 w-16 h-2 bg-gradient-to-l from-white to-transparent opacity-70 origin-left rounded-full blur-[2px]" />
               </div>
-
               <div className="absolute -inset-[3px] rounded-full animate-[spin_5s_linear_infinite_reverse] border-[2px] border-dashed border-white/60 opacity-80 pointer-events-none" />
               <div className="absolute inset-0 bg-white opacity-0 animate-[lightningFlash_4s_steps(2,start)_infinite]" />
               <div className="absolute inset-0 bg-white/30 animate-[pulse_2.5s_ease-in-out_infinite]" />
             </>
           )}
 
-          {/* Efek Dev Team */}
           {isDevTeam && (
             <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
           )}
 
-          {/* Efek Donatur */}
           {isDonatur && (
             <>
               <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-100" />
@@ -167,7 +171,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* ✨ Efek Border Ungu (Plasma Spin) */}
           {isPurpleBorder && (
             <>
               <div className="absolute -inset-[150%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#581C87_0%,#D8B4FE_25%,#9333EA_50%,#D8B4FE_75%,#581C87_100%)] opacity-100" />
@@ -175,7 +178,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* ✨ Efek Border Pink (Neon Reverse Spin) */}
           {isPinkBorder && (
             <>
               <div className="absolute -inset-[150%] animate-[spinReverse_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#831843_0%,#F9A8D4_25%,#DB2777_50%,#F9A8D4_75%,#831843_100%)] opacity-100" />
@@ -183,18 +185,15 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* Efek Reguler */}
           {isRegular && (
-            <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
+            <div className="absolute inset-0 opacity-100" />
           )}
-          
-          {/* FOTO PROFIL & GARIS SWEEP TIPIS & SMOOTH */}
+
           <div className="relative h-full w-full overflow-hidden rounded-full bg-white shadow-inner z-20">
             <div className={`w-full h-full ${isDeveloper ? 'animate-[counterSmooth_6s_ease-in-out_infinite]' : ''}`}>
               {children}
             </div>
 
-            {/* ✨ GARIS SWEEP TIPIS & LAMBAT (SMOOTH SLIM GLOW) KHUSUS DEVELOPER */}
             {isDeveloper && (
               <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden rounded-full">
                 <div className="absolute -inset-full w-[250%] h-[250%] bg-gradient-to-r from-transparent via-white/70 to-transparent rotate-[35deg] animate-[thinGlassSweep_8s_ease-in-out_infinite]" />
@@ -203,9 +202,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         </div>
 
-        {/* ======================================= */}
-        {/* BINTANG SPARKLE (DEVELOPER, z-[100]) */}
-        {/* ======================================= */}
         {isDeveloper && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-[100]">
             <StarSparkle className="absolute -top-3 left-1/4 w-3.5 h-3.5 text-white filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.5s_ease-in-out_infinite]" />
@@ -215,7 +211,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         )}
 
-        {/* EFEK KOIN EMAS SULTAN (DONATUR) */}
         {isDonatur && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
             <GoldenCoin className="absolute -bottom-2 left-1/4 w-4 h-4 filter drop-shadow-[0_0_4px_#F59E0B] animate-[coinRise_3s_ease-in_infinite]" />
@@ -225,7 +220,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         )}
 
-        {/* === KUMPULAN CSS KEYFRAMES === */}
         <style>{`
           @keyframes thinGlassSweep {
             0% { transform: translateX(-180%) translateY(-180%); opacity: 0; }
@@ -282,35 +276,30 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // --- STYLE UNTUK KOTAK (CARD) ---
   return (
-    <div className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 p-[2.5px] ${preset.glow} ${className} transition-all duration-300
-      ${hasCustomBackground ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`}`}
+    <div
+      className={`group relative isolate overflow-hidden rounded-[28px] border-2 border-white/60 p-[2.5px] ${preset.glow} ${className} transition-all duration-300
+        ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? 'bg-transparent' : `bg-gradient-to-r ${preset.accent}`}`}
+      style={customGlowStyle}
     >
       {isDeveloper && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
       )}
-      
       {isDevTeam && (
         <div className="absolute -inset-[150%] animate-[devTeamSpin_3s_cubic-bezier(0.68,-0.55,0.27,1.55)_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#38BDF8_0%,#FFFFFF_20%,#6366F1_50%,#FFFFFF_80%,#38BDF8_100%)] opacity-95" />
       )}
-
       {isDonatur && (
         <div className="absolute -inset-[150%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-95" />
       )}
-
       {isPurpleBorder && (
         <div className="absolute -inset-[150%] animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#581C87_0%,#D8B4FE_25%,#9333EA_50%,#D8B4FE_75%,#581C87_100%)] opacity-95" />
       )}
-
       {isPinkBorder && (
         <div className="absolute -inset-[150%] animate-[spinReverse_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#831843_0%,#F9A8D4_25%,#DB2777_50%,#F9A8D4_75%,#831843_100%)] opacity-95" />
       )}
-
-      {isRegular && (
-        <div className={`absolute inset-0 opacity-100 ${preset.shell}`} />
+      {isHexBorder && (
+        <div className="absolute inset-0 opacity-100" style={{ background: `linear-gradient(135deg, ${preset.color}22, rgba(255,255,255,0.08))` }} />
       )}
-      
       <div className="relative h-full w-full rounded-[24px] bg-white/90 backdrop-blur-md ring-1 ring-white/50 z-10">
         {children}
       </div>

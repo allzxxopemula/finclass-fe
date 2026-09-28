@@ -79,7 +79,9 @@ export default function ClassInfoPage() {
   const ownerUsername = ownerData?.username || ownerLocal?.username || buildUsername(ownerName, 'bendahara');
   const ownerAvatar = ownerLocal?.image || ownerData?.profile_image_url || '';
   const ownerBanner = ownerLocal?.banner || ownerData?.banner || '';
-  const ownerExclusivePreset = getExclusiveUserPreset(ownerData?.email || user?.email);
+  const ownerBorderToken = ownerData?.custom_border_color || ownerData?.border_type || ownerLocal?.custom_border_color || ownerLocal?.border_type || '';
+  const ownerCustomBorder = ownerBorderToken;
+  const ownerExclusivePreset = getExclusiveUserPreset(ownerBorderToken);
 
   const memberList = members
     .map((member) => {
@@ -89,7 +91,8 @@ export default function ClassInfoPage() {
       const username = member.username || local?.username || buildUsername(name, 'user');
       const avatar = local?.image || member.profile_image_url || '';
       const banner = local?.banner || member.banner || '';
-      const preset = getExclusiveUserPreset(email);
+      const customBorderColor = local?.custom_border_color || member.custom_border_color || local?.border_type || member.border_type || '';
+      const preset = getExclusiveUserPreset(customBorderColor || email);
 
       return {
         ...member,
@@ -98,6 +101,7 @@ export default function ClassInfoPage() {
         displayUsername: username,
         displayAvatar: avatar,
         displayBanner: banner,
+        customBorderColor,
         exclusivePreset: preset,
       };
     })
@@ -117,7 +121,8 @@ export default function ClassInfoPage() {
       banner: profile.displayBanner || profile.banner || profile.banner_url || '',
       createdAt,
       email: profile.email || '',
-      exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.email || ''),
+      customBorderColor: profile.customBorderColor || profile.custom_border_color || '',
+      exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.customBorderColor || profile.custom_border_color || profile.border_type || profile.email || ''),
       kelasName: kelasData?.nama_kelas || 'Kelas belum ditentukan',
     });
   };
@@ -237,7 +242,7 @@ export default function ClassInfoPage() {
                   className="flex w-full items-center gap-3 rounded-xl bg-indigo-50/30 border border-indigo-50 p-3 text-left transition-all hover:bg-indigo-50/60 hover:shadow-sm focus:outline-none"
                 >
                   <div className="relative">
-                    <ExclusiveProfileShell email={ownerData?.email || user?.email} variant="avatar" className="h-14 w-14 shrink-0">
+                    <ExclusiveProfileShell email={ownerData?.email || user?.email} customBorderColor={ownerCustomBorder} variant="avatar" className="h-14 w-14 shrink-0">
                       <div className="h-full w-full overflow-hidden rounded-full bg-white">
                         {ownerAvatar ? (
                           <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
@@ -258,7 +263,7 @@ export default function ClassInfoPage() {
                     <p className="truncate text-[11px] font-medium text-slate-500">@{ownerUsername}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {ownerExclusivePreset && (
+                    {ownerExclusivePreset && ownerExclusivePreset.label && String(ownerExclusivePreset.label).trim() && (
                       <span className={`rounded-full px-2 py-1 text-[8px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-sm`}>
                         {ownerExclusivePreset.label}
                       </span>
@@ -303,7 +308,7 @@ export default function ClassInfoPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-bold text-slate-800">{member.displayName}</p>
-                          {member.exclusivePreset && (
+                          {member.exclusivePreset && member.exclusivePreset.label && String(member.exclusivePreset.label).trim() && (
                             <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${member.exclusivePreset.accent} border border-white/30`}>
                               {member.exclusivePreset.label}
                             </span>
@@ -350,7 +355,7 @@ export default function ClassInfoPage() {
 
               <div className="relative -mt-12 px-5 pb-5">
                 <div className="flex items-end justify-between gap-3">
-                  <ExclusiveProfileShell email={selectedProfile.email} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
+                  <ExclusiveProfileShell borderValue={selectedProfile.customBorderColor || selectedProfile.custom_border_color || selectedProfile.border_type || ''} customBorderColor={selectedProfile.customBorderColor || selectedProfile.custom_border_color || selectedProfile.border_type || ''} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
                     <div className="h-full w-full overflow-hidden rounded-full border-[2px] border-white bg-slate-100">
                       {selectedProfile.displayAvatar ? (
                         <img src={selectedProfile.displayAvatar} alt={selectedProfile.displayName} className="h-full w-full object-cover" />
@@ -362,7 +367,7 @@ export default function ClassInfoPage() {
                     </div>
                   </ExclusiveProfileShell>
 
-                  {selectedProfile.exclusivePreset && (
+                  {selectedProfile.exclusivePreset && selectedProfile.exclusivePreset.label && String(selectedProfile.exclusivePreset.label).trim() && (
                     <span className={`rounded-full px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} border border-white/40 shadow-md`}>
                       {selectedProfile.exclusivePreset.label}
                     </span>

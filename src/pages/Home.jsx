@@ -118,7 +118,9 @@ export default function Home() {
   const paymentProgress = members.length ? Math.round((paidMembers / members.length) * 100) : 0;
   const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
   const displayUsername = user?.username || getUserUsername(user);
-  const exclusivePreset = getExclusiveUserPreset(user?.email);
+  const borderToken = user?.custom_border_color || user?.border_type || '';
+  const exclusivePreset = getExclusiveUserPreset(borderToken);
+  const customBorderColor = borderToken;
 
   const handlePrintSummary = () => {
     window.print();
@@ -139,7 +141,7 @@ export default function Home() {
       {/* Top Banner */}
       <div className="flex items-center justify-between pt-2 pb-1">
         <div className="flex items-center gap-3">
-          <ExclusiveProfileShell email={user?.email} variant="avatar" className="h-10 w-10 bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+          <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-10 w-10 bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
             {userAvatar ? (
               <img
                 src={userAvatar}
@@ -161,7 +163,7 @@ export default function Home() {
               <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
                 {user?.role || 'User'}
               </p>
-              {exclusivePreset && (
+              {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
                 <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/30`}>
                   {exclusivePreset.label}
                 </span>

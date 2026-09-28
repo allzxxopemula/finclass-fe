@@ -43,6 +43,9 @@ export default function Profile() {
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [qrisError, setQrisError] = useState('');
   const [chatUnreadCount, setChatUnreadCount] = useState(0);
+  const [showBorderModal, setShowBorderModal] = useState(false);
+  const [selectedBorderColor, setSelectedBorderColor] = useState('#6366F1');
+  const [borderError, setBorderError] = useState('');
 
   const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
@@ -73,8 +76,13 @@ export default function Profile() {
   const displayUsername = user?.username || getUserUsername(user);
   const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
   const userBanner = user?.banner || getStoredProfile(user)?.banner || '';
-  const exclusivePreset = getExclusiveUserPreset(user?.email);
+  const borderToken = user?.custom_border_color || user?.border_type || '';
+  const exclusivePreset = getExclusiveUserPreset(borderToken);
+  const customBorderColor = user?.custom_border_color || user?.border_type || '';
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const accountAgeInDays = user?.created_at ? Math.max(0, Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000)) : 0;
+  const canUseCustomBorder = accountAgeInDays >= 3;
+  const borderColors = ['#6366F1', '#EC4899', '#8B5CF6', '#14B8A6', '#F59E0B', '#EF4444', '#22C55E', '#3B82F6'];
 
   const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
 
@@ -88,7 +96,8 @@ export default function Profile() {
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
         profile_image: storedProfile?.image || savedUser.profile_image || '',
         profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || '',
-        banner: savedUser.banner || storedProfile?.banner || ''
+        banner: savedUser.banner || storedProfile?.banner || '',
+        custom_border_color: savedUser.custom_border_color || storedProfile?.custom_border_color || ''
       };
 
       setUser(mergedUser);
@@ -113,7 +122,8 @@ export default function Profile() {
                   username: freshMember.username || savedUser.username || getUserUsername(savedUser),
                   profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
                   profile_image: freshMember.profile_image_url || savedUser.profile_image || '',
-                  banner: freshMember.banner || savedUser.banner || ''
+                  banner: freshMember.banner || savedUser.banner || '',
+                  custom_border_color: freshMember.custom_border_color || savedUser.custom_border_color || ''
                 };
                 setUser(refreshedUser);
                 localStorage.setItem('user', JSON.stringify(refreshedUser));
@@ -158,6 +168,36 @@ export default function Profile() {
     setQrisDraft(qrisUrl);
     setQrisError('');
     setShowQrisModal(true);
+  };
+
+  const handleOpenBorderModal = () => {
+    setSelectedBorderColor(user?.custom_border_color || '#6366F1');
+    setBorderError('');
+    setShowBorderModal(true);
+  };
+
+  const handleSaveBorderColor = async () => {
+    if (!user?.id) return;
+
+    if (!canUseCustomBorder) {
+      setBorderError('Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari.');
+      return;
+    }
+
+    try {
+      const response = await API.post('/update-border-color', {
+        user_id: user.id,
+        custom_border_color: selectedBorderColor,
+      });
+
+      const updatedUser = { ...user, ...response.data.user, custom_border_color: response.data.user?.custom_border_color || selectedBorderColor };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setShowBorderModal(false);
+      setBorderError('');
+    } catch (error) {
+      setBorderError(error?.response?.data?.message || 'Gagal menyimpan warna border.');
+    }
   };
 
   const handleSaveQris = (event) => {
@@ -303,7 +343,7 @@ export default function Profile() {
           <button type="button" onClick={() => setShowProfileModal(true)} className="flex items-center gap-4 text-left">
             <div className="relative shrink-0 z-10">
               {/* FIX GLOWING PROFILE: padding bawaan dihapus agar border glowing terlihat sempurna */}
-              <ExclusiveProfileShell email={user?.email} variant="avatar" className="w-20 h-20 shadow-2xl">
+              <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="w-20 h-20 shadow-2xl">
                 <div className="w-full h-full bg-slate-800 rounded-full overflow-hidden border-[1.5px] border-white/40">
                   {userAvatar ? (
                     <img
@@ -346,7 +386,7 @@ export default function Profile() {
                   {user?.role?.replace('_', ' ')}
                 </span>
 
-                {exclusivePreset && (
+                {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
                   <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black tracking-wider border border-white/20 bg-gradient-to-r ${exclusivePreset.accent} text-white`}>
                     {exclusivePreset.label}
                   </span>
@@ -553,6 +593,23 @@ export default function Profile() {
               </span>
               <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
             </button>
+
+            <button
+              type="button"
+              onClick={handleOpenBorderModal}
+              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30"
+            >
+              <span className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600"><FontAwesomeIcon icon={faPalette} /></span>
+                <span>
+                  <strong className="block text-xs text-slate-800">Edit Border / Color</strong>
+                  <small className="text-[10px] text-slate-400">
+                    {canUseCustomBorder ? 'Warna border aktif' : 'Akun belum eligible'}
+                  </small>
+                </span>
+              </span>
+              <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
+            </button>
           </div>
             </>
           )}
@@ -571,7 +628,7 @@ export default function Profile() {
 
                 <div className="relative -mt-12 px-5 pb-5">
                   <div className="flex items-end justify-between gap-3">
-                    <ExclusiveProfileShell email={user?.email} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
+                    <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
                       <div className="h-full w-full overflow-hidden rounded-full border-[2px] border-white bg-slate-100">
                         {userAvatar ? (
                           <img src={userAvatar} alt={user?.name || 'Avatar'} className="h-full w-full object-cover" />
@@ -583,7 +640,7 @@ export default function Profile() {
                       </div>
                     </ExclusiveProfileShell>
 
-                    {exclusivePreset && (
+                    {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
                       <span className={`rounded-full px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/40 shadow-md`}>
                         {exclusivePreset.label}
                       </span>
@@ -618,6 +675,47 @@ export default function Profile() {
                       </p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showBorderModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" onClick={() => setShowBorderModal(false)}>
+              <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                <div className="mb-5 flex items-start justify-between">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">Kustom Border</h3>
+                    <p className="mt-1 text-[10px] text-slate-400">Pilih warna bingkai profil.</p>
+                  </div>
+                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="Tutup border modal">&times;</button>
+                </div>
+
+                {!canUseCustomBorder && (
+                  <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-[11px] font-semibold text-amber-700">
+                    Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari.
+                  </div>
+                )}
+
+                <div className="grid grid-cols-4 gap-3">
+                  {borderColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      disabled={!canUseCustomBorder}
+                      onClick={() => setSelectedBorderColor(color)}
+                      className={`h-11 rounded-2xl border-2 transition ${selectedBorderColor === color ? 'border-slate-900 scale-105' : 'border-slate-200'} ${!canUseCustomBorder ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      style={{ backgroundColor: color }}
+                      aria-label={`Pilih warna ${color}`}
+                    />
+                  ))}
+                </div>
+
+                {borderError && <p className="mt-3 text-[10px] font-semibold text-rose-500">{borderError}</p>}
+
+                <div className="mt-5 flex gap-2">
+                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-2xl bg-slate-100 px-3 py-3 text-xs font-black text-slate-600">Batal</button>
+                  <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-2xl bg-violet-600 px-3 py-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-50">Simpan</button>
                 </div>
               </div>
             </div>
