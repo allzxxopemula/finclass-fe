@@ -28,6 +28,7 @@ const PRESET_BORDER_TYPES = {
     chip: 'bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white border border-white/40 font-bold shadow-md shadow-purple-500/30',
     glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_0_15px_rgba(217,70,239,0.6),0_0_30px_rgba(99,102,241,0.4)]',
     shell: 'bg-[radial-gradient(circle_at_top_left,_rgba(217,70,239,0.7),_transparent_35%),linear-gradient(135deg,_rgba(168,85,247,0.3),_rgba(79,70,229,0.3))]',
+    isExclusivePurple: true,
   },
   SECRET_PURPLE: {
     label: '',
@@ -120,6 +121,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   const isDeveloper = preset?.kind === 'preset' && preset.value === 'DEVELOPER';
   const isDevTeam = preset?.kind === 'preset' && preset.value === 'DEV_TEAM';
   const isDonatur = preset?.kind === 'preset' && preset.value === 'DONATUR';
+  const isExclusivePurple = preset?.kind === 'preset' && preset.value === 'EXCLUSIVE';
   const isPurpleBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PURPLE';
   const isPinkBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PINK';
 
@@ -178,6 +180,14 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
+          {isExclusivePurple && (
+            <>
+              <div className="absolute -inset-[150%] animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#D946EF_0%,#FFFFFF_25%,#A855F7_50%,#FFFFFF_75%,#D946EF_100%)] opacity-100" />
+              <div className="absolute inset-1 rounded-full border border-fuchsia-200/50 shadow-[inset_0_0_15px_rgba(217,70,239,0.4)] z-10 pointer-events-none" />
+              <div className="absolute inset-0 bg-fuchsia-400/10 animate-[pulse_3s_ease-in-out_infinite] pointer-events-none" />
+            </>
+          )}
+
           {isPurpleBorder && (
             <>
               <div className="absolute -inset-[150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#6B21A8_0%,#D8B4FE_20%,#9333EA_50%,#D8B4FE_80%,#6B21A8_100%)] opacity-100" />
@@ -226,12 +236,21 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         )}
 
+        {isExclusivePurple && (
+          <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
+            <StarSparkle className="absolute -top-2 right-1/4 w-3.5 h-3.5 text-fuchsia-200 filter drop-shadow-[0_0_5px_#D946EF] animate-[starFloat_3s_ease-in-out_infinite]" />
+            <StarSparkle className="absolute top-1/4 -left-2 w-2.5 h-2.5 text-white filter drop-shadow-[0_0_5px_#A855F7] animate-[starFloat_2.5s_ease-in-out_infinite_0.5s]" />
+            <StarSparkle className="absolute -bottom-1 left-1/3 w-3 h-3 text-fuchsia-100 filter drop-shadow-[0_0_6px_#D946EF] animate-[starFloat_4s_ease-in-out_infinite_1s]" />
+            <Firefly className="w-1 h-1 -bottom-2 right-1/4 animate-[fireflyFloat_3.5s_ease-in-out_infinite_0.2s]" color="#F0ABFC" />
+          </div>
+        )}
+
         {isPurpleBorder && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
-            <StarSparkle className="absolute -top-2 right-1/4 w-3.5 h-3.5 text-purple-200 filter drop-shadow-[0_0_5px_#C084FC] animate-[starFloat_3s_ease-in-out_infinite]" />
-            <StarSparkle className="absolute top-1/4 -left-2 w-2.5 h-2.5 text-white filter drop-shadow-[0_0_5px_#D8B4FE] animate-[starFloat_2.5s_ease-in-out_infinite_0.5s]" />
-            <StarSparkle className="absolute -bottom-1 left-1/3 w-3 h-3 text-purple-100 filter drop-shadow-[0_0_6px_#9333EA] animate-[starFloat_4s_ease-in-out_infinite_1s]" />
-            <Firefly className="w-1 h-1 -bottom-2 right-1/4 animate-[fireflyFloat_3.5s_ease-in-out_infinite_0.2s]" color="#E9D5FF" />
+            <StarSparkle className="absolute -top-2 left-1/3 w-3.5 h-3.5 text-purple-200 filter drop-shadow-[0_0_6px_#C084FC] animate-[starFloat_2.8s_ease-in-out_infinite]" />
+            <StarSparkle className="absolute top-1/3 -right-2.5 w-3 h-3 text-white filter drop-shadow-[0_0_5px_#D8B4FE] animate-[starFloat_3.2s_ease-in-out_infinite_0.6s]" />
+            <Firefly className="w-1.5 h-1.5 -bottom-2 left-1/4 animate-[fireflyFloat_4s_ease-in-out_infinite]" color="#D8B4FE" />
+            <Firefly className="w-1 h-1 bottom-1/3 -left-2 animate-[fireflyFloat_4.5s_ease-in-out_infinite_1.5s]" color="#E9D5FF" />
           </div>
         )}
 
@@ -320,6 +339,9 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
       )}
       {isDonatur && (
         <div className="absolute -inset-[150%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F59E0B_0%,#FDE047_25%,#EA580C_50%,#FDE047_75%,#F59E0B_100%)] opacity-95" />
+      )}
+      {isExclusivePurple && (
+        <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#D946EF_0%,#FFFFFF_25%,#A855F7_50%,#FFFFFF_75%,#D946EF_100%)] opacity-95" />
       )}
       {isPurpleBorder && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#6B21A8_0%,#D8B4FE_20%,#9333EA_50%,#D8B4FE_80%,#6B21A8_100%)] opacity-95" />
