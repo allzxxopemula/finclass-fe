@@ -81,11 +81,26 @@ export default function Profile() {
   const customBorderColor = user?.custom_border_color || user?.border_type || '';
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // FIX PENTING: Perhitungan Umur Akun secara Presisi
+  const normalizeCreatedAtForDate = (rawValue) => {
+    if (!rawValue) return null;
+
+    const normalized = String(rawValue).trim();
+    if (!normalized) return null;
+
+    const isoLike = normalized.includes(' ') ? normalized.replace(' ', 'T') : normalized;
+    const timestamp = new Date(isoLike).getTime();
+
+    if (Number.isNaN(timestamp)) {
+      return null;
+    }
+
+    return timestamp;
+  };
+
   const rawCreatedAt = user?.created_at || user?.createdAt;
-  const createdAtTimestamp = rawCreatedAt ? new Date(rawCreatedAt).getTime() : 0;
-  const accountAgeInDays = createdAtTimestamp > 0 
-    ? Math.max(0, Math.floor((Date.now() - createdAtTimestamp) / (1000 * 60 * 60 * 24))) 
+  const createdAtTimestamp = normalizeCreatedAtForDate(rawCreatedAt);
+  const accountAgeInDays = createdAtTimestamp && createdAtTimestamp <= Date.now()
+    ? Math.max(0, Math.floor((Date.now() - createdAtTimestamp) / (1000 * 60 * 60 * 24)))
     : 0;
 
   const canUseCustomBorder = accountAgeInDays >= 3;
