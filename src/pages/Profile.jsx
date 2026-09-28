@@ -79,7 +79,6 @@ export default function Profile() {
   const userBanner = user?.banner || getStoredProfile(user)?.banner || '';
   const borderToken = user?.custom_border_color || user?.border_type || '';
   
-  // FIX: Mengecek status border preset eksklusif
   const exclusivePreset = getExclusiveUserPreset(borderToken);
   const hasExclusiveBorder = exclusivePreset?.kind === 'preset'; 
 
@@ -225,7 +224,7 @@ export default function Profile() {
       const updatedUser = { 
         ...user, 
         ...response.data.user, 
-        created_at: user.created_at, // Pertahankan created_at
+        created_at: user.created_at, 
         custom_border_color: response.data.user?.custom_border_color || selectedBorderColor 
       };
       setUser(updatedUser);
@@ -626,23 +625,6 @@ export default function Profile() {
               </span>
               <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
             </button>
-
-            <button
-              type="button"
-              onClick={handleOpenBorderModal}
-              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30 font-sans cursor-pointer"
-            >
-              <span className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600"><FontAwesomeIcon icon={faPalette} /></span>
-                <span>
-                  <strong className="block text-xs text-slate-800">Edit Border / Color</strong>
-                  <small className="text-[10px] text-slate-400">
-                    {hasExclusiveBorder ? 'Border premium aktif' : canUseCustomBorder ? 'Warna border aktif' : `Akun belum eligible (${accountAgeInDays}/3 hari)`}
-                  </small>
-                </span>
-              </span>
-              <FontAwesomeIcon icon={faChevronRight} className="text-xs text-slate-300" />
-            </button>
           </div>
             </>
           )}
@@ -656,7 +638,28 @@ export default function Profile() {
                   ) : (
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%)]" />
                   )}
-                  <button type="button" onClick={() => setShowProfileModal(false)} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20">✕</button>
+                  
+                  {/* MODIFIKASI: Tombol Edit Border & Tombol Tutup dipindahkan ke sini */}
+                  <div className="absolute right-3 top-3 flex items-center gap-2">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setShowProfileModal(false);
+                        handleOpenBorderModal();
+                      }} 
+                      className="flex h-8 items-center justify-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 text-[10px] font-black text-white backdrop-blur-sm transition hover:bg-white/20 cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faPalette} /> Edit
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowProfileModal(false)} 
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
                 </div>
 
                 <div className="relative -mt-12 px-5 pb-5">
@@ -724,7 +727,6 @@ export default function Profile() {
                   <button type="button" onClick={() => setShowBorderModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="Tutup border modal">&times;</button>
                 </div>
 
-                {/* FIX PENTING: Peringatan jika pengguna punya border eksklusif */}
                 {hasExclusiveBorder ? (
                   <div className="mb-5 flex items-start gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
