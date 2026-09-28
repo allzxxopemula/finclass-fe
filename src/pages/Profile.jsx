@@ -72,7 +72,9 @@ export default function Profile() {
 
   const displayUsername = user?.username || getUserUsername(user);
   const userAvatar = user?.profile_image_url || user?.profile_image || getStoredProfile(user)?.image || getStoredProfile(user)?.profile_image_url || user?.avatar_url || '';
+  const userBanner = user?.banner || getStoredProfile(user)?.banner || '';
   const exclusivePreset = getExclusiveUserPreset(user?.email);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const getQrisStorageKey = (currentUser) => `finclass-qris-${currentUser?.id || currentUser?.email || 'guest'}`;
 
@@ -85,7 +87,8 @@ export default function Profile() {
         ...storedProfile,
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
         profile_image: storedProfile?.image || savedUser.profile_image || '',
-        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || ''
+        profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || '',
+        banner: savedUser.banner || storedProfile?.banner || ''
       };
 
       setUser(mergedUser);
@@ -109,7 +112,8 @@ export default function Profile() {
                   ...freshMember,
                   username: freshMember.username || savedUser.username || getUserUsername(savedUser),
                   profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
-                  profile_image: freshMember.profile_image_url || savedUser.profile_image || ''
+                  profile_image: freshMember.profile_image_url || savedUser.profile_image || '',
+                  banner: freshMember.banner || savedUser.banner || ''
                 };
                 setUser(refreshedUser);
                 localStorage.setItem('user', JSON.stringify(refreshedUser));
@@ -296,7 +300,7 @@ export default function Profile() {
             </span>
           </div>
           
-          <div className="flex items-center gap-4">
+          <button type="button" onClick={() => setShowProfileModal(true)} className="flex items-center gap-4 text-left">
             <div className="relative shrink-0 z-10">
               {/* FIX GLOWING PROFILE: padding bawaan dihapus agar border glowing terlihat sempurna */}
               <ExclusiveProfileShell email={user?.email} variant="avatar" className="w-20 h-20 shadow-2xl">
@@ -355,7 +359,7 @@ export default function Profile() {
                 )}
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* === MAIN CONTENT === */}
@@ -551,6 +555,72 @@ export default function Profile() {
             </button>
           </div>
             </>
+          )}
+
+          {showProfileModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" onClick={() => setShowProfileModal(false)}>
+              <div className="relative w-full max-w-md overflow-hidden rounded-[30px] border border-white/30 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.35)]" onClick={(event) => event.stopPropagation()}>
+                <div className="relative h-28 overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500">
+                  {userBanner ? (
+                    <img src={userBanner} alt={user?.name || 'Banner profil'} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%)]" />
+                  )}
+                  <button type="button" onClick={() => setShowProfileModal(false)} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20">✕</button>
+                </div>
+
+                <div className="relative -mt-12 px-5 pb-5">
+                  <div className="flex items-end justify-between gap-3">
+                    <ExclusiveProfileShell email={user?.email} variant="avatar" className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]">
+                      <div className="h-full w-full overflow-hidden rounded-full border-[2px] border-white bg-slate-100">
+                        {userAvatar ? (
+                          <img src={userAvatar} alt={user?.name || 'Avatar'} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-2xl font-black text-slate-700">
+                            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                        )}
+                      </div>
+                    </ExclusiveProfileShell>
+
+                    {exclusivePreset && (
+                      <span className={`rounded-full px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r ${exclusivePreset.accent} border border-white/40 shadow-md`}>
+                        {exclusivePreset.label}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 leading-tight">{user?.name || 'Pengguna'}</h3>
+                      <p className="mt-1 text-sm font-medium text-slate-500">@{displayUsername}</p>
+                    </div>
+
+                    <div className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-600">
+                      {user?.role?.replace('_', ' ') || 'Pengguna'}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Kelas</p>
+                        <p className="mt-1 text-sm font-black text-slate-800 line-clamp-2">{kelasData?.nama_kelas || 'Belum masuk kelas'}</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Role</p>
+                        <p className="mt-1 text-sm font-black text-slate-800">{user?.role?.replace('_', ' ') || 'Pengguna'}</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Tanggal akun dibuat</p>
+                      <p className="mt-2 text-sm font-bold text-slate-800">
+                        {user?.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Belum tersedia'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {showThemeModal && (

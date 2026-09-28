@@ -9,6 +9,53 @@ import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightF
 const IMGBB_API_KEY = '4bee746ba64cbd55467c63342a529be0';
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
+// Batas Maksimal Ukuran File (2 MB dalam Bytes)
+const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
+
+// Helper: Bypass Blokir DNS/ISP untuk ImgBB
+const fixImgbbUrl = (url) => {
+  if (!url) return '';
+  return url.replace(/i\.ibb\.co(?!\.com)/g, 'i.ibb.co.com');
+};
+
+const suspiciousUrlPattern = /(porn|xxx|adult|nsfw|nude|sexy|erotic|hentai|gore|lewd|fuck)/i;
+
+const validateRemoteImageUrl = (url, label = 'Gambar') => new Promise((resolve, reject) => {
+  const cleanUrl = String(url || '').trim();
+
+  if (!cleanUrl) {
+    reject(new Error(`${label} tidak boleh kosong.`));
+    return;
+  }
+
+  if (!/^https?:\/\//i.test(cleanUrl)) {
+    reject(new Error(`${label} harus menggunakan URL yang valid.`));
+    return;
+  }
+
+  if (suspiciousUrlPattern.test(cleanUrl)) {
+    reject(new Error(`${label} terdeteksi berisi konten yang tidak aman.`));
+    return;
+  }
+
+  const image = new Image();
+  const timer = setTimeout(() => {
+    reject(new Error(`${label} tidak bisa dimuat atau bukan file gambar yang valid.`));
+  }, 8000);
+
+  image.onload = () => {
+    clearTimeout(timer);
+    resolve(cleanUrl);
+  };
+
+  image.onerror = () => {
+    clearTimeout(timer);
+    reject(new Error(`${label} tidak bisa dimuat atau bukan file gambar yang valid.`));
+  };
+
+  image.src = `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}cacheBust=${Date.now()}`;
+});
+
 const readProfileTable = () => {
   try {
     return JSON.parse(localStorage.getItem(PROFILE_TABLE_KEY) || '{}');
@@ -46,7 +93,12 @@ export default function SettingProfile() {
   const [username, setUsername] = useState(savedUser?.username || getGeneratedUsername(savedUser));
   const [profileImage, setProfileImage] = useState(() => {
     const storedProfile = getStoredProfile(savedUser);
-    return storedProfile?.image || savedUser?.profile_image || '';
+    const rawImage = storedProfile?.image || savedUser?.profile_image || '';
+    return fixImgbbUrl(rawImage);
+  });
+  const [bannerUrl, setBannerUrl] = useState(() => {
+    const storedProfile = getStoredProfile(savedUser);
+    return storedProfile?.banner || savedUser?.banner || '';
   });
   const [loading, setLoading] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -60,11 +112,14 @@ export default function SettingProfile() {
   }, [savedUser, navigate]);
 
   const persistProfile = (nextUser) => {
+    const safeImageUrl = fixImgbbUrl(nextUser.profile_image_url || nextUser.profile_image || '');
+    
     const profileData = {
       name: nextUser.name,
       username: nextUser.username,
-      image: nextUser.profile_image || nextUser.profile_image_url || '',
-      profile_image_url: nextUser.profile_image_url || nextUser.profile_image || ''
+      image: safeImageUrl,
+      profile_image_url: safeImageUrl,
+      banner: nextUser.banner || ''
     };
 
     const profileTable = readProfileTable();
@@ -120,10 +175,17 @@ export default function SettingProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // === VALIDASI BATAS MAKSIMAL UKURAN FILE (2 MB) ===
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      alert(`Ukuran file terlalu besar (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maksimal ukuran foto profil adalah 2 MB!`);
+      event.target.value = '';
+      return;
+    }
+
     setLoading(true);
     try {
       const uploadedUrl = await uploadToImgBB(file);
-      setProfileImage(uploadedUrl);
+      setProfileImage(fixImgbbUrl(uploadedUrl)); 
       appendHistoryEvent('Ganti foto profil');
     } catch (error) {
       alert(error.message || 'Gagal mengunggah foto profil');
@@ -143,13 +205,25 @@ export default function SettingProfile() {
 
     const cleanedName = name.trim();
     const cleanedUsername = (username || getGeneratedUsername(savedUser)).trim() || getGeneratedUsername(savedUser);
+    const safeProfileImage = fixImgbbUrl(profileImage);
+
+    let safeBannerUrl = '';
+    if (bannerUrl && bannerUrl.trim()) {
+      try {
+        safeBannerUrl = await validateRemoteImageUrl(bannerUrl, 'Banner');
+      } catch (error) {
+        alert(error.message || 'Banner tidak dapat digunakan.');
+        return;
+      }
+    }
 
     const nextUser = {
       ...savedUser,
       name: cleanedName,
       username: cleanedUsername,
-      profile_image: profileImage || savedUser?.profile_image || '',
-      profile_image_url: profileImage || savedUser?.profile_image_url || ''
+      profile_image: safeProfileImage,
+      profile_image_url: safeProfileImage,
+      banner: safeBannerUrl || ''
     };
 
     setLoading(true);
@@ -158,13 +232,17 @@ export default function SettingProfile() {
         user_id: savedUser?.id,
         name: cleanedName,
         username: cleanedUsername,
-        profile_image_url: profileImage || null
+        profile_image_url: safeProfileImage || null,
+        banner: safeBannerUrl || null
       }).catch(() => null);
 
       persistProfile(nextUser);
       appendHistoryEvent('Ganti nama profil');
-      if (profileImage) {
+      if (safeProfileImage) {
         appendHistoryEvent('Ganti foto profil');
+      }
+      if (safeBannerUrl) {
+        appendHistoryEvent('Ganti banner profil');
       }
       alert('Profil berhasil diperbarui!');
       navigate('/profile');
@@ -255,7 +333,12 @@ export default function SettingProfile() {
               <div className="flex items-center gap-3">
                 <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-50 shadow-inner">
                   {profileImage ? (
-                    <img src={profileImage} alt="Preview foto profil" className="h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = 'none'; }} />
+                    <img 
+                      src={profileImage} 
+                      alt="Preview foto profil" 
+                      className="h-full w-full object-cover" 
+                      onError={(event) => { event.currentTarget.style.display = 'none'; }} 
+                    />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-500">
                       <FontAwesomeIcon icon={faCamera} />
@@ -266,8 +349,9 @@ export default function SettingProfile() {
                   <label htmlFor="profile-image-upload" className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600">
                     <FontAwesomeIcon icon={faImage} /> Pilih Foto
                   </label>
+                  {/* Terima file gambar JPG, PNG, WEBP, GIF */}
                   <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  <p className="mt-2 text-[10px] text-slate-400">Dukung upload dari file atau sisipkan URL foto langsung.</p>
+                  <p className="mt-2 text-[10px] text-slate-400">Mendukung format JPG, PNG, GIF (Maksimal 2 MB).</p>
                 </div>
               </div>
             </div>
@@ -277,10 +361,28 @@ export default function SettingProfile() {
               <input
                 type="url"
                 value={profileImage}
-                onChange={(e) => setProfileImage(e.target.value)}
+                onChange={(e) => setProfileImage(fixImgbbUrl(e.target.value))}
                 placeholder="https://example.com/foto.jpg"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">URL Banner Profil</label>
+              <input
+                type="url"
+                value={bannerUrl}
+                onChange={(e) => setBannerUrl(e.target.value)}
+                placeholder="https://example.com/banner.jpg"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
+              />
+              {bannerUrl && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                  <div className="h-24 w-full bg-slate-100">
+                    <img src={bannerUrl} alt="Preview banner profil" className="h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = 'none'; }} />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-1.5">

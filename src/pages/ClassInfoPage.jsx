@@ -111,6 +111,7 @@ export default function ClassInfoPage() {
       displayName: profile.displayName || profile.name || 'Pengguna',
       displayUsername: profile.displayUsername || profile.username || buildUsername(profile.displayName || profile.name || 'user', 'user'),
       displayAvatar: profile.displayAvatar || profile.image || profile.profile_image_url || '',
+      banner: profile.banner || profile.banner_url || '',
       createdAt,
       email: profile.email || '',
       exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(profile.email || ''),
@@ -327,8 +328,12 @@ export default function ClassInfoPage() {
               className="relative w-full max-w-md overflow-hidden rounded-[30px] border border-white/30 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.35)]"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className={`h-28 bg-gradient-to-br ${selectedProfile.exclusivePreset?.accent || 'from-indigo-600 via-indigo-500 to-sky-500'} relative`}>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%)]" />
+              <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${selectedProfile.exclusivePreset?.accent || 'from-indigo-600 via-indigo-500 to-sky-500'}`}>
+                {selectedProfile.banner ? (
+                  <img src={selectedProfile.banner} alt={selectedProfile.displayName || 'Banner profil'} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%)]" />
+                )}
                 <button
                   type="button"
                   onClick={closeProfileModal}
