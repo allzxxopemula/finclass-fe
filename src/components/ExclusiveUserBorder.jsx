@@ -122,7 +122,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   const isDonatur = preset?.kind === 'preset' && preset.value === 'DONATUR';
   const isPurpleBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PURPLE';
   const isPinkBorder = preset?.kind === 'preset' && preset.value === 'SECRET_PINK';
-  const hasCustomBackground = Boolean(preset && preset.kind === 'preset' && !isPurpleBorder && !isPinkBorder);
 
   const customHexStyle = isHexBorder ? {
     backgroundColor: preset.color,
@@ -150,7 +149,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         <div
           className={`group relative isolate overflow-hidden rounded-full p-[3px]
             ${isDeveloper ? 'animate-[smoothMorph_6s_ease-in-out_infinite]' : ''}
-            ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? '' : `bg-gradient-to-br ${preset.accent}`}
+            ${isHexBorder ? '' : `bg-gradient-to-br ${preset.accent}`}
             ${preset.glow || ''} ${className} transition-all duration-300 hover:scale-105 z-10`}
           style={customHexStyle}
         >
@@ -310,7 +309,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
   return (
     <div
       className={`group relative isolate overflow-hidden rounded-[28px] p-[3px] ${preset.glow || ''} ${className} transition-all duration-300
-        ${hasCustomBackground ? 'bg-transparent' : isHexBorder ? '' : `bg-gradient-to-r ${preset.accent}`}`}
+        ${isHexBorder ? '' : `bg-gradient-to-r ${preset.accent}`}`}
       style={customHexStyle}
     >
       {isDeveloper && (
