@@ -80,7 +80,14 @@ export default function Profile() {
   const exclusivePreset = getExclusiveUserPreset(borderToken);
   const customBorderColor = user?.custom_border_color || user?.border_type || '';
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const accountAgeInDays = user?.created_at ? Math.max(0, Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000)) : 0;
+
+  // FIX PENTING: Perhitungan Umur Akun secara Presisi
+  const rawCreatedAt = user?.created_at || user?.createdAt;
+  const createdAtTimestamp = rawCreatedAt ? new Date(rawCreatedAt).getTime() : 0;
+  const accountAgeInDays = createdAtTimestamp > 0 
+    ? Math.max(0, Math.floor((Date.now() - createdAtTimestamp) / (1000 * 60 * 60 * 24))) 
+    : 0;
+
   const canUseCustomBorder = accountAgeInDays >= 3;
   const borderColors = ['#6366F1', '#EC4899', '#8B5CF6', '#14B8A6', '#F59E0B', '#EF4444', '#22C55E', '#3B82F6'];
 
@@ -93,6 +100,7 @@ export default function Profile() {
       const mergedUser = {
         ...savedUser,
         ...storedProfile,
+        created_at: savedUser.created_at || storedProfile?.created_at || null,
         username: savedUser.username || storedProfile?.username || getUserUsername(savedUser),
         profile_image: storedProfile?.image || savedUser.profile_image || '',
         profile_image_url: savedUser.profile_image_url || storedProfile?.profile_image_url || storedProfile?.image || savedUser.profile_image || '',
@@ -119,6 +127,8 @@ export default function Profile() {
                 const refreshedUser = {
                   ...savedUser,
                   ...freshMember,
+                  // FIX PENTING: Jangan biarkan created_at tertimpa undefined dari freshMember!
+                  created_at: freshMember.created_at || savedUser.created_at || null,
                   username: freshMember.username || savedUser.username || getUserUsername(savedUser),
                   profile_image_url: freshMember.profile_image_url || savedUser.profile_image_url || '',
                   profile_image: freshMember.profile_image_url || savedUser.profile_image || '',
@@ -127,8 +137,6 @@ export default function Profile() {
                 };
                 setUser(refreshedUser);
                 localStorage.setItem('user', JSON.stringify(refreshedUser));
-                
-                // LOGIC FIX: Jalankan chat unread di background tanpa "await", agar skeleton langsung hilang!
                 loadChatUnreadCount(refreshedUser); 
               } else {
                 loadChatUnreadCount(savedUser); 
@@ -190,7 +198,12 @@ export default function Profile() {
         custom_border_color: selectedBorderColor,
       });
 
-      const updatedUser = { ...user, ...response.data.user, custom_border_color: response.data.user?.custom_border_color || selectedBorderColor };
+      const updatedUser = { 
+        ...user, 
+        ...response.data.user, 
+        created_at: user.created_at, // Pertahankan created_at
+        custom_border_color: response.data.user?.custom_border_color || selectedBorderColor 
+      };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setShowBorderModal(false);
@@ -342,7 +355,6 @@ export default function Profile() {
           
           <button type="button" onClick={() => setShowProfileModal(true)} className="flex items-center gap-4 text-left">
             <div className="relative shrink-0 z-10">
-              {/* FIX GLOWING PROFILE: padding bawaan dihapus agar border glowing terlihat sempurna */}
               <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="w-20 h-20 shadow-2xl">
                 <div className="w-full h-full bg-slate-800 rounded-full overflow-hidden border-[1.5px] border-white/40">
                   {userAvatar ? (
@@ -472,7 +484,6 @@ export default function Profile() {
                 onClick={() => navigate('/settings/profile')} 
               />
               
-              {/* TOMBOL UNTUK USER YANG BELUM PUNYA KELAS */}
               {!kelasData && (
                 <MenuItem 
                   icon={user?.role === 'bendahara' ? faPlus : faRightToBracket} 
@@ -483,7 +494,6 @@ export default function Profile() {
                 />
               )}
 
-              {/* KHUSUS BENDAHARA: KELOLA ANGGOTA & SALDO KAS AWAL */}
               {user?.role === 'bendahara' && kelasData && (
                 <>
                   <MenuItem 
@@ -503,7 +513,6 @@ export default function Profile() {
                 </>
               )}
 
-              {/* JIKA USER SUDAH PUNYA KELAS: SETTING KELAS */}
               {kelasData && (
                 <>
                   <MenuItem 
@@ -585,7 +594,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setShowThemeModal(true)}
-              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30"
+              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30 font-sans cursor-pointer"
             >
               <span className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"><FontAwesomeIcon icon={faPalette} /></span>
@@ -597,14 +606,14 @@ export default function Profile() {
             <button
               type="button"
               onClick={handleOpenBorderModal}
-              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30"
+              className="mb-2 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/30 font-sans cursor-pointer"
             >
               <span className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600"><FontAwesomeIcon icon={faPalette} /></span>
                 <span>
                   <strong className="block text-xs text-slate-800">Edit Border / Color</strong>
                   <small className="text-[10px] text-slate-400">
-                    {canUseCustomBorder ? 'Warna border aktif' : 'Akun belum eligible'}
+                    {canUseCustomBorder ? 'Warna border aktif' : `Akun belum eligible (${accountAgeInDays}/3 hari)`}
                   </small>
                 </span>
               </span>
@@ -693,7 +702,7 @@ export default function Profile() {
 
                 {!canUseCustomBorder && (
                   <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-[11px] font-semibold text-amber-700">
-                    Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari.
+                    Akses kustom border terkunci! Akun kamu harus berusia minimal 3 hari (Umur saat ini: {accountAgeInDays} hari).
                   </div>
                 )}
 
@@ -714,8 +723,8 @@ export default function Profile() {
                 {borderError && <p className="mt-3 text-[10px] font-semibold text-rose-500">{borderError}</p>}
 
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-2xl bg-slate-100 px-3 py-3 text-xs font-black text-slate-600">Batal</button>
-                  <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-2xl bg-violet-600 px-3 py-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-50">Simpan</button>
+                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-2xl bg-slate-100 px-3 py-3 text-xs font-black text-slate-600 cursor-pointer">Batal</button>
+                  <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-2xl bg-violet-600 px-3 py-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">Simpan</button>
                 </div>
               </div>
             </div>
@@ -841,7 +850,7 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => setShowChangelogModal(true)}
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 font-bold text-[9px] text-slate-500 transition hover:border-indigo-200 hover:text-indigo-600 shadow-sm"
+            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 font-bold text-[9px] text-slate-500 transition hover:border-indigo-200 hover:text-indigo-600 shadow-sm cursor-pointer"
           >
             Changelog
           </button>
