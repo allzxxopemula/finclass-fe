@@ -9,8 +9,7 @@ import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightF
 const IMGBB_API_KEY = '4bee746ba64cbd55467c63342a529be0';
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
-const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
-const MAX_GIF_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_IMAGE_SIZE_BYTES = 32 * 1024 * 1024;
 
 const fixImgbbUrl = (url) => {
   if (!url) return '';
@@ -93,6 +92,7 @@ export default function SettingProfile() {
     return storedProfile?.banner || savedUser?.banner || '';
   });
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -179,11 +179,15 @@ export default function SettingProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const isGif = file.type === 'image/gif';
-    const maxSize = isGif ? MAX_GIF_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedImageTypes.includes(file.type)) {
+      alert('Format foto harus JPG, PNG, atau GIF.');
+      event.target.value = '';
+      return;
+    }
 
-    if (file.size > maxSize) {
-      alert(`Ukuran file terlalu besar. Maksimal untuk ${isGif ? 'GIF adalah 10 MB' : 'gambar adalah 3 MB'}.`);
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      alert('Ukuran file terlalu besar. Maksimal ukuran foto adalah 32 MB.');
       event.target.value = '';
       return;
     }
@@ -198,14 +202,17 @@ export default function SettingProfile() {
     if (!pendingUploadFile) return;
     
     setLoading(true);
+    setUploadingImage(true);
     setShowUploadConfirmModal(false);
     try {
       const uploadedUrl = await uploadToImgBB(pendingUploadFile);
-      setProfileImage(fixImgbbUrl(uploadedUrl)); 
+      if (!uploadedUrl) throw new Error('URL foto hasil upload tidak ditemukan.');
+      setProfileImage(fixImgbbUrl(uploadedUrl));
       appendHistoryEvent('Ganti foto profil');
     } catch (error) {
       alert(error.message || 'Gagal mengunggah foto profil');
     } finally {
+      setUploadingImage(false);
       setLoading(false);
       setPendingUploadFile(null);
     }
@@ -213,6 +220,8 @@ export default function SettingProfile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
+    if (uploadingImage) return;
 
     if (!name.trim()) {
       alert('Nama tidak boleh kosong!');
@@ -348,7 +357,7 @@ export default function SettingProfile() {
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-700">Foto Profil</label>
               <div className="flex items-center gap-3">
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-50 shadow-inner">
+                <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-50 shadow-inner">
                   {profileImage ? (
                     <img 
                       src={profileImage} 
@@ -361,13 +370,20 @@ export default function SettingProfile() {
                       <FontAwesomeIcon icon={faCamera} />
                     </div>
                   )}
+                  {uploadingImage && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-slate-950/65 text-white backdrop-blur-[1px]" role="status" aria-live="polite">
+                      <FontAwesomeIcon icon={faSpinner} spin className="text-sm" />
+                      <span className="text-[8px] font-bold">Upload</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
-                  <label htmlFor="profile-image-upload" className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600">
+                  <label htmlFor="profile-image-upload" className={`inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600 ${uploadingImage ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
                     <FontAwesomeIcon icon={faImage} /> Pilih Foto
                   </label>
-                  <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-                  <p className="mt-2 text-[10px] text-slate-400">JPG/PNG maks 3MB, GIF maks 10MB.</p>
+                  <input id="profile-image-upload" type="file" accept="image/jpeg,image/png,image/gif" className="hidden" onChange={handleFileSelect} disabled={uploadingImage} />
+                  <p className="mt-2 text-[10px] text-slate-400">JPG, PNG, atau GIF maksimal 32 MB.</p>
+                  {uploadingImage && <p className="mt-1 text-[10px] font-semibold text-indigo-600">Foto sedang diunggah, tunggu sampai URL siap.</p>}
                 </div>
               </div>
             </div>
@@ -378,6 +394,7 @@ export default function SettingProfile() {
                 type="url"
                 value={profileImage}
                 onChange={(e) => setProfileImage(fixImgbbUrl(e.target.value))}
+                disabled={uploadingImage}
                 placeholder="https://example.com/foto.jpg"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
               />
@@ -443,7 +460,7 @@ export default function SettingProfile() {
             <div className="pt-2 space-y-2">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || uploadingImage}
                 className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-2xl text-xs shadow-md active:scale-[0.98] transition-all cursor-pointer flex justify-center items-center gap-2"
               >
                 {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Simpan Perubahan'}
