@@ -206,6 +206,27 @@ const Firefly = ({ className, color = '#FFFFFF' }) => (
 export function ExclusiveProfileShell({ email, className = '', children, variant = 'card', customBorderColor = '', borderValue = '', borderType = '' }) {
   const resolvedBorderValue = normalizeBorderValue(customBorderColor || borderValue || borderType || email || '');
   const preset = getExclusiveUserPreset(resolvedBorderValue);
+
+  // FIX BUG: Jika user belum punya border sama sekali (polos)
+  if (!preset) {
+    if (variant === 'avatar') {
+      return (
+        <div className={`relative inline-flex items-center justify-center overflow-hidden rounded-full ${className}`}>
+          {children}
+        </div>
+      );
+    }
+    // Variant "card" untuk user polos (tanpa border hex/premium)
+    return (
+      <div className={`relative isolate rounded-[30px] ${className}`}>
+        <div className="absolute -inset-[1px] rounded-[31px] bg-slate-200 pointer-events-none z-0" />
+        <div className="relative h-full w-full rounded-[28px] bg-white z-10 overflow-hidden shadow-sm">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   const isHexBorder = preset?.kind === 'hex';
   const isDeveloper = preset?.kind === 'preset' && preset.value === 'DEVELOPER';
   const isDevTeam = preset?.kind === 'preset' && preset.value === 'DEV_TEAM';
@@ -219,15 +240,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     boxShadow: `0 0 12px ${preset.color}88, 0 2px 8px rgba(0,0,0,0.15)`,
   } : undefined;
 
-  if (!preset) {
-    return (
-      <div className={`relative inline-flex items-center justify-center overflow-hidden rounded-full ${className}`}>
-        {children}
-      </div>
-    );
-  }
-
-  // KODE AVATAR/FOTO PROFIL SAMA SIKELAP TIDAK DIUBAH SAMA SEKALI
+  // KODE AVATAR/FOTO PROFIL SAMA SEKALI TIDAK DIUBAH
   if (variant === 'avatar') {
     return (
       <div className="relative inline-block">
@@ -461,27 +474,27 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
       }}
     >
       {/* 
-        KHUSUS KHUSUS BORDER HEX: 
-        Border tipis polos (1px/2px), TANPA animasi breathing, TANPA flow, DAN TANPA partikel saat dibuka.
+        KHUSUS BORDER HEX / POLOS: 
+        Border sangat tipis (1.5px), TANPA animasi breathing, DAN TANPA partikel saat dibuka.
       */}
       {isHexBorder ? (
         <>
           <div 
-            className="absolute -inset-[1.5px] rounded-[31.5px] pointer-events-none z-0" 
-            style={{ backgroundColor: preset.color, opacity: 0.85 }} 
+            className="absolute -inset-[1px] rounded-[31px] pointer-events-none z-0" 
+            style={{ backgroundColor: preset.color, opacity: 0.6 }} 
           />
           <div className="relative h-full w-full rounded-[28px] bg-white z-10 overflow-hidden shadow-sm">
             {children}
           </div>
         </>
       ) : (
-        /* KERTAS/CARD UNTUK TEMA PRESET PREMIUM DENGAN ANIMASI BREATHING & PARTIKEL SEWARNA TEMA */
+        /* KERTAS/CARD UNTUK TEMA PRESET PREMIUM DENGAN ANIMASI BREATHING TIPIS & PARTIKEL NATURAL */
         <>
-          {/* Outer Outline dengan Efek Membesar-Mengecil (Breathing) & Glow Redup Terang */}
-          <div className="absolute -inset-[5px] rounded-[35px] premium-aura-outline pointer-events-none z-0" />
-          <div className="absolute -inset-[2px] rounded-[32px] premium-aura-core pointer-events-none z-[1]" />
+          {/* Outer Outline dengan Efek Membesar-Mengecil (Breathing) yang ditipiskan nilai box-shadow-nya */}
+          <div className="absolute -inset-[3px] rounded-[33px] premium-aura-outline pointer-events-none z-0" />
+          <div className="absolute -inset-[1.5px] rounded-[31.5px] premium-aura-core pointer-events-none z-[1]" />
 
-          {/* Rombongan Partikel Warna Tema yang Muncul dari Bawah ke Atas (1x saat dibuka) */}
+          {/* Rombongan Partikel Warna Tema yang Muncul dari Bawah ke Atas Secara Natural & Smooth (ease-out) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-[20] rounded-[30px]">
             <b className="burst-p burst-p-1" />
             <b className="burst-p burst-p-2" />
@@ -515,113 +528,113 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           transform: translateZ(0);
         }
 
-        /* Border Membesar-Mengecil (Breathing) Preset Premium */
+        /* Border Membesar-Mengecil (Breathing) Preset Premium - Disesuaikan agar Glow Tipis/Soft */
         .premium-aura-outline {
           background: linear-gradient(135deg, var(--aura-a), var(--aura-b), var(--aura-c), var(--aura-a));
           background-size: 200% 200%;
-          box-shadow: 0 0 15px var(--aura-particle), 0 0 32px var(--aura-glow);
+          box-shadow: 0 0 8px var(--aura-particle), 0 0 16px var(--aura-glow);
           animation: cardBreathGlow 4s ease-in-out infinite, gradientFlow 8s linear infinite;
         }
 
         .premium-aura-core {
-          border: 2px solid rgba(255,255,255,0.7);
-          box-shadow: inset 0 0 10px rgba(255,255,255,0.6), inset 0 0 16px var(--aura-particle);
+          border: 2px solid rgba(255,255,255,0.8);
+          box-shadow: inset 0 0 6px rgba(255,255,255,0.7), inset 0 0 10px var(--aura-particle);
           animation: cardCoreBreath 4s ease-in-out infinite;
         }
 
-        /* Partikel Bulat & Star Langsung Mengambil Warna Tema (Bukan Putih) */
+        /* Partikel Animasi Lebih Halus, Natural (ease-out), dan Mengambil Warna Tema */
         .burst-p {
           position: absolute;
           bottom: -10px;
           border-radius: 50%;
           background: var(--aura-particle);
-          box-shadow: 0 0 10px var(--aura-particle), 0 0 20px var(--aura-glow);
+          box-shadow: 0 0 6px var(--aura-particle), 0 0 12px var(--aura-glow);
           opacity: 0;
-          animation: floatUpOnce 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: floatUpOnce 3s ease-out forwards;
         }
 
         .burst-star {
           position: absolute;
           bottom: -15px;
           color: var(--aura-particle);
-          filter: drop-shadow(0 0 10px var(--aura-glow));
+          filter: drop-shadow(0 0 8px var(--aura-glow));
           opacity: 0;
-          animation: floatStarUpOnce 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: floatStarUpOnce 3.2s ease-out forwards;
         }
 
         /* Posisi & Ukuran Variatif */
-        .burst-p-1  { left: 5%;  width: 6px;  height: 6px;  animation-delay: 0.05s; }
-        .burst-p-2  { left: 14%; width: 9px;  height: 9px;  animation-delay: 0.2s;  }
-        .burst-p-3  { left: 22%; width: 5px;  height: 5px;  animation-delay: 0.12s; }
-        .burst-p-4  { left: 33%; width: 10px; height: 10px; animation-delay: 0.28s; }
-        .burst-p-5  { left: 42%; width: 7px;  height: 7px;  animation-delay: 0.08s; }
-        .burst-p-6  { left: 51%; width: 8px;  height: 8px;  animation-delay: 0.25s; }
-        .burst-p-7  { left: 60%; width: 5px;  height: 5px;  animation-delay: 0.15s; }
-        .burst-p-8  { left: 68%; width: 11px; height: 11px; animation-delay: 0.32s; }
-        .burst-p-9  { left: 77%; width: 6px;  height: 6px;  animation-delay: 0.1s;  }
-        .burst-p-10 { left: 85%; width: 9px;  height: 9px;  animation-delay: 0.22s; }
-        .burst-p-11 { left: 92%; width: 5px;  height: 5px;  animation-delay: 0.04s; }
-        .burst-p-12 { left: 48%; width: 12px; height: 12px; animation-delay: 0.35s; }
+        .burst-p-1  { left: 8%;  width: 5px;  height: 5px;  animation-delay: 0.05s; }
+        .burst-p-2  { left: 16%; width: 7px;  height: 7px;  animation-delay: 0.15s; }
+        .burst-p-3  { left: 24%; width: 4px;  height: 4px;  animation-delay: 0.10s; }
+        .burst-p-4  { left: 35%; width: 8px;  height: 8px;  animation-delay: 0.25s; }
+        .burst-p-5  { left: 44%; width: 6px;  height: 6px;  animation-delay: 0.08s; }
+        .burst-p-6  { left: 52%; width: 7px;  height: 7px;  animation-delay: 0.20s; }
+        .burst-p-7  { left: 62%; width: 4px;  height: 4px;  animation-delay: 0.12s; }
+        .burst-p-8  { left: 70%; width: 9px;  height: 9px;  animation-delay: 0.28s; }
+        .burst-p-9  { left: 78%; width: 5px;  height: 5px;  animation-delay: 0.10s; }
+        .burst-p-10 { left: 86%; width: 7px;  height: 7px;  animation-delay: 0.22s; }
+        .burst-p-11 { left: 93%; width: 4px;  height: 4px;  animation-delay: 0.05s; }
+        .burst-p-12 { left: 49%; width: 10px; height: 10px; animation-delay: 0.30s; }
 
-        .burst-star-1 { left: 18%; width: 16px; height: 16px; animation-delay: 0.18s; }
-        .burst-star-2 { left: 38%; width: 20px; height: 20px; animation-delay: 0.3s;  }
-        .burst-star-3 { left: 64%; width: 18px; height: 18px; animation-delay: 0.12s; }
-        .burst-star-4 { left: 82%; width: 15px; height: 15px; animation-delay: 0.26s; }
+        .burst-star-1 { left: 18%; width: 14px; height: 14px; animation-delay: 0.18s; }
+        .burst-star-2 { left: 40%; width: 18px; height: 18px; animation-delay: 0.25s; }
+        .burst-star-3 { left: 66%; width: 16px; height: 16px; animation-delay: 0.12s; }
+        .burst-star-4 { left: 84%; width: 13px; height: 13px; animation-delay: 0.20s; }
 
+        /* Keyframes Partikel - Natural Smooth Fade Out */
         @keyframes floatUpOnce {
           0% {
             opacity: 0;
-            transform: translateY(0px) scale(0.3);
+            transform: translateY(0px) scale(0.5);
           }
-          15% {
-            opacity: 1;
-            transform: translateY(-60px) scale(1.3);
+          20% {
+            opacity: 0.9;
+            transform: translateY(-50px) scale(1.2);
           }
-          60% {
-            opacity: 0.85;
-            transform: translateY(-220px) scale(1);
+          70% {
+            opacity: 0.6;
           }
           100% {
             opacity: 0;
-            transform: translateY(-380px) scale(0.2);
+            transform: translateY(-280px) scale(0.6);
           }
         }
 
         @keyframes floatStarUpOnce {
           0% {
             opacity: 0;
-            transform: translateY(0px) scale(0.2) rotate(0deg);
+            transform: translateY(0px) scale(0.4) rotate(0deg);
           }
           20% {
             opacity: 1;
-            transform: translateY(-80px) scale(1.4) rotate(90deg);
+            transform: translateY(-60px) scale(1.3) rotate(60deg);
           }
-          65% {
-            opacity: 0.8;
-            transform: translateY(-250px) scale(0.9) rotate(210deg);
+          70% {
+            opacity: 0.6;
           }
           100% {
             opacity: 0;
-            transform: translateY(-400px) scale(0.1) rotate(360deg);
+            transform: translateY(-300px) scale(0.5) rotate(180deg);
           }
         }
 
+        /* Keyframes Glow Outline - Ditipiskan Shadow-nya */
         @keyframes cardBreathGlow {
           0%, 100% {
-            transform: scale(0.992);
-            box-shadow: 0 0 15px var(--aura-particle), 0 0 28px var(--aura-glow);
+            transform: scale(0.995);
+            box-shadow: 0 0 6px var(--aura-particle), 0 0 12px var(--aura-glow);
             opacity: 0.85;
           }
           50% {
-            transform: scale(1.018);
-            box-shadow: 0 0 22px var(--aura-particle), 0 0 48px var(--aura-glow), 0 0 75px var(--aura-particle);
+            transform: scale(1.01);
+            box-shadow: 0 0 10px var(--aura-particle), 0 0 22px var(--aura-glow);
             opacity: 1;
           }
         }
 
         @keyframes cardCoreBreath {
-          0%, 100% { opacity: 0.65; transform: scale(0.992); }
-          50% { opacity: 1; transform: scale(1.018); }
+          0%, 100% { opacity: 0.7; transform: scale(0.995); }
+          50% { opacity: 1; transform: scale(1.01); }
         }
 
         @keyframes gradientFlow {
