@@ -164,15 +164,15 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
     bubbleClass += ` px-3.5 pt-2 pb-5 min-w-[70px] ${cornerClass}`;
   }
 
-  return (
-    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1 px-1`}>
+return (
+    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1 px-0.5`}>
       {/* 
-        PERUBAHAN LEBAR CHAT: 
-        max-w-full agar bisa mepet ke kanan (isMine) dan kiri (!isMine).
+        Container pesan sekarang menggunakan w-full dengan padding px-0.5 (gap tipis ~2px dari tepi layar),
+        sehingga posisi foto profil benar-benar nempel ke pojok kiri/kanan.
       */}
       <div className={`flex w-full items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
 
-        {/* WADAH FOTO PROFIL DENGAN EXCLUSIVE BORDER */}
+        {/* WADAH FOTO PROFIL */}
         <div className="flex flex-col items-center shrink-0 w-9 mt-0.5">
           {showAvatar ? (
             <button type="button" onClick={() => onOpenProfile?.(profile)} className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" aria-label={`Lihat profil ${getDisplayName(profile)}`}>
@@ -199,9 +199,8 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
           )}
         </div>
 
-        {/* WADAH KONTEN CHAT */}
-        {/* max-w dikurangi lebar foto profil (w-9 / 2.25rem) dan gap (0.5rem) agar teks tidak tumpah */}
-        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 flex-1 max-w-[calc(100%-2.75rem)]`}>
+        {/* WADAH KONTEN CHAT (Dibatasi agar bubble tidak kepanjangan memenuhi layar) */}
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 max-w-[calc(100%-3rem)]`}>
 
           {showAvatar && !isMine && (
             <button type="button" onClick={() => onOpenProfile?.(profile)} className="mb-1 ml-1 max-w-full truncate text-left text-[10px] font-bold text-slate-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
