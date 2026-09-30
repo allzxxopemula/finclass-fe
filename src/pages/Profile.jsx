@@ -369,7 +369,7 @@ export default function Profile() {
       <div className="space-y-5 pb-6">
         
         {/* === HEADER PROFESSIONAL MODERN === */}
-        <div className="bg-[var(--theme-color)] pt-6 pb-20 px-5 -mx-4 -mt-4 rounded-b-[40px] relative shadow-md">
+        <div className="bg-indigo-600 pt-6 pb-20 px-5 -mx-4 -mt-4 rounded-b-[40px] relative shadow-md">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-white font-bold text-xl tracking-tight">Profil Pengguna</h2>
           </div>
@@ -397,7 +397,7 @@ export default function Profile() {
               </ExclusiveProfileShell>
 
               {kelasData && (
-                <div className="absolute -bottom-1 -right-1 bg-white text-[var(--theme-color)] rounded-full w-6 h-6 flex items-center justify-center shadow-md z-20">
+                <div className="absolute -bottom-1 -right-1 bg-white text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center shadow-md z-20">
                   <FontAwesomeIcon icon={faCircleCheck} className="text-[11px]" />
                 </div>
               )}
@@ -469,7 +469,7 @@ export default function Profile() {
           {kelasData && (
             <div 
               onClick={handleCopyKode}
-              className="bg-[var(--theme-color)] text-white p-5 rounded-[24px] flex justify-between items-center cursor-pointer shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
+              className="bg-indigo-600 text-white p-5 rounded-[24px] flex justify-between items-center cursor-pointer shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
             >
               <div className="space-y-1">
                 <p className="text-[10px] text-white/80 font-medium tracking-wide">
@@ -508,7 +508,7 @@ export default function Profile() {
                   icon={user?.role === 'bendahara' ? faPlus : faRightToBracket} 
                   title={user?.role === 'bendahara' ? "Buat Room Kelas Baru" : "Gabung Room Kelas"} 
                   description={user?.role === 'bendahara' ? "Mulai kelola kas untuk kelasmu" : "Gunakan kode unik dari bendahara"}
-                  iconColorClass="text-[var(--theme-color)]"
+                  iconColorClass="text-indigo-600"
                   onClick={() => navigate('/settings/aksi-kelas')} 
                 />
               )}
@@ -552,7 +552,7 @@ export default function Profile() {
                     icon={faComments}
                     title="Room Chat Kelas"
                     description="Diskusi dengan anggota lain"
-                    iconColorClass="text-[var(--theme-color)]"
+                    iconColorClass="text-indigo-600"
                     onClick={() => navigate('/chat-room')}
                     rightBadge={chatUnreadCount}
                     rightText={getChatUnreadLabel(chatUnreadCount)}
@@ -619,7 +619,7 @@ export default function Profile() {
                 className="flex w-full items-center justify-between p-4 bg-white border border-slate-200 rounded-[20px] cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md hover:border-slate-300"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-[16px] flex items-center justify-center text-lg bg-slate-50 border border-slate-100 text-[var(--theme-color)]">
+                  <div className="w-11 h-11 rounded-[16px] flex items-center justify-center text-lg bg-slate-50 border border-slate-100 text-indigo-600">
                     <FontAwesomeIcon icon={faPalette} />
                   </div>
                   <div className="text-left">
@@ -641,7 +641,7 @@ export default function Profile() {
               <div className="relative w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
                 
                 {/* Banner Profil Popup */}
-                <div className="relative h-32 bg-[var(--theme-color)] overflow-hidden">
+                <div className="relative h-32 bg-indigo-600 overflow-hidden">
                   {userBanner ? (
                     <img src={userBanner} alt="Banner profil" className="h-full w-full object-cover opacity-90" />
                   ) : null}
@@ -773,7 +773,7 @@ export default function Profile() {
                   </button>
                   
                   {!hasExclusiveBorder && (
-                    <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-xl bg-[var(--theme-color)] py-3.5 text-sm font-bold text-white hover:opacity-90 transition disabled:opacity-50 cursor-pointer">
+                    <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:opacity-90 transition disabled:opacity-50 cursor-pointer">
                       Simpan
                     </button>
                   )}
@@ -853,7 +853,7 @@ export default function Profile() {
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     )}
-                    <button type="submit" className="flex-1 rounded-xl bg-[var(--theme-color)] py-3.5 text-sm font-bold text-white hover:opacity-90 transition cursor-pointer">
+                    <button type="submit" className="flex-1 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:opacity-90 transition cursor-pointer">
                       Simpan QRIS
                     </button>
                   </div>
