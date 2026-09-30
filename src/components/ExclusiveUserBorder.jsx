@@ -440,10 +440,28 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
 
   return (
     <div
-      className={`group relative isolate overflow-hidden rounded-[28px] p-[3px] ${preset.glow || ''} ${className} transition-all duration-300
+      className={`profile-shell group relative isolate overflow-visible rounded-[28px] p-[3px] ${preset.glow || ''} ${className} transition-all duration-500 ease-out
         ${isHexBorder ? '' : `bg-gradient-to-r ${preset.accent}`}`}
-      style={customHexStyle}
+      style={{
+        ...customHexStyle,
+        '--hover-c1': isPinkBorder ? '#FDF2F8' : isPurpleBorder ? '#E9D5FF' : isExclusivePurple ? '#F5F3FF' : isDonatur ? '#FEF3C7' : isDevTeam ? '#E0F2FE' : isDeveloper ? '#F9FAFB' : isHexBorder ? resolvedBorderValue : '#FFFFFF',
+        '--hover-c2': isPinkBorder ? '#F472B6' : isPurpleBorder ? '#A855F7' : isExclusivePurple ? '#C026D3' : isDonatur ? '#F59E0B' : isDevTeam ? '#38BDF8' : isDeveloper ? '#9CA3AF' : isHexBorder ? resolvedBorderValue : '#A855F7',
+        '--hover-c3': isPinkBorder ? '#FDA4AF' : isPurpleBorder ? '#6B21A8' : isExclusivePurple ? '#6366F1' : isDonatur ? '#EA580C' : isDevTeam ? '#6366F1' : isDeveloper ? '#111827' : isHexBorder ? resolvedBorderValue : '#6366F1',
+      }}
     >
+      {/* PREMIUM HOVER OUTLINE — ONLY FOR THE PROFILE SHELL.
+          The avatar/photo itself is untouched. */}
+      <div className="profile-hover-outline pointer-events-none absolute -inset-[2px] rounded-[31px] opacity-0 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:-inset-[5px]">
+        <div className="absolute inset-0 rounded-[31px] border border-white/80 opacity-90" />
+        <div className="absolute inset-[-2px] rounded-[33px] border border-white/20" />
+        <div className="absolute inset-[-5px] rounded-[36px] border border-current opacity-80" />
+        <div className="absolute inset-[-9px] rounded-[40px] border border-current opacity-35" />
+        <div className="absolute inset-[-13px] rounded-[44px] border border-current opacity-15" />
+        <div className="profile-hover-sweep absolute inset-[-14px] overflow-hidden rounded-[45px]">
+          <div className="absolute left-1/2 top-1/2 h-[160%] w-[22%] -translate-x-1/2 -translate-y-1/2 rotate-[28deg] bg-gradient-to-b from-transparent via-white/80 to-transparent blur-[5px]" />
+        </div>
+        <div className="profile-hover-dots absolute inset-[-12px] rounded-[43px]" />
+      </div>
       {isDeveloper && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
       )}
@@ -496,6 +514,145 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         @keyframes pinkGleam {
           0%, 100% { opacity: 0.45; transform: rotate(0deg) scale(0.92); }
           50% { opacity: 1; transform: rotate(180deg) scale(1.04); }
+        }
+
+        /* =========================================================
+           PROFILE SHELL HOVER SYSTEM
+           - Applies to the OUTER PROFILE CARD only.
+           - Does NOT modify the avatar/photo border.
+           - Uses color from the active border preset.
+           ========================================================= */
+
+        .profile-shell {
+          --hover-c1: #ffffff;
+          --hover-c2: #a855f7;
+          --hover-c3: #6366f1;
+          transform: translateZ(0);
+          will-change: transform, filter;
+        }
+
+        .profile-shell:hover {
+          transform: translateY(-2px);
+          filter: saturate(1.08);
+        }
+
+        .profile-shell .profile-hover-outline {
+          color: var(--hover-c2);
+          filter:
+            drop-shadow(0 0 5px var(--hover-c2))
+            drop-shadow(0 0 14px color-mix(in srgb, var(--hover-c2) 65%, transparent))
+            drop-shadow(0 0 30px color-mix(in srgb, var(--hover-c3) 45%, transparent));
+        }
+
+        .profile-shell .profile-hover-outline::before,
+        .profile-shell .profile-hover-outline::after {
+          content: "";
+          position: absolute;
+          inset: -1px;
+          border-radius: inherit;
+          pointer-events: none;
+        }
+
+        .profile-shell .profile-hover-outline::before {
+          border: 1px solid var(--hover-c1);
+          opacity: .35;
+          box-shadow:
+            0 0 8px var(--hover-c1),
+            0 0 22px var(--hover-c2),
+            0 0 48px var(--hover-c3);
+          animation: profileHoverBreath 2.2s ease-in-out infinite;
+        }
+
+        .profile-shell .profile-hover-outline::after {
+          border: 1px solid var(--hover-c2);
+          opacity: .55;
+          animation: profileHoverOrbit 3.8s linear infinite;
+        }
+
+        .profile-hover-sweep {
+          opacity: 0;
+          transform: rotate(0deg);
+          transition: opacity .35s ease;
+        }
+
+        .profile-shell:hover .profile-hover-sweep {
+          opacity: .75;
+          animation: profileHoverSweep 1.8s cubic-bezier(.22,.61,.36,1) infinite;
+        }
+
+        .profile-hover-dots {
+          opacity: 0;
+          background:
+            radial-gradient(circle at 8% 22%, var(--hover-c1) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 91% 31%, var(--hover-c2) 0 1.2px, transparent 2px),
+            radial-gradient(circle at 18% 88%, var(--hover-c3) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 82% 83%, var(--hover-c1) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 52% 2%, var(--hover-c2) 0 1px, transparent 1.8px);
+          transition: opacity .3s ease;
+        }
+
+        .profile-shell:hover .profile-hover-dots {
+          opacity: .85;
+          animation: profileHoverDots 2.6s ease-in-out infinite;
+        }
+
+        .profile-shell:hover .profile-hover-outline > .border {
+          box-shadow: 0 0 16px var(--hover-c2);
+        }
+
+        @keyframes profileHoverBreath {
+          0%, 100% {
+            opacity: .22;
+            transform: scale(.995);
+          }
+          50% {
+            opacity: .78;
+            transform: scale(1.012);
+          }
+        }
+
+        @keyframes profileHoverOrbit {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes profileHoverSweep {
+          0% {
+            transform: translateX(-90%) rotate(28deg);
+          }
+          55% {
+            transform: translateX(90%) rotate(28deg);
+          }
+          100% {
+            transform: translateX(90%) rotate(28deg);
+          }
+        }
+
+        @keyframes profileHoverDots {
+          0%, 100% {
+            transform: rotate(0deg) scale(.96);
+            filter: blur(.1px);
+          }
+          50% {
+            transform: rotate(8deg) scale(1.025);
+            filter: blur(.35px);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .profile-shell,
+          .profile-hover-outline,
+          .profile-hover-outline::before,
+          .profile-hover-outline::after,
+          .profile-hover-sweep,
+          .profile-hover-dots {
+            animation: none !important;
+            transition: none !important;
+          }
+
+          .profile-shell:hover {
+            transform: none;
+          }
         }
       `}</style>
     </div>
