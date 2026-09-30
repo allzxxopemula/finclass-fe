@@ -54,54 +54,60 @@ export default function ProteksiAkun() {
 
   return (
     <MainLayout>
-      <div className="space-y-4 pb-2">
+      <div className="space-y-4 pb-6">
         
         {/* Top Navigation */}
-        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button 
+              type="button"
               onClick={() => navigate('/profile')} 
-              className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
             >
-              <FontAwesomeIcon icon={faArrowLeft} />
+              <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
             </button>
             <div>
-              <h1 className="text-base font-black text-slate-900">Proteksi Akun</h1>
-              <p className="text-[10px] text-slate-400 font-semibold">Perbarui kata sandi untuk keamanan akun</p>
+              <h1 className="text-sm font-bold text-slate-800">Proteksi Akun</h1>
+              <p className="text-[10px] text-slate-400 font-medium">Perbarui kata sandi untuk keamanan akun</p>
             </div>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="p-4 bg-amber-50 text-amber-700 rounded-2xl flex gap-3 text-xs border border-amber-100 shadow-sm">
-            <FontAwesomeIcon icon={faShieldHalved} className="text-xl text-amber-600 shrink-0" />
-            <p className="leading-relaxed">
-              Jaga kerahasiaan password Anda. Jangan pernah bagikan kepada siapapun, termasuk pihak sekolah.
-            </p>
+          <div className="p-4 bg-amber-50 text-amber-800 rounded-2xl flex items-start gap-3.5 border border-amber-200/70 shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+              <FontAwesomeIcon icon={faShieldHalved} className="text-sm" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-amber-900 mb-0.5">Penting</p>
+              <p className="text-[11px] leading-relaxed font-medium text-amber-800">
+                Jaga kerahasiaan kata sandi Anda. Jangan pernah membagikannya kepada siapapun.
+              </p>
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <form onSubmit={handleUpdate} className="space-y-4">
               
               {/* Field Password Lama */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">Password Saat Ini</label>
                 <div className="relative flex items-center">
-                  <FontAwesomeIcon icon={faLock} className="absolute left-4 text-slate-400 text-xs" />
+                  <FontAwesomeIcon icon={faLock} className="absolute left-3.5 text-slate-400 text-xs" />
                   <input 
                     type={showPasswordLama ? "text" : "password"} 
                     required 
                     value={passwordLama}
                     onChange={(e) => setPasswordLama(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-600" 
+                    className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors" 
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPasswordLama(!showPasswordLama)}
-                    className="absolute right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                   >
-                    <FontAwesomeIcon icon={showPasswordLama ? faEyeSlash : faEye} />
+                    <FontAwesomeIcon icon={showPasswordLama ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -110,21 +116,21 @@ export default function ProteksiAkun() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">Password Baru</label>
                 <div className="relative flex items-center">
-                  <FontAwesomeIcon icon={faLock} className="absolute left-4 text-slate-400 text-xs" />
+                  <FontAwesomeIcon icon={faLock} className="absolute left-3.5 text-slate-400 text-xs" />
                   <input 
                     type={showPasswordBaru ? "text" : "password"} 
                     required 
                     value={passwordBaru}
                     onChange={(e) => setPasswordBaru(e.target.value)}
                     placeholder="Minimal 6 karakter"
-                    className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-600" 
+                    className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors" 
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPasswordBaru(!showPasswordBaru)}
-                    className="absolute right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                   >
-                    <FontAwesomeIcon icon={showPasswordBaru ? faEyeSlash : faEye} />
+                    <FontAwesomeIcon icon={showPasswordBaru ? faEyeSlash : faEye} className="text-xs" />
                   </button>
                 </div>
               </div>
@@ -134,7 +140,7 @@ export default function ProteksiAkun() {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-extrabold rounded-2xl text-xs shadow-md transition-all cursor-pointer disabled:opacity-70 flex justify-center items-center gap-2"
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold rounded-xl text-xs shadow-sm shadow-indigo-600/20 transition-all cursor-pointer disabled:opacity-70 flex justify-center items-center gap-2"
                 >
                   {loading ? (
                     <>

@@ -4,7 +4,20 @@ import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
 import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faEnvelope, faSpinner, faImage, faCamera, faRightFromBracket, faTrash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faArrowLeft, 
+  faUser, 
+  faEnvelope, 
+  faSpinner, 
+  faImage, 
+  faCamera, 
+  faRightFromBracket, 
+  faTrash, 
+  faTriangleExclamation,
+  faLink,
+  faAt,
+  faCheck
+} from '@fortawesome/free-solid-svg-icons';
 
 const IMGBB_API_KEY = '4bee746ba64cbd55467c63342a529be0';
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
@@ -336,28 +349,34 @@ export default function SettingProfile() {
 
   return (
     <MainLayout>
-      <div className="space-y-4 pb-2">
-        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+      <div className="space-y-4 pb-6">
+        
+        {/* HEADER TOP BAR */}
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate('/profile')}
-              className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
             >
-              <FontAwesomeIcon icon={faArrowLeft} />
+              <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
             </button>
             <div>
-              <h1 className="text-base font-black text-slate-900">Setting Profil</h1>
-              <p className="text-[10px] text-slate-400">Atur foto, username, dan data profilmu</p>
+              <h1 className="text-sm font-bold text-slate-800">Setting Profil</h1>
+              <p className="text-[10px] text-slate-400 font-medium">Atur foto, identitas, dan data akunmu</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+        {/* FORM SETTINGS */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <form onSubmit={handleSave} className="space-y-4">
+            
+            {/* FOTO PROFIL SECTION */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">Foto Profil</label>
-              <div className="flex items-center gap-3">
-                <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-50 shadow-inner">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block">Foto Profil</label>
+              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <div className="relative h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm shrink-0">
                   {profileImage ? (
                     <img 
                       src={profileImage} 
@@ -366,102 +385,114 @@ export default function SettingProfile() {
                       onError={(event) => { event.currentTarget.style.display = 'none'; }} 
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-500">
-                      <FontAwesomeIcon icon={faCamera} />
+                    <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
+                      <FontAwesomeIcon icon={faCamera} className="text-lg" />
                     </div>
                   )}
                   {uploadingImage && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-slate-950/65 text-white backdrop-blur-[1px]" role="status" aria-live="polite">
-                      <FontAwesomeIcon icon={faSpinner} spin className="text-sm" />
-                      <span className="text-[8px] font-bold">Upload</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-slate-900/70 text-white backdrop-blur-[1px]" role="status">
+                      <FontAwesomeIcon icon={faSpinner} spin className="text-xs" />
+                      <span className="text-[8px] font-bold">Uploading</span>
                     </div>
                   )}
                 </div>
-                <div className="flex-1">
-                  <label htmlFor="profile-image-upload" className={`inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600 ${uploadingImage ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-                    <FontAwesomeIcon icon={faImage} /> Pilih Foto
+
+                <div className="flex-1 min-w-0">
+                  <label htmlFor="profile-image-upload" className={`inline-flex items-center gap-2 rounded-xl bg-indigo-50 border border-indigo-100 px-3 py-2 text-[11px] font-bold text-indigo-600 hover:bg-indigo-100/80 transition ${uploadingImage ? 'cursor-not-allowed opacity-50' : 'cursor-pointer active:scale-95'}`}>
+                    <FontAwesomeIcon icon={faImage} /> Unggah Foto Baru
                   </label>
                   <input id="profile-image-upload" type="file" accept="image/jpeg,image/png,image/gif" className="hidden" onChange={handleFileSelect} disabled={uploadingImage} />
-                  <p className="mt-2 text-[10px] text-slate-400">JPG, PNG, atau GIF maksimal 32 MB.</p>
-                  {uploadingImage && <p className="mt-1 text-[10px] font-semibold text-indigo-600">Foto sedang diunggah, tunggu sampai URL siap.</p>}
+                  <p className="mt-1.5 text-[10px] text-slate-400 font-medium">Format JPG, PNG, GIF. Maksimal 32 MB.</p>
                 </div>
               </div>
             </div>
 
+            {/* URL FOTO PROFIL */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">URL Foto Profil</label>
-              <input
-                type="url"
-                value={profileImage}
-                onChange={(e) => setProfileImage(fixImgbbUrl(e.target.value))}
-                disabled={uploadingImage}
-                placeholder="https://example.com/foto.jpg"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
-              />
+              <label className="text-xs font-bold text-slate-700">Tautan Gambar Profil (URL)</label>
+              <div className="relative">
+                <FontAwesomeIcon icon={faLink} className="absolute left-3.5 top-3.5 text-slate-400 text-xs" />
+                <input
+                  type="url"
+                  value={profileImage}
+                  onChange={(e) => setProfileImage(fixImgbbUrl(e.target.value))}
+                  disabled={uploadingImage}
+                  placeholder="https://example.com/foto.jpg"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
+                />
+              </div>
             </div>
 
+            {/* URL BANNER PROFIL */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">URL Banner Profil</label>
-              <input
-                type="url"
-                value={bannerUrl}
-                onChange={(e) => setBannerUrl(e.target.value)}
-                placeholder="https://example.com/banner.jpg"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
-              />
+              <label className="text-xs font-bold text-slate-700">Tautan Banner Profil (URL)</label>
+              <div className="relative">
+                <FontAwesomeIcon icon={faImage} className="absolute left-3.5 top-3.5 text-slate-400 text-xs" />
+                <input
+                  type="url"
+                  value={bannerUrl}
+                  onChange={(e) => setBannerUrl(e.target.value)}
+                  placeholder="https://example.com/banner.jpg"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
+                />
+              </div>
               {bannerUrl && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-                  <div className="h-24 w-full bg-slate-100">
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 mt-2">
+                  <div className="h-20 w-full bg-slate-100">
                     <img src={bannerUrl} alt="Preview banner profil" className="h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = 'none'; }} />
                   </div>
                 </div>
               )}
             </div>
 
+            {/* USERNAME */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">Username</label>
               <div className="relative">
-                <span className="absolute left-4 top-3.5 text-slate-400 text-xs">@</span>
+                <span className="absolute left-3.5 top-2.5 text-slate-400 font-bold text-xs">@</span>
                 <input
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
+                  className="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
                 />
               </div>
             </div>
 
+            {/* NAMA LENGKAP */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Nama Lengkap</label>
+              <label className="text-xs font-bold text-slate-700">Nama Tampilan</label>
               <div className="relative">
-                <FontAwesomeIcon icon={faUser} className="absolute left-4 top-3.5 text-slate-400 text-xs" />
+                <FontAwesomeIcon icon={faUser} className="absolute left-3.5 top-3.5 text-slate-400 text-xs" />
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
                 />
               </div>
             </div>
 
+            {/* EMAIL AKUN */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Email Akun (Tidak dapat diubah)</label>
+              <label className="text-xs font-bold text-slate-700">Email (Permanen)</label>
               <div className="relative">
-                <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-3.5 text-slate-400 text-xs" />
+                <FontAwesomeIcon icon={faEnvelope} className="absolute left-3.5 top-3.5 text-slate-400 text-xs" />
                 <input
                   type="email"
                   value={savedUser?.email || ''}
                   disabled
-                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-400 border border-slate-200 rounded-2xl text-xs font-semibold cursor-not-allowed"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-100 text-slate-400 border border-slate-200 rounded-xl text-xs font-semibold cursor-not-allowed"
                 />
               </div>
             </div>
 
-            <div className="pt-2 space-y-2">
+            {/* BUTTONS */}
+            <div className="pt-3 space-y-2">
               <button
                 type="submit"
                 disabled={loading || uploadingImage}
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-2xl text-xs shadow-md active:scale-[0.98] transition-all cursor-pointer flex justify-center items-center gap-2"
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-indigo-600/20 active:scale-[0.98] transition-all cursor-pointer flex justify-center items-center gap-2"
               >
                 {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Simpan Perubahan'}
               </button>
@@ -469,7 +500,7 @@ export default function SettingProfile() {
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(true)}
-                className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded-2xl text-xs shadow-sm active:scale-[0.98] transition-all cursor-pointer border border-rose-100 flex justify-center items-center gap-2"
+                className="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-xs active:scale-[0.98] transition-all cursor-pointer border border-rose-100 flex justify-center items-center gap-2"
               >
                 <FontAwesomeIcon icon={faRightFromBracket} /> Keluar Akun
               </button>
@@ -477,25 +508,26 @@ export default function SettingProfile() {
           </form>
         </div>
 
-        <div className="rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 via-white to-red-50 p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+        {/* DANGER ZONE */}
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-4 shadow-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
               <FontAwesomeIcon icon={faTriangleExclamation} />
             </div>
             <div>
-              <p className="text-sm font-black text-slate-900">Danger Zone</p>
-              <p className="text-[10px] text-slate-500">Tindakan ini bersifat permanen.</p>
+              <p className="text-xs font-bold text-slate-800">Hapus Akun</p>
+              <p className="text-[10px] text-slate-500 font-medium">Tindakan ini permanen & tidak bisa dibatalkan.</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="w-full rounded-2xl border border-rose-200 bg-rose-600 px-4 py-3 text-xs font-black text-white shadow-md shadow-rose-200 transition hover:bg-rose-700 active:scale-[0.98]"
+            className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98] cursor-pointer"
           >
             <span className="inline-flex items-center gap-2">
               <FontAwesomeIcon icon={faTrash} />
-              Hapus Akun Saya
+              Hapus Akun Permanen
             </span>
           </button>
         </div>
@@ -516,37 +548,39 @@ export default function SettingProfile() {
 
       {/* MODAL KONFIRMASI UPLOAD */}
       {showUploadConfirmModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl overflow-hidden relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
             
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner">
-              <FontAwesomeIcon icon={faImage} className="text-xl" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100">
+              <FontAwesomeIcon icon={faImage} className="text-lg" />
             </div>
 
-            <h2 className="text-center text-sm font-black text-slate-400 tracking-wider">KONFIRMASI UPLOAD</h2>
-            <p className="mt-1 text-center text-lg font-black text-slate-900">
+            <h2 className="text-center text-[10px] font-bold text-indigo-600 uppercase tracking-widest">KONFIRMASI UPLOAD</h2>
+            <p className="mt-1 text-center text-base font-bold text-slate-800">
               Unggah Foto Profil?
             </p>
 
-            <div className="mt-4 rounded-2xl border border-indigo-100 bg-slate-50 p-4 text-center">
-              <p className="text-xs font-bold text-slate-700 leading-relaxed">
+            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-3.5 text-center">
+              <p className="text-xs font-medium text-slate-600 leading-relaxed">
                 File akan diunggah ke server. Pastikan gambar mematuhi pedoman komunitas.
               </p>
             </div>
 
-            <div className="mt-5 flex items-center justify-center gap-2 text-xs font-black">
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs font-bold">
               {uploadCountdown > 0 ? (
                 <>
                   <span className="text-slate-400">Harap baca dalam</span>
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-700">{uploadCountdown}</span>
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">{uploadCountdown}</span>
                   <span className="text-slate-400">detik</span>
                 </>
               ) : (
-                <span className="text-indigo-600 animate-pulse">Siap diunggah!</span>
+                <span className="text-indigo-600 animate-pulse flex items-center gap-1.5">
+                  <FontAwesomeIcon icon={faCheck} className="text-xs" /> Siap diunggah!
+                </span>
               )}
             </div>
 
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex gap-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -554,7 +588,7 @@ export default function SettingProfile() {
                   setPendingUploadFile(null);
                 }}
                 disabled={loading}
-                className="w-full rounded-xl bg-slate-100 hover:bg-slate-200 py-3 text-xs font-bold text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
+                className="w-full rounded-xl bg-slate-100 hover:bg-slate-200 py-2.5 text-xs font-bold text-slate-600 transition-colors cursor-pointer active:scale-95 disabled:opacity-50"
               >
                 Batal
               </button>
@@ -563,7 +597,7 @@ export default function SettingProfile() {
                 type="button"
                 onClick={executeUpload}
                 disabled={uploadCountdown > 0 || loading}
-                className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-xs font-bold text-white transition-all shadow-md shadow-indigo-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-2.5 text-xs font-bold text-white transition-all shadow-sm shadow-indigo-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <FontAwesomeIcon icon={faSpinner} spin />
@@ -576,39 +610,42 @@ export default function SettingProfile() {
         </div>
       )}
 
+      {/* MODAL HAPUS AKUN */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-              <FontAwesomeIcon icon={faTriangleExclamation} />
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)}>
+          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 text-rose-600">
+              <FontAwesomeIcon icon={faTriangleExclamation} className="text-lg" />
             </div>
 
-            <h2 className="mt-4 text-center text-base font-black text-slate-900">Hapus akun secara permanen?</h2>
-            <p className="mt-2 text-center text-xs leading-relaxed text-slate-500">
+            <h2 className="mt-3 text-center text-base font-bold text-slate-800">Hapus akun secara permanen?</h2>
+            <p className="mt-1.5 text-center text-xs leading-relaxed text-slate-500 font-medium">
               Semua data akun, chat, dan riwayat yang terkait akan dihapus. Tindakan ini tidak bisa dibatalkan.
             </p>
 
-            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3">
-              <p className="text-[10px] font-black uppercase tracking-wider text-rose-600">Konfirmasi</p>
-              <p className="mt-2 text-xs text-slate-700">Ketik kalimat berikut untuk melanjutkan:</p>
-              <p className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 break-words">
+            <div className="mt-4 rounded-xl border border-rose-100 bg-rose-50/60 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Konfirmasi Kalimat</p>
+              <p className="mt-1 text-[11px] text-slate-600 font-medium">Ketik kalimat berikut untuk melanjutkan:</p>
+              <p className="mt-2 rounded-lg border border-rose-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-800 break-words select-all">
                 {deleteConfirmationText}
               </p>
             </div>
 
-            <label className="mt-4 block text-[10px] font-black uppercase tracking-wider text-slate-500">Ketik ulang konfirmasi</label>
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(event) => setDeleteConfirmText(event.target.value)}
-              placeholder={deleteConfirmationText}
-              className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs font-semibold text-slate-800 outline-none focus:border-rose-500 focus:bg-white"
-            />
+            <div className="mt-3.5 space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Ketik ulang konfirmasi</label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(event) => setDeleteConfirmText(event.target.value)}
+                placeholder={deleteConfirmationText}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-rose-500 focus:bg-white transition-colors"
+              />
+            </div>
 
-            <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }} className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600">Batal</button>
-              <button type="button" onClick={handleDeleteAccount} disabled={loading} className="w-full rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
-                {loading ? 'Menghapus...' : 'Hapus akun'}
+            <div className="mt-5 flex gap-2.5">
+              <button type="button" onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }} className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer">Batal</button>
+              <button type="button" onClick={handleDeleteAccount} disabled={loading} className="w-full rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white hover:bg-rose-700 transition disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer shadow-sm shadow-rose-600/20">
+                {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Hapus Akun'}
               </button>
             </div>
           </div>

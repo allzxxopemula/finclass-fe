@@ -9,7 +9,10 @@ import {
   faTrash, 
   faUserPlus, 
   faSpinner, 
-  faCoins
+  faCoins,
+  faUsers,
+  faPlus,
+  faCheck
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function SettingAnggota() {
@@ -77,7 +80,7 @@ export default function SettingAnggota() {
     setListInputSiswa(Array.from({ length: count }, () => ''));
   };
 
-  // Simpan Siswa Massal (Fix Bug Error Alert padahal Masuk Database)
+  // Simpan Siswa Massal
   const handleSaveBatchSiswa = async (e) => {
     e.preventDefault();
     const validNames = listInputSiswa.map(nama => nama.trim()).filter(nama => nama !== '');
@@ -89,7 +92,6 @@ export default function SettingAnggota() {
 
     setLoading(true);
     try {
-      // Mengirim satu-persatu dengan aman menggunakan try-catch di dalam map atau endpoint batch
       for (const nama of validNames) {
         await API.post('/tambah-siswa', { 
           kelas_id: kelasData.id, 
@@ -98,7 +100,6 @@ export default function SettingAnggota() {
         });
       }
 
-      // Reset form setelah sukses sepenuhnya
       setModeTambah(false);
       setJumlahSiswaInput('');
       setListInputSiswa([]);
@@ -107,7 +108,7 @@ export default function SettingAnggota() {
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Gagal menambahkan sebagian siswa ke database!');
-      fetchData(user.id); // Tetap fetch data agar siswa yang sempat masuk langsung kerender
+      fetchData(user.id);
     } finally {
       setLoading(false);
     }
@@ -127,38 +128,51 @@ export default function SettingAnggota() {
 
   return (
     <MainLayout>
-      <div className="space-y-5 pb-2">
+      <div className="space-y-4 pb-6">
         
-        {/* Top Navigation */}
-        <div className="flex items-center gap-3 pt-2">
-          <button 
-            onClick={() => navigate('/profile')} 
-            className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <div>
-            <h1 className="text-base font-black text-slate-900">Kelola Anggota</h1>
-            <p className="text-[10px] text-slate-400 font-semibold">Atur nominal kas & daftar siswa</p>
+        {/* Header Top Bar */}
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={() => navigate('/profile')} 
+              className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
+            </button>
+            <div>
+              <h1 className="text-sm font-bold text-slate-800">Kelola Anggota</h1>
+              <p className="text-[10px] text-slate-400 font-medium">Atur nominal kas & daftar siswa</p>
+            </div>
           </div>
         </div>
 
         {/* Pengaturan Nominal */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
-          <h3 className="text-xs font-bold text-slate-800 flex items-center gap-2">
-            <FontAwesomeIcon icon={faCoins} className="text-emerald-500" /> Pengaturan Nominal Kas Mingguan
-          </h3>
-          <form onSubmit={handleSaveNominal} className="flex gap-2">
-            <input 
-              type="number" 
-              value={tempNominal}
-              onChange={(e) => setTempNominal(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-indigo-600"
-            />
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xs shrink-0">
+              <FontAwesomeIcon icon={faCoins} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-800">Nominal Kas Mingguan</h3>
+              <p className="text-[10px] text-slate-400 font-medium">Besaran iuran kas yang ditagih tiap minggu</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveNominal} className="flex gap-2 pt-1">
+            <div className="relative flex-1">
+              <span className="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">Rp</span>
+              <input 
+                type="number" 
+                value={tempNominal}
+                onChange={(e) => setTempNominal(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors"
+              />
+            </div>
             <button 
               type="submit" 
               disabled={loading} 
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-sm shadow-indigo-600/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center min-w-[70px]"
             >
               {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Simpan'}
             </button>
@@ -166,32 +180,39 @@ export default function SettingAnggota() {
         </div>
 
         {/* Daftar & Tambah Siswa */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-800">Daftar Anggota ({siswas.length})</h3>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faUsers} className="text-indigo-600 text-xs" />
+              <h3 className="text-xs font-bold text-slate-800">Daftar Anggota ({siswas.length})</h3>
+            </div>
             <button 
+              type="button"
               onClick={() => setModeTambah(!modeTambah)}
-              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold text-[11px] rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold text-[11px] rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-100"
             >
-              <FontAwesomeIcon icon={faUserPlus} /> Tambah Massal
+              <FontAwesomeIcon icon={modeTambah ? faPlus : faUserPlus} className={modeTambah ? "rotate-45 transition-transform" : ""} />
+              <span>{modeTambah ? 'Tutup Form' : 'Tambah Massal'}</span>
             </button>
           </div>
 
           {/* Form Tambah Massal */}
           {modeTambah && (
-            <div className="bg-indigo-50/50 p-3.5 rounded-2xl space-y-3 border border-indigo-100">
+            <div className="bg-indigo-50/60 p-4 rounded-xl space-y-3 border border-indigo-100">
               {listInputSiswa.length === 0 ? (
                 <form onSubmit={handleGenerateKolom} className="flex gap-2">
                   <input 
                     type="number" required min="1" max="50"
                     value={jumlahSiswaInput} onChange={(e) => setJumlahSiswaInput(e.target.value)}
                     placeholder="Jumlah siswa (Misal: 5)"
-                    className="w-full px-3 py-2 bg-white rounded-xl text-xs border border-indigo-200 focus:outline-none focus:border-indigo-600"
+                    className="w-full px-3.5 py-2 bg-white rounded-xl text-xs border border-indigo-200 font-medium text-slate-800 focus:outline-none focus:border-indigo-600"
                   />
-                  <button type="submit" className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm">Buat Kolom</button>
+                  <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm shadow-indigo-600/20 shrink-0">
+                    Buat Kolom
+                  </button>
                 </form>
               ) : (
-                <form onSubmit={handleSaveBatchSiswa} className="space-y-2">
+                <form onSubmit={handleSaveBatchSiswa} className="space-y-2.5">
                   <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
                     {listInputSiswa.map((nama, idx) => (
                       <input 
@@ -202,14 +223,14 @@ export default function SettingAnggota() {
                           setListInputSiswa(newArr);
                         }}
                         placeholder={`Nama Absen ${siswas.length + idx + 1}`}
-                        className="w-full px-3 py-2 bg-white rounded-xl text-xs border border-indigo-200 focus:outline-none focus:border-indigo-600"
+                        className="w-full px-3.5 py-2 bg-white rounded-xl text-xs border border-indigo-200 font-semibold text-slate-800 focus:outline-none focus:border-indigo-600"
                       />
                     ))}
                   </div>
                   <div className="flex gap-2 pt-1">
                     <button type="button" onClick={() => setListInputSiswa([])} className="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Batal</button>
-                    <button type="submit" disabled={loading} className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm flex items-center justify-center">
-                      {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Simpan Anggota'}
+                    <button type="submit" disabled={loading} className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm shadow-indigo-600/20 flex items-center justify-center gap-1.5">
+                      {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : <><FontAwesomeIcon icon={faCheck} /> Simpan Anggota</>}
                     </button>
                   </div>
                 </form>
@@ -220,18 +241,24 @@ export default function SettingAnggota() {
           {/* List Siswa */}
           <div className="space-y-2 pt-1">
             {siswas.length === 0 ? (
-              <div className="p-6 bg-slate-50 rounded-2xl text-center text-xs text-slate-400">
+              <div className="p-6 bg-slate-50 border border-slate-100 rounded-xl text-center text-xs font-medium text-slate-400">
                 Belum ada anggota di kelas ini.
               </div>
             ) : (
               siswas.map((s, idx) => (
-                <div key={s.id} className="p-3 bg-slate-50/70 border border-slate-100 rounded-2xl flex justify-between items-center shadow-sm">
-                  <span className="text-xs font-bold text-slate-700">Absen {idx + 1}: {s.nama_siswa}</span>
+                <div key={s.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex justify-between items-center shadow-2xs hover:border-slate-200 transition-colors">
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <span className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-500 font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                      {idx + 1}
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 truncate">{s.nama_siswa}</span>
+                  </div>
                   <button 
+                    type="button"
                     onClick={() => setConfirmDelete({ id: s.id, nama: s.nama_siswa })}
-                    className="w-8 h-8 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all cursor-pointer"
+                    className="w-8 h-8 bg-rose-50 border border-rose-100 text-rose-500 rounded-lg flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all cursor-pointer shrink-0 active:scale-95"
                   >
-                    <FontAwesomeIcon icon={faTrash} size="sm" />
+                    <FontAwesomeIcon icon={faTrash} className="text-xs" />
                   </button>
                 </div>
               ))
@@ -240,6 +267,7 @@ export default function SettingAnggota() {
 
         </div>
       </div>
+
       <ConfirmModal
         open={Boolean(confirmDelete)}
         title="Hapus anggota?"
