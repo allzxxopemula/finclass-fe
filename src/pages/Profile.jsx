@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileBanner, ExclusiveProfileFrame, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowUp,
@@ -614,87 +614,97 @@ export default function Profile() {
             </>
           )}
 
+          {/* PERUBAHAN DI SINI:
+              Menggunakan ExclusiveProfileShell variant="card" 
+              agar popup ini mengikuti animasi border membesar-mengecil (breathing) 
+              dan partikel yang naik. 
+          */}
           {showProfileModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity" onClick={() => setShowProfileModal(false)}>
-              <ExclusiveProfileFrame borderValue={borderToken} className="w-full max-w-sm" onClick={(event) => event.stopPropagation()}>
-                
-                {/* Banner Profil Popup */}
-                <ExclusiveProfileBanner
-                  bannerUrl={userBanner}
-                  borderValue={borderToken}
-                  className="relative h-32"
-                >
-                  
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <button 
-                      type="button" 
-                      onClick={() => { setShowProfileModal(false); handleOpenBorderModal(); }} 
-                      className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
-                    >
-                      <FontAwesomeIcon icon={faPalette} /> Border
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => setShowProfileModal(false)} 
-                      className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </ExclusiveProfileBanner>
-
-                {/* Konten Profil Popup */}
-                <div className="px-6 pb-6 relative">
-                  <div className="flex justify-between items-end -mt-10 mb-4">
-                    <div className="p-1.5 bg-white rounded-full">
-                      <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-20 w-20">
-                        <div className="h-full w-full overflow-hidden rounded-full bg-slate-100">
-                          {userAvatar ? (
-                            <img src={userAvatar} alt="Avatar" className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-slate-100 text-2xl font-bold text-slate-400">
-                              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                            </div>
-                          )}
-                        </div>
-                      </ExclusiveProfileShell>
+              <ExclusiveProfileShell
+                borderValue={borderToken}
+                customBorderColor={customBorderColor}
+                variant="card"
+                className="w-full max-w-sm cursor-default text-left"
+              >
+                <div onClick={(event) => event.stopPropagation()} className="w-full h-full relative z-10 flex flex-col">
+                  {/* Banner Profil Popup */}
+                  <ExclusiveProfileBanner
+                    bannerUrl={userBanner}
+                    borderValue={borderToken}
+                    className="relative h-32 shrink-0"
+                  >
+                    <div className="absolute top-4 right-4 flex gap-2 z-50">
+                      <button 
+                        type="button" 
+                        onClick={() => { setShowProfileModal(false); handleOpenBorderModal(); }} 
+                        className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
+                      >
+                        <FontAwesomeIcon icon={faPalette} /> Border
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowProfileModal(false)} 
+                        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    
-                    {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
-                      <span className={`rounded-lg px-3 py-1 mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${exclusivePreset.accent} shadow-sm`}>
-                        {exclusivePreset.label}
-                      </span>
-                    )}
-                  </div>
+                  </ExclusiveProfileBanner>
 
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-[19px] font-black text-slate-800">{user?.name || 'Pengguna'}</h3>
-                      <p className="text-[13px] text-slate-500 font-medium">@{displayUsername}</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
-                        <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
-                        <p className="text-sm font-bold text-slate-800 capitalize">{user?.role?.replace('_', ' ') || 'Pengguna'}</p>
+                  {/* Konten Profil Popup */}
+                  <div className="px-6 pb-6 relative bg-transparent flex-1">
+                    <div className="flex justify-between items-end -mt-10 mb-4">
+                      <div className="p-1.5 bg-white rounded-full">
+                        <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-20 w-20">
+                          <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 border border-white">
+                            {userAvatar ? (
+                              <img src={userAvatar} alt="Avatar" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-slate-100 text-2xl font-bold text-slate-400">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                              </div>
+                            )}
+                          </div>
+                        </ExclusiveProfileShell>
                       </div>
-                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
-                        <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
-                        <p className="text-sm font-bold text-slate-800 truncate">{kelasData?.nama_kelas || 'Belum ada'}</p>
-                      </div>
+                      
+                      {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
+                        <span className={`rounded-lg px-3 py-1 mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${exclusivePreset.accent} shadow-sm relative z-10`}>
+                          {exclusivePreset.label}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
-                        <p className="text-sm font-bold text-slate-800">
-                          {user?.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
-                        </p>
+                        <h3 className="text-[19px] font-black text-slate-800">{user?.name || 'Pengguna'}</h3>
+                        <p className="text-[13px] text-slate-500 font-medium">@{displayUsername}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                          <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
+                          <p className="text-sm font-bold text-slate-800 capitalize">{user?.role?.replace('_', ' ') || 'Pengguna'}</p>
+                        </div>
+                        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                          <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
+                          <p className="text-sm font-bold text-slate-800 truncate">{kelasData?.nama_kelas || 'Belum ada'}</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
+                        <div>
+                          <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
+                          <p className="text-sm font-bold text-slate-800">
+                            {user?.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </ExclusiveProfileFrame>
+              </ExclusiveProfileShell>
             </div>
           )}
 
