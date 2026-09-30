@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileBanner, ExclusiveProfileFrame, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -124,7 +124,6 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, formatTime, setMessageToDelete, onOpenProfile }) => {
   const sender = item.user || {};
   const storedProfile = getStoredProfile(sender?.id);
-  // senderProfile sudah diprioritaskan dari /dashboard (sumber yang sama dengan ClassInfoPage).
   const profile = senderProfile || sender || {};
   const avatarUrl =
     profile?.image ||
@@ -166,8 +165,12 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
   }
 
   return (
-    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1`}>
-      <div className={`flex max-w-[96%] md:max-w-[88%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1 px-1`}>
+      {/* 
+        PERUBAHAN LEBAR CHAT: 
+        max-w-full agar bisa mepet ke kanan (isMine) dan kiri (!isMine).
+      */}
+      <div className={`flex w-full items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
 
         {/* WADAH FOTO PROFIL DENGAN EXCLUSIVE BORDER */}
         <div className="flex flex-col items-center shrink-0 w-9 mt-0.5">
@@ -197,7 +200,8 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
         </div>
 
         {/* WADAH KONTEN CHAT */}
-        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 flex-1 max-w-[calc(100%-2.5rem)]`}>
+        {/* max-w dikurangi lebar foto profil (w-9 / 2.25rem) dan gap (0.5rem) agar teks tidak tumpah */}
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 flex-1 max-w-[calc(100%-2.75rem)]`}>
 
           {showAvatar && !isMine && (
             <button type="button" onClick={() => onOpenProfile?.(profile)} className="mb-1 ml-1 max-w-full truncate text-left text-[10px] font-bold text-slate-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
@@ -255,7 +259,6 @@ export default function ChatRoom() {
   const [loading, setLoading] = useState(true);
   const [memberProfiles, setMemberProfiles] = useState({});
 
-  // Penahan pesan agar tidak kedip (Optimistic UI)
   const recentSentRef = useRef(new Map());   
   const recentDeletedRef = useRef(new Map()); 
 
@@ -281,6 +284,7 @@ export default function ChatRoom() {
       borderValue,
       roleLabel: String(profile.role || 'Anggota').replaceAll('_', ' '),
       createdAt: profile.created_at || profile.createdAt || null,
+      email: profile.email || '',
     });
   };
 
@@ -293,8 +297,6 @@ export default function ChatRoom() {
     }
   };
 
-  // Sumber border/avatar user lain mengikuti pola ClassInfoPage:
-  // data API dashboard -> local profile -> email sebagai fallback preset lama.
   const loadMemberProfiles = async (currentUserId) => {
     if (!currentUserId) return;
 
@@ -318,8 +320,6 @@ export default function ChatRoom() {
 
       addProfile(response.data.bendahara);
       (Array.isArray(response.data.members) ? response.data.members : []).forEach(addProfile);
-
-      // Pastikan user sendiri juga ada di map.
       addProfile(readUser());
 
       setMemberProfiles(nextProfiles);
@@ -552,7 +552,6 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="relative flex h-[calc(100dvh-135px)] w-full min-w-0 flex-col overflow-hidden">
 
-        {/* HEADER: sengaja fixed terhadap viewport supaya tidak ikut hilang saat list discroll */}
         <div className="fixed inset-x-0 top-0 z-[60] w-screen border-b border-slate-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-md flex items-center gap-3">
           <button
             type="button"
@@ -597,7 +596,7 @@ export default function ChatRoom() {
           <div
             ref={listRef}
             onScroll={handleScroll}
-            className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto scroll-smooth space-y-1 px-3 sm:px-4 pb-[90px] scrollbar-hide"
+            className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto scroll-smooth space-y-1 px-1.5 pb-[90px] scrollbar-hide"
           >
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
@@ -607,14 +606,12 @@ export default function ChatRoom() {
               </div>
             ) : (
               messages.map((item, index) => {
-                // Cocokkan sender dengan member dari /dashboard, mengikuti logic ClassInfoPage.
                 const senderId = item.user_id ?? item.user?.id ?? item.sender_id ?? item.sender?.id;
                 const isMine = String(senderId) === String(user.id);
                 const storedSenderProfile = getStoredProfile(senderId);
                 const dashboardProfile = memberProfiles[String(senderId)] || null;
                 const apiSenderProfile = item.user || item.sender || {};
 
-                // Sumber utama border = /dashboard.
                 const resolvedSenderProfile = {
                   ...apiSenderProfile,
                   ...storedSenderProfile,
@@ -657,8 +654,6 @@ export default function ChatRoom() {
                       ...resolvedSenderProfile,
                       custom_border_color: borderValue,
                       border_type: borderValue,
-                      // Simpan email juga supaya ExclusiveProfileShell tetap bisa
-                      // melakukan fallback preset berbasis email bila diperlukan.
                       email:
                         dashboardProfile?.email ||
                         apiSenderProfile?.email ||
@@ -743,71 +738,84 @@ export default function ChatRoom() {
         </div>
       )}
 
+      {/* 
+        PERUBAHAN DI SINI:
+        Menyambungkan ExclusiveProfileShell variant="card" ke modal chat profile 
+        agar animasinya sama dengan di ClassInfoPage dan Profile.
+      */}
       {selectedChatProfile && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" onClick={() => setSelectedChatProfile(null)}>
-          <ExclusiveProfileFrame borderValue={selectedChatProfile.borderValue} className="w-full max-w-md" onClick={(event) => event.stopPropagation()}>
-            <ExclusiveProfileBanner
-              bannerUrl={selectedChatProfile.banner}
-              borderValue={selectedChatProfile.borderValue}
-              className="relative h-36"
-            >
-              <button type="button" onClick={() => setSelectedChatProfile(null)} className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-slate-900/20 text-white backdrop-blur-sm transition hover:bg-slate-900/40" aria-label="Tutup profil">
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </ExclusiveProfileBanner>
+          <ExclusiveProfileShell
+            borderValue={selectedChatProfile.borderValue}
+            customBorderColor={selectedChatProfile.borderValue}
+            email={selectedChatProfile.email}
+            variant="card"
+            className="w-full max-w-md cursor-default text-left"
+          >
+            <div onClick={(event) => event.stopPropagation()} className="w-full h-full relative z-10 flex flex-col">
+              <ExclusiveProfileBanner
+                bannerUrl={selectedChatProfile.banner}
+                borderValue={selectedChatProfile.borderValue}
+                className="relative h-36 shrink-0"
+              >
+                <button type="button" onClick={() => setSelectedChatProfile(null)} className="absolute right-3 top-3 z-[60] flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-slate-900/20 text-white backdrop-blur-sm transition hover:bg-slate-900/40 cursor-pointer shadow-sm" aria-label="Tutup profil">
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </ExclusiveProfileBanner>
 
-            <div className="relative px-6 pb-6">
-              <div className="-mt-12 mb-4 flex items-end justify-between gap-3">
-                <ExclusiveProfileShell
-                  email={selectedChatProfile.email}
-                  borderValue={selectedChatProfile.borderValue}
-                  customBorderColor={selectedChatProfile.borderValue}
-                  variant="avatar"
-                  className="h-24 w-24 shrink-0"
-                >
-                  <div className="h-full w-full overflow-hidden rounded-full border-2 border-white bg-slate-100">
-                    {selectedChatProfile.displayAvatar ? (
-                      <img src={selectedChatProfile.displayAvatar} alt={selectedChatProfile.displayName} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-2xl font-black text-slate-500">
-                        {selectedChatProfile.displayName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+              <div className="relative px-6 pb-6 bg-transparent flex-1">
+                <div className="-mt-12 mb-4 flex items-end justify-between gap-3">
+                  <ExclusiveProfileShell
+                    email={selectedChatProfile.email}
+                    borderValue={selectedChatProfile.borderValue}
+                    customBorderColor={selectedChatProfile.borderValue}
+                    variant="avatar"
+                    className="h-24 w-24 shrink-0"
+                  >
+                    <div className="h-full w-full overflow-hidden rounded-full border-2 border-white bg-slate-100">
+                      {selectedChatProfile.displayAvatar ? (
+                        <img src={selectedChatProfile.displayAvatar} alt={selectedChatProfile.displayName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-2xl font-black text-slate-500">
+                          {selectedChatProfile.displayName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  </ExclusiveProfileShell>
+                  {Boolean(getExclusiveUserPreset(selectedChatProfile.borderValue)?.label?.trim()) && (
+                    <span className={`mb-2 rounded-lg px-3 py-1 text-[10px] font-black text-white shadow-sm relative z-10 bg-gradient-to-r ${getExclusiveUserPreset(selectedChatProfile.borderValue).accent}`}>
+                      {getExclusiveUserPreset(selectedChatProfile.borderValue).label}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">{selectedChatProfile.displayName}</h2>
+                  <p className="mt-1 text-sm font-medium text-slate-500">@{selectedChatProfile.displayUsername}</p>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5 shadow-sm">
+                    <p className="text-[10px] font-semibold text-slate-500">Role</p>
+                    <p className="mt-1 text-sm font-bold capitalize text-slate-800">{selectedChatProfile.roleLabel}</p>
                   </div>
-                </ExclusiveProfileShell>
-                {Boolean(getExclusiveUserPreset(selectedChatProfile.borderValue)?.label?.trim()) && (
-                  <span className={`mb-2 rounded-lg px-3 py-1 text-[10px] font-black text-white shadow-sm bg-gradient-to-r ${getExclusiveUserPreset(selectedChatProfile.borderValue).accent}`}>
-                    {getExclusiveUserPreset(selectedChatProfile.borderValue).label}
-                  </span>
-                )}
-              </div>
-
-              <div>
-                <h2 className="text-xl font-black text-slate-900">{selectedChatProfile.displayName}</h2>
-                <p className="mt-1 text-sm font-medium text-slate-500">@{selectedChatProfile.displayUsername}</p>
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
-                  <p className="text-[10px] font-semibold text-slate-500">Role</p>
-                  <p className="mt-1 text-sm font-bold capitalize text-slate-800">{selectedChatProfile.roleLabel}</p>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5 shadow-sm">
+                    <p className="text-[10px] font-semibold text-slate-500">Kelas</p>
+                    <p className="mt-1 truncate text-sm font-bold text-slate-800">{room?.name || 'Kelas'}</p>
+                  </div>
                 </div>
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
-                  <p className="text-[10px] font-semibold text-slate-500">Kelas</p>
-                  <p className="mt-1 truncate text-sm font-bold text-slate-800">{room?.name || 'Kelas'}</p>
-                </div>
-              </div>
 
-              <div className="mt-3 rounded-xl border border-slate-100 bg-white p-3.5">
-                <p className="text-[10px] font-semibold text-slate-500">Akun dibuat</p>
-                <p className="mt-1 text-sm font-bold text-slate-800">
-                  {selectedChatProfile.createdAt
-                    ? new Date(selectedChatProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-                    : 'Belum tersedia'}
-                </p>
+                <div className="mt-3 rounded-xl border border-slate-100 bg-white p-3.5 shadow-sm">
+                  <p className="text-[10px] font-semibold text-slate-500">Akun dibuat</p>
+                  <p className="mt-1 text-sm font-bold text-slate-800">
+                    {selectedChatProfile.createdAt
+                      ? new Date(selectedChatProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                      : 'Belum tersedia'}
+                  </p>
+                </div>
               </div>
             </div>
-          </ExclusiveProfileFrame>
+          </ExclusiveProfileShell>
         </div>
       )}
       </div>
