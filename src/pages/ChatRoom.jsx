@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileFrame, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -745,7 +745,7 @@ export default function ChatRoom() {
 
       {selectedChatProfile && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" onClick={() => setSelectedChatProfile(null)}>
-          <div className="w-full max-w-md overflow-hidden rounded-[28px] bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <ExclusiveProfileFrame borderValue={selectedChatProfile.borderValue} className="w-full max-w-md" onClick={(event) => event.stopPropagation()}>
             <ExclusiveProfileBanner
               bannerUrl={selectedChatProfile.banner}
               borderValue={selectedChatProfile.borderValue}
@@ -807,7 +807,7 @@ export default function ChatRoom() {
                 </p>
               </div>
             </div>
-          </div>
+          </ExclusiveProfileFrame>
         </div>
       )}
       </div>

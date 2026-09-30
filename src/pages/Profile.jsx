@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileFrame, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowUp,
@@ -616,7 +616,7 @@ export default function Profile() {
 
           {showProfileModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity" onClick={() => setShowProfileModal(false)}>
-              <div className="relative w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+              <ExclusiveProfileFrame borderValue={borderToken} className="w-full max-w-sm" onClick={(event) => event.stopPropagation()}>
                 
                 {/* Banner Profil Popup */}
                 <ExclusiveProfileBanner
@@ -694,7 +694,7 @@ export default function Profile() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </ExclusiveProfileFrame>
             </div>
           )}
 

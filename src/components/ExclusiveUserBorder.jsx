@@ -87,6 +87,52 @@ export const getExclusiveUserPreset = (value) => {
 
 export const getUserBorderValue = (user = {}) => normalizeBorderValue(user?.custom_border_color || user?.border_type || '');
 
+const PROFILE_FRAME_COLORS = {
+  DEVELOPER: ['#111827', '#F9FAFB', '#9CA3AF'],
+  DEV_TEAM: ['#38BDF8', '#FFFFFF', '#6366F1'],
+  DONATUR: ['#F59E0B', '#FEF3C7', '#EA580C'],
+  EXCLUSIVE: ['#D946EF', '#F5D0FE', '#6366F1'],
+  SECRET_PURPLE: ['#7E22CE', '#E9D5FF', '#9333EA'],
+  SECRET_PINK: ['#EC4899', '#FCE7F3', '#F472B6'],
+};
+
+export function ExclusiveProfileFrame({ borderValue = '', customBorderColor = '', borderType = '', className = '', onClick, children }) {
+  const token = normalizeBorderValue(borderType || customBorderColor || borderValue);
+  const isHex = token.startsWith('#');
+  const colors = PROFILE_FRAME_COLORS[token];
+  const isPremium = Boolean(colors);
+
+  return (
+    <div
+      className={`relative isolate rounded-[30px] ${isPremium ? 'p-[2px]' : isHex ? 'p-px' : 'border border-slate-200'} ${className}`}
+      style={isPremium ? { boxShadow: `0 12px 40px ${colors[0]}30, 0 2px 10px ${colors[2]}25` } : isHex ? { backgroundColor: token } : undefined}
+    >
+      {isPremium && (
+        <div
+          className="absolute -inset-[100%] animate-[profileFrameSpin_7s_linear_infinite] opacity-90"
+          style={{ backgroundImage: `conic-gradient(from 0deg, ${colors[0]}, ${colors[1]}, ${colors[2]}, ${colors[0]})` }}
+        />
+      )}
+      <div
+        className={`relative z-10 overflow-hidden rounded-[28px] bg-white ${isPremium ? 'ring-1 ring-white/80' : ''}`}
+        onClick={onClick}
+      >
+        {children}
+      </div>
+      {isPremium && (
+        <style>{`
+          @keyframes profileFrameSpin {
+            to { transform: rotate(360deg); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-\\[profileFrameSpin_7s_linear_infinite\\] { animation: none !important; }
+          }
+        `}</style>
+      )}
+    </div>
+  );
+}
+
 const PROFILE_BANNER_GRADIENTS = {
   DEVELOPER: 'from-slate-300 via-slate-700 to-slate-200',
   DEV_TEAM: 'from-sky-100 via-indigo-300 to-sky-400',
