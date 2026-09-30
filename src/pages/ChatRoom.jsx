@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileShell } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -49,7 +49,7 @@ const AutoEmbedLink = ({ url, isMine, onImageLoaded }) => {
   const linkStyle = isMine ? "text-indigo-100 underline font-medium break-all" : "text-indigo-600 underline font-medium break-all";
 
   return (
-    <span className="inline-block max-w-full align-top">
+    <span className="inline-block max-w-full align-top overflow-hidden">
       {status !== 'is-image' && (
         <a href={url} target="_blank" rel="noopener noreferrer" className={linkStyle}>
           {url}
@@ -129,38 +129,38 @@ const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, fo
 
   return (
     <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1`}>
-      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2.5 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
 
         {/* WADAH FOTO PROFIL DENGAN EXCLUSIVE BORDER */}
-        <div className="flex flex-col items-center shrink-0 w-8 mt-0.5">
+        <div className="flex flex-col items-center shrink-0 w-9 mt-0.5">
           {showAvatar ? (
             <ExclusiveProfileShell 
               email={sender?.email}
               customBorderColor={borderValue}
               borderValue={borderValue}
               variant="avatar"
-              className="h-8 w-8"
+              className="h-9 w-9 shrink-0"
             >
-              <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+              <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 flex items-center justify-center border border-slate-200/60 shadow-inner">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">
+                  <div className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
                     {getDisplayName(sender).charAt(0)}
                   </div>
                 )}
               </div>
             </ExclusiveProfileShell>
           ) : (
-            <div className="h-8 w-8" />
+            <div className="h-9 w-9 shrink-0" />
           )}
         </div>
 
         {/* WADAH KONTEN CHAT */}
-        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.5rem)]`}>
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 flex-1 max-w-[calc(100%-2.5rem)]`}>
 
           {showAvatar && !isMine && (
-            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
+            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1 truncate max-w-full">
               {getDisplayName(sender)}
             </span>
           )}
@@ -169,13 +169,12 @@ const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, fo
             onClick={() => {
               if (isMine && !isDeleted) setMessageToDelete(item);
             }}
-            className={`relative max-w-full cursor-pointer active:scale-[0.98] transition-all ${bubbleClass}`}
+            className={`relative max-w-full cursor-pointer active:scale-[0.98] transition-transform ${bubbleClass}`}
           >
-
             <div className={`text-xs leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : ''}`}>
               {isDeleted ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="italic text-[11px]">Pesan ini telah dihapus</span>
+                <span className="flex items-center gap-1.5 opacity-90">
+                  <span className="italic text-[11px] font-medium">Pesan ini telah dihapus</span>
                   <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-300 text-[8px] font-bold text-slate-600">×</span>
                 </span>
               ) : (
@@ -183,10 +182,10 @@ const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, fo
               )}
             </div>
 
-            <span className={`text-[9px] absolute font-medium z-10 ${
+            <span className={`text-[9px] absolute font-bold z-10 ${
               isImageMode
-                ? 'bottom-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm'
-                : `bottom-1.5 right-2.5 ${isMine ? 'text-indigo-200' : 'text-slate-400'}`
+                ? 'bottom-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm shadow-sm'
+                : `bottom-1.5 right-2.5 ${isMine ? 'text-indigo-200/90' : 'text-slate-400/90'}`
             }`}>
               {formatTime(item.created_at)}
             </span>
@@ -458,54 +457,57 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-[calc(100dvh-135px)] relative">
+      <div className="flex flex-col h-[calc(100dvh-135px)] relative max-w-full overflow-hidden">
 
         {/* HEADER BAR DENGAN STYLE SAMA DENGAN PAGE LAIN */}
-        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0">
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0 shadow-sm">
           <button
             type="button"
             onClick={() => navigate('/profile')}
-            className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
+            className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
           </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xs shrink-0 shadow-2xs">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-sm shrink-0 shadow-inner">
               <FontAwesomeIcon icon={faComments} />
             </div>
-            <div>
-              <h1 className="text-sm font-bold text-slate-800 leading-tight">
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-slate-800 leading-tight truncate">
                 {room ? room.name : 'Room Chat Kelas'}
               </h1>
-              <p className="text-[10px] font-medium text-slate-400">Pesan terhapus otomatis 7 hari</p>
+              <p className="text-[10px] font-medium text-slate-400 truncate">Pesan terhapus otomatis 7 hari</p>
             </div>
           </div>
         </div>
 
         {loading && messages.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="flex flex-col items-center gap-2 text-slate-400">
-              <FontAwesomeIcon icon={faSpinner} spin className="text-xl text-indigo-600" />
-              <span className="text-xs font-bold">Memuat percakapan...</span>
+            <div className="flex flex-col items-center gap-2.5 text-slate-400">
+              <FontAwesomeIcon icon={faSpinner} spin className="text-2xl text-indigo-500 drop-shadow-sm" />
+              <span className="text-xs font-bold tracking-wide">Memuat percakapan...</span>
             </div>
           </div>
         ) : !user?.kelas_id ? (
-          <div className="flex flex-1 items-center justify-center">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm max-w-sm">
+          <div className="flex flex-1 items-center justify-center p-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm max-w-sm w-full">
+              <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                 <FontAwesomeIcon icon={faComments} className="text-xl" />
+              </div>
               <p className="text-sm font-bold text-slate-800">Kamu belum bergabung di kelas.</p>
-              <p className="mt-1 text-xs text-slate-500 font-medium">Silakan gabung kelas terlebih dahulu untuk memulai obrolan.</p>
+              <p className="mt-1.5 text-xs text-slate-500 font-medium">Silakan gabung kelas terlebih dahulu untuk memulai obrolan.</p>
             </div>
           </div>
         ) : (
           <div
             ref={listRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto scroll-smooth space-y-[2px] pb-20 pr-1"
+            className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth space-y-1 pb-[70px] pr-1 scrollbar-hide"
           >
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
-                <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100 shadow-2xs">
+                <div className="bg-indigo-50/80 text-indigo-600 px-4 py-2.5 rounded-xl text-xs font-bold border border-indigo-100 shadow-sm backdrop-blur-sm">
                   Mulai obrolan pertama di kelas ini!
                 </div>
               </div>
@@ -513,7 +515,8 @@ export default function ChatRoom() {
               messages.map((item, index) => {
                 const senderId = item.user_id || item.user?.id;
                 const isMine = String(senderId) === String(user.id);
-                const borderValue = item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || '';
+                // Dapatkan Border dari Sender
+                const borderValue = item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || item.user?.email || (isMine ? user?.email : '') || '';
 
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
@@ -538,17 +541,17 @@ export default function ChatRoom() {
         )}
       </div>
 
-      {/* INPUT BAR PADA DESAIN BAWAH */}
+      {/* INPUT BAR BAWAH */}
       {user?.kelas_id && (
-        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5">
+        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
           <div className="max-w-4xl mx-auto">
-            <form onSubmit={handleSend} className="flex items-center gap-2">
+            <form onSubmit={handleSend} className="flex items-center gap-2.5">
               <input
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Ketik pesan atau paste URL gambar..."
-                className="flex-1 h-10 rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-800 shadow-2xs outline-none focus:border-indigo-600 focus:bg-white transition-all placeholder:text-slate-400"
+                className="flex-1 h-[42px] rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-800 shadow-inner outline-none focus:border-indigo-600 focus:bg-white transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
                 disabled={sending}
@@ -557,7 +560,7 @@ export default function ChatRoom() {
               <button
                 type="submit"
                 disabled={sending || !draft.trim()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95 cursor-pointer"
+                className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95 cursor-pointer"
               >
                 {sending ? (
                   <FontAwesomeIcon icon={faSpinner} spin className="text-xs" />
