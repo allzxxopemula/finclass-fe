@@ -436,17 +436,16 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // PREMIUM AUTO AURA CARD - MODIFIED
-  // Efek border membesar-mengecil (breathing) & partikel burst dari bawah
+  // EFEK CARD AURA & PARTIKEL RAMAI YANG DIPICU SAAT PROFIL DIBUKA (TRIGGER 1X)
   const aura = (() => {
-    if (isPinkBorder) return { a:'#F472B6', b:'#F9A8D4', c:'#FDA4AF', glow:'rgba(244,114,182,0.95)', soft:'rgba(249,168,212,0.55)' };
-    if (isPurpleBorder) return { a:'#7E22CE', b:'#A855F7', c:'#C084FC', glow:'rgba(168,85,247,0.95)', soft:'rgba(216,180,254,0.55)' };
-    if (isExclusivePurple) return { a:'#C026D3', b:'#A855F7', c:'#6366F1', glow:'rgba(168,85,247,0.95)', soft:'rgba(217,70,239,0.55)' };
-    if (isDonatur) return { a:'#F59E0B', b:'#FDE047', c:'#EA580C', glow:'rgba(245,158,11,0.95)', soft:'rgba(253,224,71,0.55)' };
-    if (isDevTeam) return { a:'#38BDF8', b:'#818CF8', c:'#6366F1', glow:'rgba(56,189,248,0.95)', soft:'rgba(129,140,248,0.55)' };
-    if (isDeveloper) return { a:'#9CA3AF', b:'#FFFFFF', c:'#111827', glow:'rgba(255,255,255,0.95)', soft:'rgba(156,163,175,0.55)' };
-    if (isHexBorder) return { a:preset.color, b:preset.color, c:'#FFFFFF', glow:preset.color, soft:`${preset.color}88` };
-    return { a:'#60A5FA', b:'#A78BFA', c:'#22D3EE', glow:'rgba(96,165,250,0.85)', soft:'rgba(167,139,250,0.45)' };
+    if (isPinkBorder) return { a:'#F472B6', b:'#F9A8D4', c:'#FDA4AF', glow:'rgba(244,114,182,0.95)', soft:'rgba(249,168,212,0.65)' };
+    if (isPurpleBorder) return { a:'#7E22CE', b:'#A855F7', c:'#C084FC', glow:'rgba(168,85,247,0.95)', soft:'rgba(216,180,254,0.65)' };
+    if (isExclusivePurple) return { a:'#C026D3', b:'#A855F7', c:'#6366F1', glow:'rgba(168,85,247,0.95)', soft:'rgba(217,70,239,0.65)' };
+    if (isDonatur) return { a:'#F59E0B', b:'#FDE047', c:'#EA580C', glow:'rgba(245,158,11,0.95)', soft:'rgba(253,224,71,0.65)' };
+    if (isDevTeam) return { a:'#38BDF8', b:'#818CF8', c:'#6366F1', glow:'rgba(56,189,248,0.95)', soft:'rgba(129,140,248,0.65)' };
+    if (isDeveloper) return { a:'#9CA3AF', b:'#FFFFFF', c:'#111827', glow:'rgba(255,255,255,0.95)', soft:'rgba(156,163,175,0.65)' };
+    if (isHexBorder) return { a:preset.color, b:preset.color, c:'#FFFFFF', glow:preset.color, soft:`${preset.color}aa` };
+    return { a:'#60A5FA', b:'#A78BFA', c:'#22D3EE', glow:'rgba(96,165,250,0.85)', soft:'rgba(167,139,250,0.55)' };
   })();
 
   return (
@@ -461,24 +460,34 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         '--aura-border': isHexBorder ? preset.color : aura.a,
       }}
     >
-      {/* Outer Outline with elegant breathing effect */}
+      {/* Outer Outline dengan Efek Membesar-Mengecil (Breathing) & Glow Redup Terang */}
       <div className="absolute -inset-[5px] rounded-[35px] premium-aura-outline pointer-events-none z-0" />
       <div className="absolute -inset-[2px] rounded-[32px] premium-aura-core pointer-events-none z-[1]" />
 
-      {/* Burst Particles Container (Berulang dengan jeda berkat durasi animasi) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[8] rounded-[30px]">
-        <b className="card-up-particle cup1" />
-        <b className="card-up-particle cup2" />
-        <b className="card-up-particle cup3" />
-        <b className="card-up-particle cup4" />
-        <b className="card-up-particle cup5" />
-        <b className="card-up-particle cup6" />
-        <b className="card-up-particle cup7" />
-        <StarSparkle className="card-up-star cstar1 text-white" />
-        <StarSparkle className="card-up-star cstar2 text-white" />
+      {/* Rombongan Partikel Ramai yang Muncul dari Bawah Container Card Naik Keatas (Trigger 1 kali pas dibuka) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[20] rounded-[30px]">
+        {/* Partikel Bulat Ramai */}
+        <b className="burst-p burst-p-1" />
+        <b className="burst-p burst-p-2" />
+        <b className="burst-p burst-p-3" />
+        <b className="burst-p burst-p-4" />
+        <b className="burst-p burst-p-5" />
+        <b className="burst-p burst-p-6" />
+        <b className="burst-p burst-p-7" />
+        <b className="burst-p burst-p-8" />
+        <b className="burst-p burst-p-9" />
+        <b className="burst-p burst-p-10" />
+        <b className="burst-p burst-p-11" />
+        <b className="burst-p burst-p-12" />
+
+        {/* Partikel Sparkle/Bintang Tambahan */}
+        <StarSparkle className="burst-star burst-star-1" />
+        <StarSparkle className="burst-star burst-star-2" />
+        <StarSparkle className="burst-star burst-star-3" />
+        <StarSparkle className="burst-star burst-star-4" />
       </div>
 
-      {/* Main Content Card */}
+      {/* Main Content Card Container */}
       <div className="relative h-full w-full rounded-[28px] bg-white/95 backdrop-blur-md ring-1 ring-white/60 z-10 overflow-hidden shadow-inner">
         {children}
       </div>
@@ -489,87 +498,114 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           transform: translateZ(0);
         }
 
-        /* Border Membesar Mengecil (Breath & Glow) tanpa muter-muter aneh */
+        /* Border Membesar-Mengecil (Breathing) dengan Glow Redup-Terang */
         .premium-aura-outline {
           background: linear-gradient(135deg, var(--aura-a), var(--aura-b), var(--aura-c), var(--aura-a));
           background-size: 200% 200%;
-          box-shadow: 0 0 15px var(--aura-soft), 0 0 30px var(--aura-glow);
+          box-shadow: 0 0 15px var(--aura-soft), 0 0 32px var(--aura-glow);
           animation: cardBreathGlow 4s ease-in-out infinite, gradientFlow 8s linear infinite;
         }
 
         .premium-aura-core {
-          border: 2px solid rgba(255,255,255,0.6);
-          box-shadow: inset 0 0 10px rgba(255,255,255,0.5), inset 0 0 15px var(--aura-soft);
+          border: 2px solid rgba(255,255,255,0.7);
+          box-shadow: inset 0 0 10px rgba(255,255,255,0.6), inset 0 0 16px var(--aura-soft);
           animation: cardCoreBreath 4s ease-in-out infinite;
         }
 
-        /* Konfigurasi bentuk Particle dan Star untuk melayang ke atas */
-        .card-up-particle {
+        /* Style dasar untuk partikel semburan bawah ke atas */
+        .burst-p {
           position: absolute;
-          bottom: 0px;
-          width: 6px;
-          height: 6px;
+          bottom: -10px;
           border-radius: 50%;
-          background: #fff;
-          box-shadow: 0 0 8px #fff, 0 0 15px var(--aura-glow);
+          background: #ffffff;
+          box-shadow: 0 0 10px #ffffff, 0 0 20px var(--aura-glow), 0 0 30px var(--aura-soft);
           opacity: 0;
+          animation: floatUpOnce 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        .card-up-star {
+        .burst-star {
           position: absolute;
-          bottom: -5px;
-          width: 14px;
-          height: 14px;
-          filter: drop-shadow(0 0 8px var(--aura-glow));
+          bottom: -15px;
+          color: #ffffff;
+          filter: drop-shadow(0 0 10px var(--aura-glow)) drop-shadow(0 0 20px var(--aura-soft));
           opacity: 0;
+          animation: floatStarUpOnce 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        /* Animasi Naik & Fade - Durasi diset 6s agar ada jeda ~4.5 detik setelah partikel selesai */
-        @keyframes particleBurstUp {
-          0% { opacity: 0; transform: translateY(15px) scale(0.5); }
-          5% { opacity: 1; transform: translateY(0px) scale(1.2); }
-          15% { opacity: 0.8; transform: translateY(-80px) scale(1); }
-          25% { opacity: 0; transform: translateY(-160px) scale(0.3); }
-          100% { opacity: 0; transform: translateY(-160px) scale(0); }
+        /* Posisi horizontal & ukuran variatif untuk partikel ramai */
+        .burst-p-1  { left: 5%;  width: 6px;  height: 6px;  animation-delay: 0.05s; }
+        .burst-p-2  { left: 14%; width: 9px;  height: 9px;  animation-delay: 0.2s;  }
+        .burst-p-3  { left: 22%; width: 5px;  height: 5px;  animation-delay: 0.12s; }
+        .burst-p-4  { left: 33%; width: 10px; height: 10px; animation-delay: 0.28s; }
+        .burst-p-5  { left: 42%; width: 7px;  height: 7px;  animation-delay: 0.08s; }
+        .burst-p-6  { left: 51%; width: 8px;  height: 8px;  animation-delay: 0.25s; }
+        .burst-p-7  { left: 60%; width: 5px;  height: 5px;  animation-delay: 0.15s; }
+        .burst-p-8  { left: 68%; width: 11px; height: 11px; animation-delay: 0.32s; }
+        .burst-p-9  { left: 77%; width: 6px;  height: 6px;  animation-delay: 0.1s;  }
+        .burst-p-10 { left: 85%; width: 9px;  height: 9px;  animation-delay: 0.22s; }
+        .burst-p-11 { left: 92%; width: 5px;  height: 5px;  animation-delay: 0.04s; }
+        .burst-p-12 { left: 48%; width: 12px; height: 12px; animation-delay: 0.35s; }
+
+        .burst-star-1 { left: 18%; width: 16px; height: 16px; animation-delay: 0.18s; }
+        .burst-star-2 { left: 38%; width: 20px; height: 20px; animation-delay: 0.3s;  }
+        .burst-star-3 { left: 64%; width: 18px; height: 18px; animation-delay: 0.12s; }
+        .burst-star-4 { left: 82%; width: 15px; height: 15px; animation-delay: 0.26s; }
+
+        /* Keyframe Animasi 1x Naik Ke Atas Lalu Hilang */
+        @keyframes floatUpOnce {
+          0% {
+            opacity: 0;
+            transform: translateY(0px) scale(0.3);
+          }
+          15% {
+            opacity: 1;
+            transform: translateY(-60px) scale(1.3);
+          }
+          60% {
+            opacity: 0.8;
+            transform: translateY(-220px) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-380px) scale(0.2);
+          }
         }
 
-        /* Varian gerakan sedikit menyamping */
-        @keyframes particleBurstUpAlt {
-          0% { opacity: 0; transform: translateY(20px) scale(0.4) rotate(0deg); }
-          6% { opacity: 0.9; transform: translateY(-5px) scale(1.1) rotate(45deg); }
-          18% { opacity: 0.7; transform: translateY(-100px) scale(0.9) rotate(90deg); }
-          28% { opacity: 0; transform: translateY(-200px) scale(0.2) rotate(135deg); }
-          100% { opacity: 0; transform: translateY(-200px) scale(0) rotate(135deg); }
+        @keyframes floatStarUpOnce {
+          0% {
+            opacity: 0;
+            transform: translateY(0px) scale(0.2) rotate(0deg);
+          }
+          20% {
+            opacity: 1;
+            transform: translateY(-80px) scale(1.4) rotate(90deg);
+          }
+          65% {
+            opacity: 0.7;
+            transform: translateY(-250px) scale(0.9) rotate(210deg);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-400px) scale(0.1) rotate(360deg);
+          }
         }
-
-        /* Timing bervariasi agar kemunculannya berbarengan di setiap wave per 6s */
-        .cup1 { left: 15%; animation: particleBurstUp 6s ease-out infinite 0.1s; }
-        .cup2 { left: 35%; width: 4px; height: 4px; animation: particleBurstUpAlt 6s ease-out infinite 0.3s; }
-        .cup3 { left: 55%; width: 5px; height: 5px; animation: particleBurstUp 6s ease-out infinite 0s; }
-        .cup4 { left: 75%; animation: particleBurstUpAlt 6s ease-out infinite 0.2s; }
-        .cup5 { left: 85%; width: 4px; height: 4px; animation: particleBurstUp 6s ease-out infinite 0.4s; }
-        .cup6 { left: 25%; animation: particleBurstUpAlt 6s ease-out infinite 0.15s; }
-        .cup7 { left: 65%; width: 7px; height: 7px; animation: particleBurstUp 6s ease-out infinite 0.35s; }
-
-        .cstar1 { left: 20%; animation: particleBurstUpAlt 6s ease-out infinite 0.25s; }
-        .cstar2 { left: 70%; animation: particleBurstUp 6s ease-out infinite 0.05s; }
 
         @keyframes cardBreathGlow {
           0%, 100% {
-            transform: scale(0.995);
-            box-shadow: 0 0 15px var(--aura-soft), 0 0 30px var(--aura-glow);
+            transform: scale(0.992);
+            box-shadow: 0 0 15px var(--aura-soft), 0 0 28px var(--aura-glow);
             opacity: 0.85;
           }
           50% {
-            transform: scale(1.015);
-            box-shadow: 0 0 20px var(--aura-soft), 0 0 45px var(--aura-glow), 0 0 70px var(--aura-soft);
+            transform: scale(1.018);
+            box-shadow: 0 0 22px var(--aura-soft), 0 0 48px var(--aura-glow), 0 0 75px var(--aura-soft);
             opacity: 1;
           }
         }
 
         @keyframes cardCoreBreath {
-          0%, 100% { opacity: 0.7; transform: scale(0.995); }
-          50% { opacity: 1; transform: scale(1.015); }
+          0%, 100% { opacity: 0.65; transform: scale(0.992); }
+          50% { opacity: 1; transform: scale(1.018); }
         }
 
         @keyframes gradientFlow {
