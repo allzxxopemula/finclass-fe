@@ -700,7 +700,7 @@ export default function Profile() {
 
           {showBorderModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" onClick={() => setShowBorderModal(false)}>
-              <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                <div className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-[28px] bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
                 <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">Warna Border</h3>
@@ -773,18 +773,23 @@ export default function Profile() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    ['blue', 'Ocean Blue', '#2563eb'],
-                    ['pink', 'Rose Pink', '#db2777'],
-                    ['green', 'Emerald Green', '#059669'],
-                    ['purple', 'Royal Purple', '#7c3aed']
+                    ['blue', 'Ocean Blue', 'linear-gradient(135deg, #2563eb 50%, #93c5fd 50%)'],
+                    ['pink', 'Rose Pink', 'linear-gradient(135deg, #db2777 50%, #f9a8d4 50%)'],
+                    ['green', 'Emerald Green', 'linear-gradient(135deg, #059669 50%, #6ee7b7 50%)'],
+                    ['purple', 'Royal Purple', 'linear-gradient(135deg, #7c3aed 50%, #c4b5fd 50%)'],
+                    ['mono', 'Black & White', 'linear-gradient(135deg, #171717 50%, #f5f5f5 50%)'],
+                    ['neo', 'Neo Brutalism', 'linear-gradient(135deg, #171717 25%, #c6f600 25%, #c6f600 75%, #fff 75%)'],
+                    ['soft-pink', 'Soft Blossom', 'linear-gradient(135deg, #fbcfe8, #f472b6)'],
+                    ['soft-blue', 'Sky Mist', 'linear-gradient(135deg, #bae6fd, #38bdf8)']
                   ].map(([value, label, color]) => (
                     <button 
                       key={value} 
                       type="button" 
                       onClick={() => { setTheme(value); setShowThemeModal(false); }} 
+                      aria-pressed={theme === value}
                       className={`flex flex-col items-center gap-2.5 rounded-2xl border p-4 transition-all cursor-pointer ${theme === value ? 'border-slate-800 bg-slate-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
                     >
-                      <span className="h-9 w-9 rounded-full shadow-sm" style={{ backgroundColor: color }} />
+                      <span className="h-9 w-9 rounded-full border border-black/10 shadow-sm" style={{ background: color }} />
                       <span className="text-[11px] font-bold text-slate-700">{label}</span>
                     </button>
                   ))}
