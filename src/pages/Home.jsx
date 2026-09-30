@@ -137,10 +137,10 @@ export default function Home() {
 
   return (
     <MainLayout>
-      {/* Top Header & Profile Section */}
-      <div className="flex items-center justify-between pt-4 pb-2 px-1">
+      {/* === HEADER PROFILE === */}
+      <div className="flex items-center justify-between pt-3 pb-2 px-1">
         <div className="flex items-center gap-3.5">
-          <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-[46px] w-[46px] shadow-sm">
+          <ExclusiveProfileShell borderValue={borderToken} customBorderColor={customBorderColor} variant="avatar" className="h-11 w-11 shadow-sm cursor-pointer" onClick={() => navigate('/profile')}>
             <div className="h-full w-full rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 overflow-hidden border border-slate-200">
               {userAvatar ? (
                 <img
@@ -161,11 +161,11 @@ export default function Home() {
           </ExclusiveProfileShell>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
                 {user?.role?.replace('_', ' ') || 'User'}
               </span>
               {exclusivePreset && exclusivePreset.label && String(exclusivePreset.label).trim() && (
-                <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-bold text-white bg-gradient-to-r ${exclusivePreset.accent}`}>
+                <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-bold text-white bg-gradient-to-r ${exclusivePreset.accent} shadow-sm`}>
                   {exclusivePreset.label}
                 </span>
               )}
@@ -174,108 +174,108 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="px-3 py-1.5 bg-[var(--theme-color)]/10 border border-[var(--theme-color)]/20 rounded-[12px] text-[var(--theme-color)] text-[10px] font-bold flex items-center gap-1.5 max-w-[120px]">
+        <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-[12px] text-indigo-600 text-[10px] font-bold flex items-center gap-1.5 max-w-[130px] shadow-sm">
           <FontAwesomeIcon icon={faBuildingColumns} />
-          <span className="truncate">{dashboardData?.kelas?.nama_kelas || 'Kelas'}</span>
+          <span className="truncate">{dashboardData?.kelas?.nama_kelas || 'Belum Ada Kelas'}</span>
         </div>
       </div>
 
       {loading ? (
         <div className="my-5 space-y-4 animate-pulse px-1">
-          <div className="h-40 rounded-[24px] bg-slate-200" />
-          <div className="h-28 rounded-[20px] bg-slate-100" />
-          <div className="h-48 rounded-[20px] bg-slate-100" />
+          <div className="h-40 rounded-[28px] bg-slate-200" />
+          <div className="h-28 rounded-[24px] bg-slate-100" />
+          <div className="h-48 rounded-[24px] bg-slate-100" />
         </div>
       ) : !dashboardData?.kelas ? (
-        <div className="p-8 bg-white border border-slate-200 rounded-[24px] text-center space-y-4 shadow-sm my-6">
+        <div className="p-8 bg-white border border-slate-200 rounded-[28px] text-center space-y-4 shadow-sm my-6">
           <div className="w-14 h-14 bg-amber-50 border border-amber-100 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-sm">
             <FontAwesomeIcon icon={faTriangleExclamation} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Belum Ada Kelas</h3>
+            <h3 className="text-lg font-bold text-slate-800">Belum Terhubung ke Kelas</h3>
             <p className="text-slate-500 text-sm leading-relaxed mt-2 max-w-xs mx-auto">
               {user?.role === 'bendahara' 
-                ? 'Buat Room Kelas baru di profil untuk mulai mengelola kas.'
-                : 'Minta kode akses dari bendahara untuk bergabung.'}
+                ? 'Kamu belum membuat Room Kas Kelas. Silakan masuk ke Profil untuk mulai membuat.'
+                : 'Kamu belum bergabung. Masukkan Kode Akses dari bendahara di menu Profil.'}
             </p>
           </div>
           <button 
             onClick={() => navigate('/profile')}
-            className="px-6 py-3 bg-[var(--theme-color)] text-white font-bold rounded-[14px] text-sm inline-flex items-center gap-2 shadow-md hover:opacity-90 transition active:scale-95"
+            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-[14px] text-sm inline-flex items-center gap-2 shadow-md shadow-indigo-600/20 hover:opacity-90 transition active:scale-95 cursor-pointer"
           >
-            <span>Buka Profil</span>
+            <span>Buka Pengaturan Kelas</span>
             <FontAwesomeIcon icon={faArrowRight} />
           </button>
         </div>
       ) : (
-        <div className="space-y-5 px-1 mt-3 pb-4">
+        <div className="space-y-4 px-1 mt-3 pb-4">
           
-          {/* Kartu Saldo Kas */}
-          <div className="bg-[var(--theme-color)] text-white p-6 rounded-[28px] shadow-lg relative overflow-hidden print:bg-white print:text-slate-900 print:border print:border-slate-200 print:shadow-none">
+          {/* === KARTU SALDO KAS === */}
+          <div className="bg-indigo-600 text-white p-6 rounded-[28px] shadow-lg shadow-indigo-600/20 relative overflow-hidden print:bg-white print:text-slate-900 print:border print:border-slate-200 print:shadow-none">
             {/* Dekorasi Latar Belakang */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-black opacity-10 rounded-full blur-xl -ml-8 -mb-8 pointer-events-none"></div>
 
             <div className="relative z-10 flex justify-between items-start">
               <div>
-                <p className="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">Total Kas Kelas</p>
-                <h1 className="text-[32px] leading-none font-bold">
+                <p className="text-[11px] font-semibold text-indigo-100 uppercase tracking-widest mb-1">Total Saldo Kas</p>
+                <h1 className="text-[32px] leading-tight font-black tracking-tight">
                   Rp {Number(dashboardData?.saldo || 0).toLocaleString('id-ID')}
                 </h1>
               </div>
-              <div className="w-11 h-11 bg-white/20 rounded-[16px] flex items-center justify-center backdrop-blur-md shadow-sm border border-white/20">
-                <FontAwesomeIcon icon={faWallet} className="text-white text-lg" />
+              <div className="w-12 h-12 bg-white/10 rounded-[16px] flex items-center justify-center backdrop-blur-md shadow-sm border border-white/20">
+                <FontAwesomeIcon icon={faWallet} className="text-white text-xl" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/20 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border border-white/10 shrink-0">
-                  <FontAwesomeIcon icon={faArrowUp} className="text-sm" />
+                  <FontAwesomeIcon icon={faArrowUp} className="text-[13px]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-white/80">Pemasukan (Minggu)</p>
-                  <p className="text-sm font-bold mt-0.5">Rp {Number(dashboardData?.pemasukan_minggu_ini || 0).toLocaleString('id-ID')}</p>
+                  <p className="text-[10px] font-medium text-indigo-100">Masuk Minggu Ini</p>
+                  <p className="text-[13px] font-bold mt-0.5">Rp {Number(dashboardData?.pemasukan_minggu_ini || 0).toLocaleString('id-ID')}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-black/10 backdrop-blur-sm flex items-center justify-center text-white border border-black/5 shrink-0">
-                  <FontAwesomeIcon icon={faArrowDown} className="text-sm" />
+                  <FontAwesomeIcon icon={faArrowDown} className="text-[13px]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-white/80">Total Pengeluaran</p>
-                  <p className="text-sm font-bold mt-0.5">Rp {Number(dashboardData?.total_pengeluaran || 0).toLocaleString('id-ID')}</p>
+                  <p className="text-[10px] font-medium text-indigo-100">Total Pengeluaran</p>
+                  <p className="text-[13px] font-bold mt-0.5">Rp {Number(dashboardData?.total_pengeluaran || 0).toLocaleString('id-ID')}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Grid Ringkasan Status */}
-          <div className="grid grid-cols-4 gap-3 bg-white p-2 rounded-[24px] border border-slate-100 shadow-sm">
+          {/* === GRID RINGKASAN === */}
+          <div className="grid grid-cols-4 gap-2 bg-white p-2.5 rounded-[24px] border border-slate-100 shadow-sm">
             {[
-              [faUsers, 'Anggota', dashboardData?.jumlah_siswa || members.length, 'text-slate-600 bg-slate-50 border-slate-100'],
-              [faUserCheck, 'Lunas', paidMembers, 'text-slate-600 bg-slate-50 border-slate-100'],
-              [faUserClock, 'Belum', Math.max(0, members.length - paidMembers), 'text-slate-600 bg-slate-50 border-slate-100'],
-              [faCalendarDays, 'Tarik', dashboardData?.kelas?.hari_penarikan || 'Rabu', 'text-slate-600 bg-slate-50 border-slate-100']
+              [faUsers, 'Anggota', dashboardData?.jumlah_siswa || members.length, 'text-indigo-600 bg-indigo-50 border-indigo-100'],
+              [faUserCheck, 'Lunas', paidMembers, 'text-emerald-600 bg-emerald-50 border-emerald-100'],
+              [faUserClock, 'Belum', Math.max(0, members.length - paidMembers), 'text-amber-600 bg-amber-50 border-amber-100'],
+              [faCalendarDays, 'Tarik', dashboardData?.kelas?.hari_penarikan || 'Rabu', 'text-violet-600 bg-violet-50 border-violet-100']
             ].map(([icon, label, value, colorClass], index) => (
               <div key={label} className={`text-center py-2 relative ${index !== 3 ? 'after:content-[""] after:absolute after:right-0 after:top-[20%] after:h-[60%] after:w-[1px] after:bg-slate-100' : ''}`}>
-                <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-[12px] border text-sm ${colorClass}`}>
+                <div className={`mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-[12px] border text-[13px] shadow-sm ${colorClass}`}>
                   <FontAwesomeIcon icon={icon} />
                 </div>
-                <p className="text-[10px] font-bold text-slate-400 tracking-wide">{label}</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{value}</p>
+                <p className="text-[10px] font-bold text-slate-400 tracking-wide truncate px-1">{label}</p>
+                <p className="text-[13px] font-black text-slate-800 mt-0.5 truncate px-1">{value}</p>
               </div>
             ))}
           </div>
 
-          {/* Banner Slider */}
+          {/* === SLIDER BANNER === */}
           <div
-            className="relative overflow-hidden rounded-[24px] shadow-sm touch-pan-y group"
+            className="relative overflow-hidden rounded-[24px] shadow-sm touch-pan-y group cursor-pointer border border-slate-100"
             onPointerDown={handleBannerPointerDown}
             onPointerUp={handleBannerPointerUp}
           >
-            <a href={banners[activeBanner].href} className="block bg-slate-100 aspect-[21/9] sm:aspect-[3/1] transition-transform duration-300" style={{ backgroundColor: banners[activeBanner].color }} aria-label={`Buka banner ${activeBanner + 1}`}>
+            <a href={banners[activeBanner].href} className="block aspect-[21/9] sm:aspect-[3/1] transition-transform duration-300" style={{ backgroundColor: banners[activeBanner].color }} aria-label={`Buka banner ${activeBanner + 1}`}>
               <img src={banners[activeBanner].image} alt="Banner FinClass" onError={event => { event.currentTarget.style.display = 'none'; }} className="block w-full h-full object-cover" draggable="false" />
             </a>
             
@@ -286,96 +286,96 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Pengingat Penarikan */}
+          {/* === PENGINGAT BUKA KAS === */}
           <button 
             onClick={() => navigate('/penarikan')} 
-            className="flex w-full items-center gap-4 rounded-[20px] border border-[var(--theme-color)]/20 bg-[var(--theme-color)]/5 p-4 text-left transition-all active:scale-[0.98] hover:bg-[var(--theme-color)]/10"
+            className="flex w-full items-center gap-4 rounded-[20px] border border-indigo-100 bg-indigo-50 p-4 text-left transition-all active:scale-[0.98] hover:bg-indigo-100/70 shadow-sm cursor-pointer"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--theme-color)] text-white shadow-sm">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
               <FontAwesomeIcon icon={faBullhorn} className="text-lg" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-slate-800">Catat Kas Hari {dashboardData?.kelas?.hari_penarikan || 'Rabu'}</p>
+              <p className="text-sm font-black text-slate-800">Catat Kas Hari {dashboardData?.kelas?.hari_penarikan || 'Rabu'}</p>
               <p className="mt-0.5 truncate text-xs text-slate-500 font-medium">Buka buku kas & tandai lunas.</p>
             </div>
-            <FontAwesomeIcon icon={faArrowRight} className="text-[var(--theme-color)]" />
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm">
+              <FontAwesomeIcon icon={faArrowRight} />
+            </div>
           </button>
 
-          {/* Progress & Quick Actions */}
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* === PROGRESS & AKSI CEPAT === */}
+          <div className="grid gap-3 md:grid-cols-2">
+            
             <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800">Progress Kas</h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">{paymentProgress}% anggota tercatat</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Progress Kelas</p>
+                  <h3 className="text-sm font-bold text-slate-800 mt-1">{paymentProgress}% anggota bayar</h3>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-indigo-500">
                   <FontAwesomeIcon icon={faReceipt} />
                 </div>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-[var(--theme-color)] transition-all duration-500" style={{ width: `${paymentProgress}%` }} />
+              <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner">
+                <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${paymentProgress}%` }} />
               </div>
+              <p className="mt-3 text-[11px] text-slate-500 font-medium">Progress pencatatan kas bulan ini.</p>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 shadow-sm">
-               <h3 className="text-sm font-bold text-slate-800 mb-3">Aksi Cepat</h3>
+            <div className="rounded-[24px] border border-indigo-100 bg-indigo-50 p-5 shadow-sm">
+               <h3 className="text-sm font-bold text-indigo-950 mb-3">Aksi Cepat</h3>
                <div className="space-y-2.5">
                   <button 
                     onClick={() => navigate('/penarikan')} 
-                    className="flex w-full items-center justify-between rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-left text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-300"
+                    className="flex w-full items-center justify-between rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-left text-xs font-bold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700 cursor-pointer"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <FontAwesomeIcon icon={faHandHoldingDollar} className="text-[var(--theme-color)]" />
-                      Buku Kas
+                    <div className="flex items-center gap-3">
+                      <FontAwesomeIcon icon={faHandHoldingDollar} className="text-indigo-600 text-sm" />
+                      Buka Buku Kas
                     </div>
-                    <FontAwesomeIcon icon={faArrowRight} className="text-slate-400" />
+                    <FontAwesomeIcon icon={faArrowRight} className="text-slate-300" />
                   </button>
                   <button 
                     onClick={() => navigate('/history')} 
-                    className="flex w-full items-center justify-between rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-left text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-300"
+                    className="flex w-full items-center justify-between rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-left text-xs font-bold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700 cursor-pointer"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <FontAwesomeIcon icon={faReceipt} className="text-[var(--theme-color)]" />
-                      Riwayat
+                    <div className="flex items-center gap-3">
+                      <FontAwesomeIcon icon={faReceipt} className="text-indigo-600 text-sm" />
+                      Lihat Transaksi
                     </div>
-                    <FontAwesomeIcon icon={faArrowRight} className="text-slate-400" />
+                    <FontAwesomeIcon icon={faArrowRight} className="text-slate-300" />
                   </button>
                </div>
             </div>
+            
           </div>
           
-          <div className="rounded-[24px] border border-slate-200 bg-white p-5 flex items-start gap-4 shadow-sm">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-amber-100 text-amber-600">
+          <div className="rounded-[20px] border border-amber-200 bg-amber-50 p-4 flex items-start gap-3 shadow-sm mt-1">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-amber-400 text-white shadow-sm shadow-amber-400/30">
               <FontAwesomeIcon icon={faLightbulb} />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-800 mb-1">Tips Akurasi Saldo</p>
-              <p className="text-xs font-medium leading-relaxed text-slate-500">Catat semua pengeluaran kelas dan pemasukan dengan rinci agar saldo akhir selalu sinkron dengan uang fisik.</p>
+              <p className="text-xs font-black text-amber-900 mb-0.5">Tips Akurasi Saldo</p>
+              <p className="text-[11px] font-medium leading-relaxed text-amber-700">Catat setiap pengeluaran kelas dan pemasukan dengan rinci agar saldo akhir sinkron dengan uang fisik.</p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-[20px] bg-slate-900 p-4 shadow-md print:hidden mt-2">
-            <div className="flex items-center gap-3">
-               <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white">
-                 <FontAwesomeIcon icon={faPrint} />
-               </div>
-               <div>
-                  <p className="text-sm font-bold text-white">Cetak Laporan</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Simpan halaman ini (PDF)</p>
-               </div>
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm print:hidden">
+            <div>
+              <p className="text-xs font-bold text-slate-800">Ringkasan Laporan</p>
+              <p className="text-[10px] text-slate-500 font-medium mt-0.5">Cetak atau simpan sebagai PDF.</p>
             </div>
             <button 
               onClick={handlePrintSummary} 
-              className="rounded-[12px] bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-sm hover:bg-slate-100 transition"
+              className="flex items-center gap-2 rounded-[12px] bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition cursor-pointer"
             >
-              Cetak
+              <FontAwesomeIcon icon={faPrint} /> Cetak
             </button>
           </div>
           
         </div>
       )}
-      <footer className="pb-4 pt-2 text-center print:hidden">
+      <footer className="pb-4 pt-1 text-center print:hidden">
         <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400">FinClass App</span>
       </footer>
     </MainLayout>
