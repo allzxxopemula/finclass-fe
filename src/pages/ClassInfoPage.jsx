@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
   faBuildingColumns, 
   faCalendarDays, 
   faUsers,
-  faCrown
+  faTrophy
 } from '@fortawesome/free-solid-svg-icons';
 
 const PROFILE_TABLE_KEY = 'finclass-user-profiles';
@@ -237,13 +237,13 @@ export default function ClassInfoPage() {
                   }, 'Bendahara')}
                   className="flex w-full items-center gap-3.5 rounded-2xl bg-indigo-50/40 border border-indigo-100 p-3 text-left transition-all hover:bg-indigo-50/80 active:scale-[0.98] cursor-pointer"
                 >
-                  <div className="relative shrink-0">
+                  <div className="relative z-0 shrink-0">
                     <ExclusiveProfileShell 
                       email={ownerData?.email || user?.email} 
                       customBorderColor={ownerBorderToken} 
                       borderValue={ownerBorderToken}
                       variant="avatar" 
-                      className="h-12 w-12"
+                      className="h-16 w-16"
                     >
                       <div className="h-full w-full overflow-hidden rounded-full bg-white border border-slate-200">
                         {ownerAvatar ? (
@@ -255,8 +255,8 @@ export default function ClassInfoPage() {
                         )}
                       </div>
                     </ExclusiveProfileShell>
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[9px] shadow-sm ring-2 ring-white">
-                      <FontAwesomeIcon icon={faCrown} />
+                    <div className="absolute -bottom-1 -right-1 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-white/70 bg-indigo-600 text-white text-[10px] shadow-md ring-2 ring-white">
+                      <FontAwesomeIcon icon={faTrophy} />
                     </div>
                   </div>
 
@@ -294,14 +294,14 @@ export default function ClassInfoPage() {
                       key={member.id}
                       type="button"
                       onClick={() => handleOpenProfile(member, 'Siswa')}
-                      className="flex w-full items-center gap-3.5 rounded-2xl p-2.5 bg-white border border-transparent hover:border-slate-200 hover:bg-slate-50 text-left transition-all active:scale-[0.98] cursor-pointer"
+                      className="flex w-full items-center gap-3.5 rounded-2xl p-3 bg-white border border-transparent hover:border-slate-200 hover:bg-slate-50 text-left transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <ExclusiveProfileShell 
                         email={member.email} 
                         customBorderColor={member.customBorderColor} 
                         borderValue={member.customBorderColor}
                         variant="avatar" 
-                        className="h-12 w-12 shrink-0"
+                        className="h-14 w-14 shrink-0"
                       >
                         <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                           {member.displayAvatar ? (
@@ -350,10 +350,11 @@ export default function ClassInfoPage() {
               onClick={(event) => event.stopPropagation()}
             >
               {/* Banner Profil Popup */}
-              <div className="relative h-32 bg-indigo-600 overflow-hidden">
-                {selectedProfile.banner ? (
-                  <img src={selectedProfile.banner} alt="Banner profil" className="h-full w-full object-cover opacity-90" />
-                ) : null}
+              <ExclusiveProfileBanner
+                bannerUrl={selectedProfile.banner}
+                borderValue={selectedProfile.customBorderColor}
+                className="relative h-36"
+              >
                 
                 <div className="absolute top-4 right-4 flex gap-2">
                   <button 
@@ -364,7 +365,7 @@ export default function ClassInfoPage() {
                     ✕
                   </button>
                 </div>
-              </div>
+              </ExclusiveProfileBanner>
 
               {/* Konten Profil Popup */}
               <div className="px-6 pb-6 relative">
@@ -375,7 +376,7 @@ export default function ClassInfoPage() {
                       borderValue={selectedProfile.customBorderColor} 
                       customBorderColor={selectedProfile.customBorderColor} 
                       variant="avatar" 
-                      className="h-20 w-20"
+                      className="h-24 w-24"
                     >
                       <div className="h-full w-full overflow-hidden rounded-full bg-slate-100">
                         {selectedProfile.displayAvatar ? (

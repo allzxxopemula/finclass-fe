@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowUp,
@@ -619,10 +619,11 @@ export default function Profile() {
               <div className="relative w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
                 
                 {/* Banner Profil Popup */}
-                <div className="relative h-32 bg-indigo-600 overflow-hidden">
-                  {userBanner ? (
-                    <img src={userBanner} alt="Banner profil" className="h-full w-full object-cover opacity-90" />
-                  ) : null}
+                <ExclusiveProfileBanner
+                  bannerUrl={userBanner}
+                  borderValue={borderToken}
+                  className="relative h-32"
+                >
                   
                   <div className="absolute top-4 right-4 flex gap-2">
                     <button 
@@ -640,7 +641,7 @@ export default function Profile() {
                       ✕
                     </button>
                   </div>
-                </div>
+                </ExclusiveProfileBanner>
 
                 {/* Konten Profil Popup */}
                 <div className="px-6 pb-6 relative">

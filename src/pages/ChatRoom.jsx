@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -121,7 +121,7 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 // =========================================================
 // KOMPONEN ITEM PESAN (BUBBLE, AVATAR, & GROUPING)
 // =========================================================
-const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, formatTime, setMessageToDelete }) => {
+const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, formatTime, setMessageToDelete, onOpenProfile }) => {
   const sender = item.user || {};
   const storedProfile = getStoredProfile(sender?.id);
   // senderProfile sudah diprioritaskan dari /dashboard (sumber yang sama dengan ClassInfoPage).
@@ -167,28 +167,30 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
 
   return (
     <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1`}>
-      <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2.5 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex max-w-[96%] md:max-w-[88%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
 
         {/* WADAH FOTO PROFIL DENGAN EXCLUSIVE BORDER */}
         <div className="flex flex-col items-center shrink-0 w-9 mt-0.5">
           {showAvatar ? (
-            <ExclusiveProfileShell 
-              email={sender?.email}
-              customBorderColor={borderValue}
-              borderValue={borderValue}
-              variant="avatar"
-              className="h-9 w-9 shrink-0"
-            >
-              <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 flex items-center justify-center border border-slate-200/60 shadow-inner">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
-                    {getDisplayName(sender).charAt(0)}
-                  </div>
-                )}
-              </div>
-            </ExclusiveProfileShell>
+            <button type="button" onClick={() => onOpenProfile?.(profile)} className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" aria-label={`Lihat profil ${getDisplayName(profile)}`}>
+              <ExclusiveProfileShell
+                email={profile?.email}
+                customBorderColor={borderValue}
+                borderValue={borderValue}
+                variant="avatar"
+                className="h-9 w-9 shrink-0"
+              >
+                <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 flex items-center justify-center border border-slate-200/60 shadow-inner">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={getDisplayName(profile)} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
+                      {getDisplayName(profile).charAt(0)}
+                    </div>
+                  )}
+                </div>
+              </ExclusiveProfileShell>
+            </button>
           ) : (
             <div className="h-9 w-9 shrink-0" />
           )}
@@ -198,9 +200,9 @@ const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, 
         <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} min-w-0 flex-1 max-w-[calc(100%-2.5rem)]`}>
 
           {showAvatar && !isMine && (
-            <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1 truncate max-w-full">
-              {getDisplayName(sender)}
-            </span>
+            <button type="button" onClick={() => onOpenProfile?.(profile)} className="mb-1 ml-1 max-w-full truncate text-left text-[10px] font-bold text-slate-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+              {getDisplayName(profile)}
+            </button>
           )}
 
           <div
@@ -243,6 +245,7 @@ export default function ChatRoom() {
   const [sending, setSending] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [selectedChatProfile, setSelectedChatProfile] = useState(null);
 
   const listRef = useRef(null);
   const isAtBottomRef = useRef(true);
@@ -265,6 +268,21 @@ export default function ChatRoom() {
   };
 
   const getDisplayName = (member) => member?.name || member?.username || 'Anggota';
+
+  const openChatProfile = (profile) => {
+    if (!profile) return;
+    const borderValue = getProfileBorderToken(profile);
+    setSelectedChatProfile({
+      ...profile,
+      displayName: profile.name || profile.username || 'Anggota',
+      displayUsername: profile.username || getDisplayName(profile).toLowerCase().replace(/[^a-z0-9]/g, '') || 'user',
+      displayAvatar: profile.image || profile.profile_image_url || profile.profile_image || '',
+      banner: profile.banner || '',
+      borderValue,
+      roleLabel: String(profile.role || 'Anggota').replaceAll('_', ' '),
+      createdAt: profile.created_at || profile.createdAt || null,
+    });
+  };
 
   const formatTime = (value) => {
     if (!value) return '';
@@ -651,6 +669,7 @@ export default function ChatRoom() {
                     getDisplayName={getDisplayName}
                     formatTime={formatTime}
                     setMessageToDelete={setMessageToDelete}
+                    onOpenProfile={openChatProfile}
                   />
                 );
               })
@@ -719,6 +738,74 @@ export default function ChatRoom() {
                 <FontAwesomeIcon icon={faTimes} />
                 Batal
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedChatProfile && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" onClick={() => setSelectedChatProfile(null)}>
+          <div className="w-full max-w-md overflow-hidden rounded-[28px] bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <ExclusiveProfileBanner
+              bannerUrl={selectedChatProfile.banner}
+              borderValue={selectedChatProfile.borderValue}
+              className="relative h-36"
+            >
+              <button type="button" onClick={() => setSelectedChatProfile(null)} className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-slate-900/20 text-white backdrop-blur-sm transition hover:bg-slate-900/40" aria-label="Tutup profil">
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </ExclusiveProfileBanner>
+
+            <div className="relative px-6 pb-6">
+              <div className="-mt-12 mb-4 flex items-end justify-between gap-3">
+                <ExclusiveProfileShell
+                  email={selectedChatProfile.email}
+                  borderValue={selectedChatProfile.borderValue}
+                  customBorderColor={selectedChatProfile.borderValue}
+                  variant="avatar"
+                  className="h-24 w-24 shrink-0"
+                >
+                  <div className="h-full w-full overflow-hidden rounded-full border-2 border-white bg-slate-100">
+                    {selectedChatProfile.displayAvatar ? (
+                      <img src={selectedChatProfile.displayAvatar} alt={selectedChatProfile.displayName} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-2xl font-black text-slate-500">
+                        {selectedChatProfile.displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                </ExclusiveProfileShell>
+                {Boolean(getExclusiveUserPreset(selectedChatProfile.borderValue)?.label?.trim()) && (
+                  <span className={`mb-2 rounded-lg px-3 py-1 text-[10px] font-black text-white shadow-sm bg-gradient-to-r ${getExclusiveUserPreset(selectedChatProfile.borderValue).accent}`}>
+                    {getExclusiveUserPreset(selectedChatProfile.borderValue).label}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <h2 className="text-xl font-black text-slate-900">{selectedChatProfile.displayName}</h2>
+                <p className="mt-1 text-sm font-medium text-slate-500">@{selectedChatProfile.displayUsername}</p>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                  <p className="text-[10px] font-semibold text-slate-500">Role</p>
+                  <p className="mt-1 text-sm font-bold capitalize text-slate-800">{selectedChatProfile.roleLabel}</p>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                  <p className="text-[10px] font-semibold text-slate-500">Kelas</p>
+                  <p className="mt-1 truncate text-sm font-bold text-slate-800">{room?.name || 'Kelas'}</p>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-xl border border-slate-100 bg-white p-3.5">
+                <p className="text-[10px] font-semibold text-slate-500">Akun dibuat</p>
+                <p className="mt-1 text-sm font-bold text-slate-800">
+                  {selectedChatProfile.createdAt
+                    ? new Date(selectedChatProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Belum tersedia'}
+                </p>
+              </div>
             </div>
           </div>
         </div>

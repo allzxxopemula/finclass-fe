@@ -87,6 +87,49 @@ export const getExclusiveUserPreset = (value) => {
 
 export const getUserBorderValue = (user = {}) => normalizeBorderValue(user?.custom_border_color || user?.border_type || '');
 
+const PROFILE_BANNER_GRADIENTS = {
+  DEVELOPER: 'from-slate-300 via-slate-700 to-slate-200',
+  DEV_TEAM: 'from-sky-100 via-indigo-300 to-sky-400',
+  DONATUR: 'from-yellow-100 via-amber-300 to-orange-300',
+  EXCLUSIVE: 'from-fuchsia-100 via-purple-300 to-indigo-300',
+  SECRET_PURPLE: 'from-violet-100 via-purple-300 to-fuchsia-200',
+  SECRET_PINK: 'from-pink-100 via-rose-200 to-fuchsia-200',
+};
+
+export function ExclusiveProfileBanner({ bannerUrl = '', borderValue = '', customBorderColor = '', borderType = '', className = '', children }) {
+  const token = normalizeBorderValue(borderType || customBorderColor || borderValue);
+  const isHex = token.startsWith('#');
+  const gradient = PROFILE_BANNER_GRADIENTS[token] || 'from-indigo-100 via-sky-200 to-cyan-100';
+  const style = isHex ? { '--profile-border-color': token } : undefined;
+
+  return (
+    <div className={`relative isolate overflow-hidden ${className}`}>
+      {bannerUrl ? (
+        <img src={bannerUrl} alt="Banner profil" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <div
+          className={`absolute inset-0 bg-gradient-to-r ${isHex ? 'profile-banner-hex' : gradient} bg-[length:220%_220%] animate-[profileBannerFlow_12s_ease-in-out_infinite]`}
+          style={style}
+        />
+      )}
+      {!bannerUrl && <div className="absolute inset-0 bg-white/10" />}
+      {children}
+      <style>{`
+        @keyframes profileBannerFlow {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .profile-banner-hex {
+          background-image: linear-gradient(115deg,
+            color-mix(in srgb, var(--profile-border-color) 18%, white),
+            color-mix(in srgb, var(--profile-border-color) 38%, white),
+            color-mix(in srgb, var(--profile-border-color) 12%, #f8fafc));
+        }
+      `}</style>
+    </div>
+  );
+}
+
 const StarSparkle = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 0C12 0 12 9.5 17.5 12C12 14.5 12 24 12 24C12 24 12 14.5 6.5 12C12 9.5 12 0 12 0Z" />
