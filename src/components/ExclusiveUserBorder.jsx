@@ -227,6 +227,7 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
+  // JANGAN UBAH KODE AVATAR DI BAWAH INI SESUAI PERMINTAAN
   if (variant === 'avatar') {
     return (
       <div className="relative inline-block">
@@ -269,7 +270,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             </>
           )}
 
-          {/* EXCLUSIVE PURPLE — SAME EFFECT STRUCTURE AS SECRET PINK */}
           {isExclusivePurple && (
             <>
               <div className="absolute -inset-[150%] animate-[spinReverse_5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#C026D3_0%,#FFFFFF_25%,#A855F7_50%,#FFFFFF_75%,#C026D3_100%)] opacity-100" />
@@ -312,7 +312,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         </div>
 
-        {/* OVERLAYS PARTICLES */}
         {isDeveloper && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-[100]">
             <StarSparkle className="absolute -top-3 left-1/4 w-3.5 h-3.5 text-white filter drop-shadow-[0_0_5px_#ffffff] animate-[starFloat_2.5s_ease-in-out_infinite]" />
@@ -331,7 +330,6 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           </div>
         )}
 
-        {/* EXCLUSIVE PURPLE PARTICLES — SAME PATTERN AS PINK */}
         {isExclusivePurple && (
           <div className="absolute inset-0 pointer-events-none overflow-visible z-30">
             <StarSparkle className="absolute -top-2 right-1/4 w-3.5 h-3.5 text-purple-200 filter drop-shadow-[0_0_5px_#A855F7] animate-[starFloat_3s_ease-in-out_infinite]" />
@@ -438,8 +436,8 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
     );
   }
 
-  // PREMIUM AUTO AURA — no hover required. The outer profile frame breathes,
-  // expands, contracts, pulses and emits particles continuously.
+  // PREMIUM AUTO AURA CARD - MODIFIED
+  // Efek border membesar-mengecil (breathing) & partikel burst dari bawah
   const aura = (() => {
     if (isPinkBorder) return { a:'#F472B6', b:'#F9A8D4', c:'#FDA4AF', glow:'rgba(244,114,182,0.95)', soft:'rgba(249,168,212,0.55)' };
     if (isPurpleBorder) return { a:'#7E22CE', b:'#A855F7', c:'#C084FC', glow:'rgba(168,85,247,0.95)', soft:'rgba(216,180,254,0.55)' };
@@ -463,49 +461,25 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         '--aura-border': isHexBorder ? preset.color : aura.a,
       }}
     >
-      {/* Wide breathing aura — deliberately NOT a rotating border. */}
-      <div className="absolute -inset-[12px] rounded-[38px] premium-aura-bloom pointer-events-none" />
-      <div className="absolute -inset-[7px] rounded-[35px] premium-aura-bloom-2 pointer-events-none" />
+      {/* Outer Outline with elegant breathing effect */}
+      <div className="absolute -inset-[5px] rounded-[35px] premium-aura-outline pointer-events-none z-0" />
+      <div className="absolute -inset-[2px] rounded-[32px] premium-aura-core pointer-events-none z-[1]" />
 
-      {/* Thick premium outline */}
-      <div className="absolute -inset-[5px] rounded-[35px] premium-aura-outline pointer-events-none" />
-      <div className="absolute -inset-[2px] rounded-[32px] premium-aura-core pointer-events-none" />
-
-      {/* Four independent energy runners. They follow the frame perimeter rather than spinning the whole border. */}
-      <div className="absolute inset-[-7px] rounded-[37px] overflow-visible pointer-events-none z-[6]">
-        <span className="aura-runner aura-runner-1" />
-        <span className="aura-runner aura-runner-2" />
-        <span className="aura-runner aura-runner-3" />
-        <span className="aura-runner aura-runner-4" />
+      {/* Burst Particles Container (Berulang dengan jeda berkat durasi animasi) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[8] rounded-[30px]">
+        <b className="card-up-particle cup1" />
+        <b className="card-up-particle cup2" />
+        <b className="card-up-particle cup3" />
+        <b className="card-up-particle cup4" />
+        <b className="card-up-particle cup5" />
+        <b className="card-up-particle cup6" />
+        <b className="card-up-particle cup7" />
+        <StarSparkle className="card-up-star cstar1 text-white" />
+        <StarSparkle className="card-up-star cstar2 text-white" />
       </div>
 
-      {/* Corner energy accents */}
-      <div className="absolute -inset-[7px] rounded-[37px] pointer-events-none z-[7] overflow-visible">
-        <i className="aura-corner aura-corner-tl" />
-        <i className="aura-corner aura-corner-tr" />
-        <i className="aura-corner aura-corner-br" />
-        <i className="aura-corner aura-corner-bl" />
-      </div>
-
-      {/* Non-uniform particles: different paths, durations and delays. */}
-      <div className="absolute -inset-[18px] pointer-events-none z-[8] overflow-visible">
-        <b className="aura-particle p1" />
-        <b className="aura-particle p2" />
-        <b className="aura-particle p3" />
-        <b className="aura-particle p4" />
-        <b className="aura-particle p5" />
-        <b className="aura-particle p6" />
-        <b className="aura-particle p7" />
-        <b className="aura-particle p8" />
-      </div>
-
-      {/* Slow diagonal energy wash. */}
-      <div className="absolute inset-[-20%] rounded-[40px] overflow-hidden pointer-events-none z-[4]">
-        <div className="aura-energy-wash" />
-      </div>
-
-      {/* Content stays untouched: this is the outer outline only. */}
-      <div className="relative h-full w-full rounded-[27px] bg-white/90 backdrop-blur-md ring-1 ring-white/50 z-10 overflow-hidden">
+      {/* Main Content Card */}
+      <div className="relative h-full w-full rounded-[28px] bg-white/95 backdrop-blur-md ring-1 ring-white/60 z-10 overflow-hidden shadow-inner">
         {children}
       </div>
 
@@ -515,133 +489,94 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           transform: translateZ(0);
         }
 
-        /* The frame changes thickness/glow continuously, but never snaps. */
+        /* Border Membesar Mengecil (Breath & Glow) tanpa muter-muter aneh */
         .premium-aura-outline {
-          background: linear-gradient(118deg,
-            var(--aura-a) 0%,
-            var(--aura-b) 25%,
-            var(--aura-c) 50%,
-            var(--aura-b) 75%,
-            var(--aura-a) 100%);
-          background-size: 260% 260%;
-          box-shadow:
-            0 0 12px var(--aura-soft),
-            0 0 28px var(--aura-glow),
-            0 0 58px color-mix(in srgb, var(--aura-glow) 55%, transparent);
-          animation: premiumAuraBreath 6.8s cubic-bezier(.45,0,.25,1) infinite,
-                     premiumAuraGradient 11s cubic-bezier(.37,0,.22,1) infinite;
+          background: linear-gradient(135deg, var(--aura-a), var(--aura-b), var(--aura-c), var(--aura-a));
+          background-size: 200% 200%;
+          box-shadow: 0 0 15px var(--aura-soft), 0 0 30px var(--aura-glow);
+          animation: cardBreathGlow 4s ease-in-out infinite, gradientFlow 8s linear infinite;
         }
 
         .premium-aura-core {
-          border: 2px solid rgba(255,255,255,.78);
-          box-shadow:
-            inset 0 0 9px rgba(255,255,255,.65),
-            inset 0 0 22px var(--aura-soft),
-            0 0 10px var(--aura-glow);
-          animation: premiumCorePulse 5.6s cubic-bezier(.4,0,.2,1) infinite;
+          border: 2px solid rgba(255,255,255,0.6);
+          box-shadow: inset 0 0 10px rgba(255,255,255,0.5), inset 0 0 15px var(--aura-soft);
+          animation: cardCoreBreath 4s ease-in-out infinite;
         }
 
-        .premium-aura-bloom {
-          background: var(--aura-glow);
-          filter: blur(18px);
-          opacity: .26;
-          animation: premiumBloom 7.5s cubic-bezier(.4,0,.2,1) infinite;
+        /* Konfigurasi bentuk Particle dan Star untuk melayang ke atas */
+        .card-up-particle {
+          position: absolute;
+          bottom: 0px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #fff;
+          box-shadow: 0 0 8px #fff, 0 0 15px var(--aura-glow);
+          opacity: 0;
         }
 
-        .premium-aura-bloom-2 {
-          background: radial-gradient(circle, var(--aura-soft), transparent 66%);
-          filter: blur(9px);
-          opacity: .34;
-          animation: premiumBloom2 5.9s cubic-bezier(.45,0,.25,1) infinite;
+        .card-up-star {
+          position: absolute;
+          bottom: -5px;
+          width: 14px;
+          height: 14px;
+          filter: drop-shadow(0 0 8px var(--aura-glow));
+          opacity: 0;
         }
 
-        /* Runners use offset motion, not whole-frame rotation. */
-        .aura-runner {
-          position:absolute;
-          display:block;
-          width:25%;
-          height:4px;
-          border-radius:999px;
-          background:linear-gradient(90deg, transparent, #fff 35%, var(--aura-b) 65%, transparent);
-          box-shadow:0 0 10px #fff,0 0 22px var(--aura-glow),0 0 38px var(--aura-soft);
-          opacity:.9;
-        }
-        .aura-runner-1 { top:-2px; left:-4%; animation:auraRunnerTop 7.2s cubic-bezier(.42,0,.18,1) infinite; }
-        .aura-runner-2 { right:-2px; top:-4%; width:4px; height:25%; animation:auraRunnerRight 6.6s cubic-bezier(.42,0,.18,1) infinite .8s; }
-        .aura-runner-3 { bottom:-2px; right:-4%; animation:auraRunnerBottom 7.8s cubic-bezier(.42,0,.18,1) infinite 1.5s; }
-        .aura-runner-4 { left:-2px; bottom:-4%; width:4px; height:25%; animation:auraRunnerLeft 6.9s cubic-bezier(.42,0,.18,1) infinite 2.2s; }
-
-        .aura-corner {
-          position:absolute;
-          width:18px;
-          height:18px;
-          border-color:var(--aura-b);
-          filter:drop-shadow(0 0 7px var(--aura-glow));
-          opacity:.95;
-          animation:auraCornerPulse 4.8s cubic-bezier(.4,0,.2,1) infinite;
-        }
-        .aura-corner-tl { top:0; left:0; border-top:3px solid; border-left:3px solid; border-top-left-radius:8px; }
-        .aura-corner-tr { top:0; right:0; border-top:3px solid; border-right:3px solid; border-top-right-radius:8px; animation-delay:.7s; }
-        .aura-corner-br { bottom:0; right:0; border-bottom:3px solid; border-right:3px solid; border-bottom-right-radius:8px; animation-delay:1.4s; }
-        .aura-corner-bl { bottom:0; left:0; border-bottom:3px solid; border-left:3px solid; border-bottom-left-radius:8px; animation-delay:2.1s; }
-
-        .aura-particle {
-          position:absolute;
-          width:5px;
-          height:5px;
-          border-radius:50%;
-          background:#fff;
-          box-shadow:0 0 7px #fff,0 0 15px var(--aura-glow),0 0 24px var(--aura-soft);
-          opacity:0;
-        }
-        .p1{top:4%;left:17%;animation:auraParticle1 5.7s cubic-bezier(.37,0,.22,1) infinite;}
-        .p2{top:21%;right:2%;animation:auraParticle2 7.1s cubic-bezier(.37,0,.22,1) infinite 1s;}
-        .p3{bottom:9%;right:21%;animation:auraParticle3 6.3s cubic-bezier(.37,0,.22,1) infinite 1.8s;}
-        .p4{bottom:25%;left:1%;animation:auraParticle4 7.8s cubic-bezier(.37,0,.22,1) infinite .5s;}
-        .p5{top:48%;left:10%;width:3px;height:3px;animation:auraParticle5 4.9s cubic-bezier(.37,0,.22,1) infinite 2.4s;}
-        .p6{top:7%;right:30%;width:3px;height:3px;animation:auraParticle6 6.8s cubic-bezier(.37,0,.22,1) infinite 1.3s;}
-        .p7{bottom:5%;left:35%;width:4px;height:4px;animation:auraParticle7 5.4s cubic-bezier(.37,0,.22,1) infinite 3s;}
-        .p8{top:65%;right:7%;width:3px;height:3px;animation:auraParticle8 7.4s cubic-bezier(.37,0,.22,1) infinite 2s;}
-
-        .aura-energy-wash {
-          position:absolute;
-          width:35%;
-          height:180%;
-          top:-40%;
-          left:-45%;
-          transform:rotate(24deg);
-          background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),var(--aura-soft),rgba(255,255,255,.1),transparent);
-          filter:blur(9px);
-          opacity:0;
-          animation:auraWash 9.5s cubic-bezier(.37,0,.22,1) infinite;
+        /* Animasi Naik & Fade - Durasi diset 6s agar ada jeda ~4.5 detik setelah partikel selesai */
+        @keyframes particleBurstUp {
+          0% { opacity: 0; transform: translateY(15px) scale(0.5); }
+          5% { opacity: 1; transform: translateY(0px) scale(1.2); }
+          15% { opacity: 0.8; transform: translateY(-80px) scale(1); }
+          25% { opacity: 0; transform: translateY(-160px) scale(0.3); }
+          100% { opacity: 0; transform: translateY(-160px) scale(0); }
         }
 
-        @keyframes premiumAuraBreath {
-          0%,100% { transform:scale(.985); opacity:.76; background-position:0% 50%; box-shadow:0 0 10px var(--aura-soft),0 0 22px var(--aura-glow),0 0 42px var(--aura-soft); }
-          24% { transform:scale(1.018); opacity:1; box-shadow:0 0 16px var(--aura-soft),0 0 36px var(--aura-glow),0 0 72px var(--aura-soft); }
-          52% { transform:scale(1.032); opacity:.9; box-shadow:0 0 9px var(--aura-soft),0 0 25px var(--aura-glow),0 0 54px var(--aura-soft); }
-          76% { transform:scale(1.005); opacity:1; box-shadow:0 0 20px var(--aura-soft),0 0 43px var(--aura-glow),0 0 82px var(--aura-soft); }
+        /* Varian gerakan sedikit menyamping */
+        @keyframes particleBurstUpAlt {
+          0% { opacity: 0; transform: translateY(20px) scale(0.4) rotate(0deg); }
+          6% { opacity: 0.9; transform: translateY(-5px) scale(1.1) rotate(45deg); }
+          18% { opacity: 0.7; transform: translateY(-100px) scale(0.9) rotate(90deg); }
+          28% { opacity: 0; transform: translateY(-200px) scale(0.2) rotate(135deg); }
+          100% { opacity: 0; transform: translateY(-200px) scale(0) rotate(135deg); }
         }
-        @keyframes premiumAuraGradient { 0%,100%{background-position:0% 40%;} 50%{background-position:100% 60%;} }
-        @keyframes premiumCorePulse { 0%,100%{opacity:.7;transform:scale(.994);} 45%{opacity:1;transform:scale(1.014);} 72%{opacity:.82;transform:scale(1.004);} }
-        @keyframes premiumBloom { 0%,100%{opacity:.18;transform:scale(.94);} 35%{opacity:.42;transform:scale(1.06);} 68%{opacity:.27;transform:scale(1.12);} }
-        @keyframes premiumBloom2 { 0%,100%{opacity:.2;transform:scale(.96);} 50%{opacity:.5;transform:scale(1.09);} }
 
-        @keyframes auraRunnerTop { 0%,10%{left:-28%;opacity:0;} 22%{opacity:1;} 54%{left:105%;opacity:.95;} 65%,100%{left:105%;opacity:0;} }
-        @keyframes auraRunnerRight { 0%,10%{top:-28%;opacity:0;} 24%{opacity:1;} 57%{top:105%;opacity:.95;} 68%,100%{top:105%;opacity:0;} }
-        @keyframes auraRunnerBottom { 0%,12%{right:-28%;opacity:0;} 25%{opacity:1;} 59%{right:105%;opacity:.95;} 70%,100%{right:105%;opacity:0;} }
-        @keyframes auraRunnerLeft { 0%,9%{bottom:-28%;opacity:0;} 22%{opacity:1;} 56%{bottom:105%;opacity:.95;} 67%,100%{bottom:105%;opacity:0;} }
-        @keyframes auraCornerPulse { 0%,100%{opacity:.45;transform:scale(.86);} 38%{opacity:1;transform:scale(1.14);} 62%{opacity:.72;transform:scale(1.02);} }
+        /* Timing bervariasi agar kemunculannya berbarengan di setiap wave per 6s */
+        .cup1 { left: 15%; animation: particleBurstUp 6s ease-out infinite 0.1s; }
+        .cup2 { left: 35%; width: 4px; height: 4px; animation: particleBurstUpAlt 6s ease-out infinite 0.3s; }
+        .cup3 { left: 55%; width: 5px; height: 5px; animation: particleBurstUp 6s ease-out infinite 0s; }
+        .cup4 { left: 75%; animation: particleBurstUpAlt 6s ease-out infinite 0.2s; }
+        .cup5 { left: 85%; width: 4px; height: 4px; animation: particleBurstUp 6s ease-out infinite 0.4s; }
+        .cup6 { left: 25%; animation: particleBurstUpAlt 6s ease-out infinite 0.15s; }
+        .cup7 { left: 65%; width: 7px; height: 7px; animation: particleBurstUp 6s ease-out infinite 0.35s; }
 
-        @keyframes auraParticle1 { 0%,100%{transform:translate(0,0) scale(.3);opacity:0;} 18%{opacity:1;} 52%{transform:translate(28px,-18px) scale(1.15);opacity:.9;} 82%{transform:translate(52px,5px) scale(.55);opacity:0;} }
-        @keyframes auraParticle2 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 22%{opacity:1;} 48%{transform:translate(-22px,31px) scale(1.2);opacity:1;} 78%{transform:translate(-4px,60px) scale(.4);opacity:0;} }
-        @keyframes auraParticle3 { 0%,100%{transform:translate(0,0) scale(.25);opacity:0;} 20%{opacity:1;} 55%{transform:translate(-36px,-16px) scale(1.25);opacity:.9;} 83%{transform:translate(-58px,-40px) scale(.35);opacity:0;} }
-        @keyframes auraParticle4 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 16%{opacity:1;} 50%{transform:translate(24px,-26px) scale(1.1);opacity:.8;} 80%{transform:translate(45px,-7px) scale(.3);opacity:0;} }
-        @keyframes auraParticle5 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 35%{opacity:1;} 65%{transform:translate(19px,17px) scale(1.2);opacity:.8;} 90%{transform:translate(32px,-2px) scale(.2);opacity:0;} }
-        @keyframes auraParticle6 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 25%{opacity:1;} 60%{transform:translate(-18px,21px) scale(1.1);opacity:.85;} 90%{transform:translate(-35px,35px) scale(.2);opacity:0;} }
-        @keyframes auraParticle7 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 18%{opacity:1;} 55%{transform:translate(26px,-24px) scale(1.2);opacity:.85;} 84%{transform:translate(5px,-43px) scale(.25);opacity:0;} }
-        @keyframes auraParticle8 { 0%,100%{transform:translate(0,0) scale(.2);opacity:0;} 22%{opacity:1;} 52%{transform:translate(-27px,-18px) scale(1.15);opacity:.9;} 86%{transform:translate(-42px,10px) scale(.25);opacity:0;} }
-        @keyframes auraWash { 0%,15%{left:-45%;opacity:0;} 30%{opacity:.6;} 58%{left:125%;opacity:.25;} 68%,100%{left:125%;opacity:0;} }
+        .cstar1 { left: 20%; animation: particleBurstUpAlt 6s ease-out infinite 0.25s; }
+        .cstar2 { left: 70%; animation: particleBurstUp 6s ease-out infinite 0.05s; }
+
+        @keyframes cardBreathGlow {
+          0%, 100% {
+            transform: scale(0.995);
+            box-shadow: 0 0 15px var(--aura-soft), 0 0 30px var(--aura-glow);
+            opacity: 0.85;
+          }
+          50% {
+            transform: scale(1.015);
+            box-shadow: 0 0 20px var(--aura-soft), 0 0 45px var(--aura-glow), 0 0 70px var(--aura-soft);
+            opacity: 1;
+          }
+        }
+
+        @keyframes cardCoreBreath {
+          0%, 100% { opacity: 0.7; transform: scale(0.995); }
+          50% { opacity: 1; transform: scale(1.015); }
+        }
+
+        @keyframes gradientFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
 
         @media (prefers-reduced-motion: reduce) {
           .premium-aura-shell *, .premium-aura-shell { animation:none !important; transition:none !important; }
