@@ -104,12 +104,12 @@ export function ExclusiveProfileFrame({ borderValue = '', customBorderColor = ''
 
   return (
     <div
-      className={`relative isolate rounded-[30px] ${isPremium ? 'p-[2px]' : isHex ? 'p-px' : 'border border-slate-200'} ${className}`}
+      className={`relative isolate overflow-hidden rounded-[30px] ${isPremium ? 'p-[3px]' : isHex ? 'p-px' : 'border border-slate-200'} ${className}`}
       style={isPremium ? { boxShadow: `0 12px 40px ${colors[0]}30, 0 2px 10px ${colors[2]}25` } : isHex ? { backgroundColor: token } : undefined}
     >
       {isPremium && (
         <div
-          className="absolute -inset-[100%] animate-[profileFrameSpin_7s_linear_infinite] opacity-90"
+          className="profile-frame-spin absolute inset-0 animate-[profileFrameSpin_5s_linear_infinite] opacity-100"
           style={{ backgroundImage: `conic-gradient(from 0deg, ${colors[0]}, ${colors[1]}, ${colors[2]}, ${colors[0]})` }}
         />
       )}
@@ -125,7 +125,7 @@ export function ExclusiveProfileFrame({ borderValue = '', customBorderColor = ''
             to { transform: rotate(360deg); }
           }
           @media (prefers-reduced-motion: reduce) {
-            .animate-\\[profileFrameSpin_7s_linear_infinite\\] { animation: none !important; }
+            .profile-frame-spin { animation: none !important; }
           }
         `}</style>
       )}
