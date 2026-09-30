@@ -11,8 +11,22 @@ import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } fr
 // =========================================================
 const CHAT_CACHE_PREFIX = 'chatroom_cache_v1_';
 const CHAT_CACHE_MAX_MESSAGES = 50;
+const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
 const getChatCacheKey = (userId) => `${CHAT_CACHE_PREFIX}${userId}`;
+
+const readProfileTable = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_TABLE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const getStoredProfile = (userId) => {
+  if (!userId) return null;
+  return readProfileTable()[userId] || null;
+};
 
 const readChatCache = (userId) => {
   if (!userId) return null;
@@ -96,7 +110,8 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 // =========================================================
 const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, formatTime, setMessageToDelete }) => {
   const sender = item.user || {};
-  const avatarUrl = sender?.profile_image_url || sender?.profile_image || '';
+  const storedProfile = getStoredProfile(sender?.id);
+  const avatarUrl = storedProfile?.image || sender?.profile_image_url || sender?.profile_image || '';
   const isDeleted = Boolean(item.deleted_at || item.is_deleted);
 
   const isOnlyUrl = /^https?:\/\/[^\s]+$/i.test(item.message?.trim() || '');
@@ -457,10 +472,10 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-[calc(100dvh-135px)] relative max-w-full overflow-hidden">
+      <div className="flex flex-col h-[calc(100dvh-135px)] relative max-w-full overflow-x-hidden">
 
-        {/* HEADER BAR DENGAN STYLE SAMA DENGAN PAGE LAIN */}
-        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0 shadow-sm">
+        {/* HEADER BAR FULL WIDTH DAN MENEMPEL SEMPURNA */}
+        <div className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0 shadow-sm w-full">
           <button
             type="button"
             onClick={() => navigate('/profile')}
@@ -515,8 +530,10 @@ export default function ChatRoom() {
               messages.map((item, index) => {
                 const senderId = item.user_id || item.user?.id;
                 const isMine = String(senderId) === String(user.id);
-                // Dapatkan Border dari Sender
-                const borderValue = item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || item.user?.email || (isMine ? user?.email : '') || '';
+                const storedSenderProfile = getStoredProfile(senderId);
+                
+                // Mendapatkan border secara akurat dari profil tersimpan atau payload user
+                const borderValue = storedSenderProfile?.custom_border_color || item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || item.user?.email || (isMine ? user?.email : '') || '';
 
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
