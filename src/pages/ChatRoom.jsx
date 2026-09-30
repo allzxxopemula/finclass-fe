@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileShell } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileShell, getUserBorderValue, normalizeBorderValue } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -26,6 +26,34 @@ const readProfileTable = () => {
 const getStoredProfile = (userId) => {
   if (!userId) return null;
   return readProfileTable()[userId] || null;
+};
+
+const getMessageUser = (item) => (
+  item?.user || item?.sender || item?.author || {}
+);
+
+// Resolve border milik pengirim yang sedang tampil.
+// Prioritas utama adalah data user dari API/database, lalu cache profil lokal.
+const resolveBorderValue = (item, userId) => {
+  const sender = getMessageUser(item);
+  const storedProfile = getStoredProfile(userId);
+  const candidates = [
+    sender?.custom_border_color,
+    sender?.border_type,
+    sender?.exclusive_border,
+    sender?.exclusive_border_type,
+    sender?.profile?.custom_border_color,
+    sender?.profile?.border_type,
+    item?.custom_border_color,
+    item?.border_type,
+    storedProfile?.custom_border_color,
+    storedProfile?.border_type,
+  ];
+  for (const candidate of candidates) {
+    const normalized = normalizeBorderValue(candidate);
+    if (normalized) return normalized;
+  }
+  return '';
 };
 
 const readChatCache = (userId) => {
@@ -109,7 +137,7 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 // KOMPONEN ITEM PESAN (BUBBLE, AVATAR, & GROUPING)
 // =========================================================
 const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, formatTime, setMessageToDelete }) => {
-  const sender = item.user || {};
+  const sender = getMessageUser(item);
   const storedProfile = getStoredProfile(sender?.id);
   const avatarUrl = storedProfile?.image || sender?.profile_image_url || sender?.profile_image || '';
   const isDeleted = Boolean(item.deleted_at || item.is_deleted);
@@ -472,10 +500,10 @@ export default function ChatRoom() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-[calc(100dvh-135px)] relative max-w-full overflow-x-hidden">
+      <div className="relative left-1/2 flex h-[calc(100dvh-135px)] min-h-0 w-screen max-w-none -translate-x-1/2 flex-col overflow-x-hidden sm:left-0 sm:w-full sm:translate-x-0">
 
-        {/* HEADER BAR FULL WIDTH DAN MENEMPEL SEMPURNA */}
-        <div className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0 shadow-sm w-full">
+        {/* HEADER: TANPA GAP DAN MENEMPEL DI ATAS AREA CHAT */}
+        <div className="sticky top-0 z-30 flex w-full shrink-0 items-center gap-3 border-b border-slate-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-md">
           <button
             type="button"
             onClick={() => navigate('/profile')}
@@ -528,15 +556,18 @@ export default function ChatRoom() {
               </div>
             ) : (
               messages.map((item, index) => {
-                const senderId = item.user_id || item.user?.id;
+                const sender = getMessageUser(item);
+                const senderId = item.user_id || sender?.id || item.sender_id || item.author_id;
                 const isMine = String(senderId) === String(user.id);
-                const storedSenderProfile = getStoredProfile(senderId);
-                
-                // Mendapatkan border secara akurat dari profil tersimpan atau payload user
-                const borderValue = storedSenderProfile?.custom_border_color || item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || item.user?.email || (isMine ? user?.email : '') || '';
+
+                // Setiap pesan memakai border milik pengirimnya sendiri.
+                // Border user login tidak pernah dipakai untuk user lain.
+                const borderValue = resolveBorderValue(item, senderId) || (
+                  isMine ? getUserBorderValue(user) : ''
+                );
 
                 const prevMessage = messages[index - 1];
-                const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
+                const prevSenderId = prevMessage?.user_id || getMessageUser(prevMessage)?.id || prevMessage?.sender_id || prevMessage?.author_id;
                 const isSameUserAsPrev = prevMessage && String(prevSenderId) === String(senderId);
                 const showAvatar = !isSameUserAsPrev;
 
@@ -560,7 +591,7 @@ export default function ChatRoom() {
 
       {/* INPUT BAR BAWAH */}
       {user?.kelas_id && (
-        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
+        <div className="fixed inset-x-0 bottom-[65px] z-40 w-full border-t border-slate-200/80 bg-white/95 px-3 py-2.5 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)] backdrop-blur-md sm:px-4">
           <div className="max-w-4xl mx-auto">
             <form onSubmit={handleSend} className="flex items-center gap-2.5">
               <input
