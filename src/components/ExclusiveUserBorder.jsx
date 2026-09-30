@@ -41,7 +41,7 @@ const PRESET_BORDER_TYPES = {
     label: '',
     accent: 'from-[#F472B6] via-[#F9A8D4] to-[#FDA4AF]',
     chip: 'hidden',
-    glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.8),0_0_20px_rgba(244,114,182,0.8),0_0_40px_rgba(253,164,175,0.5)]',
+    glow: 'shadow-[0_0_0_1.5px_rgba(255,255,255,0.9),0_0_18px_rgba(244,114,182,0.95),0_0_42px_rgba(249,168,212,0.8),0_0_68px_rgba(253,164,175,0.45)]',
     isPinkBorder: true,
   },
 };
@@ -243,8 +243,13 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           {isPinkBorder && (
             <>
               <div className="absolute -inset-[150%] animate-[spinReverse_5s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F472B6_0%,#FFFFFF_25%,#F9A8D4_50%,#FFFFFF_75%,#F472B6_100%)] opacity-100" />
-              <div className="absolute inset-1 rounded-full border border-pink-200/50 shadow-[inset_0_0_15px_rgba(244,114,182,0.4)] z-10 pointer-events-none" />
-              <div className="absolute inset-0 bg-pink-400/10 animate-[pulse_3s_ease-in-out_infinite] pointer-events-none" />
+              <div className="absolute inset-[1px] rounded-full border border-white/80 shadow-[inset_0_0_8px_rgba(255,255,255,0.9),inset_0_0_22px_rgba(244,114,182,0.7)] z-10 pointer-events-none" />
+              <div className="absolute inset-[3px] rounded-full border border-pink-100/70 animate-[pinkHalo_2.8s_ease-in-out_infinite] pointer-events-none z-10" />
+              <div className="absolute -inset-[2px] rounded-full border border-dashed border-pink-100/70 animate-[spin_14s_linear_infinite] pointer-events-none z-10" />
+              <div className="absolute inset-0 bg-pink-400/15 animate-[pulse_2.2s_ease-in-out_infinite] pointer-events-none" />
+              <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none z-30">
+                <div className="absolute -inset-full h-[250%] w-[250%] rotate-[35deg] animate-[pinkShimmer_3.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+              </div>
             </>
           )}
 
@@ -304,7 +309,11 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
             <StarSparkle className="absolute -top-2 right-1/4 w-3.5 h-3.5 text-pink-200 filter drop-shadow-[0_0_5px_#F472B6] animate-[starFloat_3s_ease-in-out_infinite]" />
             <StarSparkle className="absolute top-1/4 -left-2 w-2.5 h-2.5 text-white filter drop-shadow-[0_0_5px_#F9A8D4] animate-[starFloat_2.5s_ease-in-out_infinite_0.5s]" />
             <StarSparkle className="absolute -bottom-1 left-1/3 w-3 h-3 text-pink-100 filter drop-shadow-[0_0_6px_#F472B6] animate-[starFloat_4s_ease-in-out_infinite_1s]" />
+            <StarSparkle className="absolute top-0 left-1/3 w-2.5 h-2.5 text-white filter drop-shadow-[0_0_7px_#F472B6] animate-[starFloat_2.4s_ease-in-out_infinite_0.8s]" />
+            <StarSparkle className="absolute bottom-1/4 -right-2 w-3 h-3 text-pink-50 filter drop-shadow-[0_0_7px_#F9A8D4] animate-[starFloat_3.2s_ease-in-out_infinite_1.3s]" />
             <Firefly className="w-1 h-1 -bottom-2 right-1/4 animate-[fireflyFloat_3.5s_ease-in-out_infinite_0.2s]" color="#FBCFE8" />
+            <Firefly className="w-1.5 h-1.5 top-1/3 -right-1 animate-[fireflyFloat_3s_ease-in-out_infinite_0.7s]" color="#F9A8D4" />
+            <Firefly className="w-1 h-1 top-0 left-1/4 animate-[fireflyFloat_4s_ease-in-out_infinite_1.1s]" color="#FFFFFF" />
           </div>
         )}
 
@@ -318,6 +327,19 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
           @keyframes spinReverse {
             0% { transform: rotate(360deg); }
             100% { transform: rotate(0deg); }
+          }
+          @keyframes pinkHalo {
+            0%, 100% { opacity: 0.4; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+          }
+          @keyframes pinkShimmer {
+            0%, 12% { transform: translateX(-70%) translateY(-45%) rotate(35deg); opacity: 0; }
+            35% { opacity: 0.85; }
+            62%, 100% { transform: translateX(70%) translateY(45%) rotate(35deg); opacity: 0; }
+          }
+          @keyframes pinkGleam {
+            0%, 100% { opacity: 0.45; transform: rotate(0deg) scale(0.92); }
+            50% { opacity: 1; transform: rotate(180deg) scale(1.04); }
           }
           @keyframes rippleFast {
             0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
@@ -392,12 +414,44 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#6B21A8_0%,#D8B4FE_20%,#9333EA_50%,#D8B4FE_80%,#6B21A8_100%)] opacity-95" />
       )}
       {isPinkBorder && (
-        <div className="absolute -inset-[150%] animate-[spinReverse_7s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F472B6_0%,#FDF2F8_25%,#F9A8D4_50%,#FDF2F8_75%,#F472B6_100%)] opacity-95" />
+        <>
+          <div className="absolute -inset-[150%] animate-[spinReverse_7s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#F472B6_0%,#FDF2F8_25%,#F9A8D4_50%,#FDF2F8_75%,#F472B6_100%)] opacity-95" />
+          <div className="absolute inset-[2px] rounded-[26px] border border-white/80 shadow-[inset_0_0_18px_rgba(249,168,212,0.65)] pointer-events-none z-[5]" />
+          <div className="absolute inset-0 rounded-[28px] bg-pink-300/10 animate-[pinkHalo_3s_ease-in-out_infinite] pointer-events-none z-[5]" />
+          <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none z-[6]">
+            <div className="absolute -inset-full h-[250%] w-[250%] rotate-[35deg] animate-[pinkShimmer_4.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/65 to-transparent" />
+          </div>
+          <div className="absolute -top-1 left-1/4 z-[7] pointer-events-none animate-[pinkGleam_2.4s_ease-in-out_infinite]">
+            <StarSparkle className="h-3.5 w-3.5 text-white drop-shadow-[0_0_7px_#F472B6]" />
+          </div>
+          <div className="absolute -bottom-1 right-1/4 z-[7] pointer-events-none animate-[pinkGleam_3s_ease-in-out_infinite_0.7s]">
+            <StarSparkle className="h-3 w-3 text-pink-100 drop-shadow-[0_0_7px_#F9A8D4]" />
+          </div>
+        </>
       )}
 
       <div className="relative h-full w-full rounded-[24px] bg-white/90 backdrop-blur-md ring-1 ring-white/50 z-10">
         {children}
       </div>
+      <style>{`
+        @keyframes spinReverse {
+          0% { transform: rotate(360deg); }
+          100% { transform: rotate(0deg); }
+        }
+        @keyframes pinkHalo {
+          0%, 100% { opacity: 0.4; transform: scale(0.98); }
+          50% { opacity: 1; transform: scale(1.02); }
+        }
+        @keyframes pinkShimmer {
+          0%, 12% { transform: translateX(-70%) translateY(-45%) rotate(35deg); opacity: 0; }
+          35% { opacity: 0.85; }
+          62%, 100% { transform: translateX(70%) translateY(45%) rotate(35deg); opacity: 0; }
+        }
+        @keyframes pinkGleam {
+          0%, 100% { opacity: 0.45; transform: rotate(0deg) scale(0.92); }
+          50% { opacity: 1; transform: rotate(180deg) scale(1.04); }
+        }
+      `}</style>
     </div>
   );
 }
