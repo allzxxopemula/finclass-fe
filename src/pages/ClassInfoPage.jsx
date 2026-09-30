@@ -123,7 +123,7 @@ export default function ClassInfoPage() {
       email: profile.email || '',
       customBorderColor: borderVal,
       exclusivePreset: profile.exclusivePreset || getExclusiveUserPreset(borderVal),
-      kelasName: kelasData?.nama_kelas || 'Kelas belum ditentukan',
+      kelasName: kelasData?.nama_kelas || 'Belum ada kelas',
     });
   };
 
@@ -131,48 +131,48 @@ export default function ClassInfoPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-4 pb-4">
+      <div className="space-y-4 pb-6">
         
-        {/* Header */}
-        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-slate-50/95 px-4 pb-3 pt-4 backdrop-blur-md">
+        {/* Header Top Bar */}
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => navigate('/profile')}
-              className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
             >
-              <FontAwesomeIcon icon={faArrowLeft} />
+              <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
             </button>
 
             <div>
-              <h1 className="text-base font-black text-slate-900">Info Kelas</h1>
-              <p className="text-[10px] text-slate-400">Owner kelas, anggota, dan detail room</p>
+              <h1 className="text-sm font-bold text-slate-800">Info Kelas</h1>
+              <p className="text-[10px] text-slate-400 font-medium">Owner kelas, anggota, dan detail room</p>
             </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="animate-pulse space-y-4">
-            <div className="h-32 rounded-2xl bg-slate-200" />
-            <div className="h-64 rounded-2xl bg-slate-200" />
+          <div className="animate-pulse space-y-3">
+            <div className="h-32 rounded-2xl bg-slate-100" />
+            <div className="h-64 rounded-2xl bg-slate-100" />
           </div>
         ) : (
           <div className="space-y-4">
             
             {/* Card 1: Informasi Kelas & Statistik */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="h-1.5 w-full bg-indigo-500"></div>
+              <div className="h-1.5 w-full bg-indigo-600"></div>
 
-              <div className="p-5 space-y-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl border border-indigo-100 shadow-inner">
+              <div className="p-5 space-y-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl border border-indigo-100 shrink-0 shadow-sm">
                     <FontAwesomeIcon icon={faBuildingColumns} />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900 leading-tight">
+                  <div className="overflow-hidden">
+                    <h2 className="text-lg font-bold text-slate-800 leading-snug truncate">
                       {kelasData?.nama_kelas || 'Belum ada kelas'}
                     </h2>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                    <p className="text-xs font-semibold text-slate-400 mt-0.5">
                       Ruang Kelas Terdaftar
                     </p>
                   </div>
@@ -180,13 +180,13 @@ export default function ClassInfoPage() {
 
                 <div className="h-px w-full bg-slate-100"></div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <FontAwesomeIcon icon={faCalendarDays} className="text-slate-300" />
+                      <FontAwesomeIcon icon={faCalendarDays} className="text-slate-400" />
                       <span>Dibuat Pada</span>
                     </div>
-                    <p className="text-sm font-bold text-slate-800">
+                    <p className="text-xs font-bold text-slate-800">
                       {kelasData?.created_at
                         ? new Date(kelasData.created_at).toLocaleDateString('id-ID', {
                             day: 'numeric',
@@ -196,12 +196,12 @@ export default function ClassInfoPage() {
                         : '-'}
                     </p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <FontAwesomeIcon icon={faUsers} className="text-slate-300" />
+                      <FontAwesomeIcon icon={faUsers} className="text-slate-400" />
                       <span>Total Anggota</span>
                     </div>
-                    <p className="text-sm font-bold text-slate-800">
+                    <p className="text-xs font-bold text-slate-800">
                       {memberList.length + 1} Siswa
                     </p>
                   </div>
@@ -211,9 +211,9 @@ export default function ClassInfoPage() {
 
             {/* Card 2: Daftar Anggota Kelas */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <h3 className="text-sm font-black text-slate-800">Struktur Anggota</h3>
-                <span className="text-[10px] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded-lg">
+              <div className="p-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <h3 className="text-xs font-bold text-slate-800">Struktur Anggota</h3>
+                <span className="text-[10px] font-bold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
                   {memberList.length + 1} Terdaftar
                 </span>
               </div>
@@ -235,79 +235,79 @@ export default function ClassInfoPage() {
                     exclusivePreset: ownerExclusivePreset,
                     created_at: ownerData?.created_at || null,
                   }, 'Bendahara')}
-                  className="flex w-full items-center gap-3 rounded-xl bg-indigo-50/30 border border-indigo-50 p-3 text-left transition-all hover:bg-indigo-50/60 hover:shadow-sm focus:outline-none cursor-pointer"
+                  className="flex w-full items-center gap-3.5 rounded-2xl bg-indigo-50/40 border border-indigo-100 p-3 text-left transition-all hover:bg-indigo-50/80 active:scale-[0.98] cursor-pointer"
                 >
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <ExclusiveProfileShell 
                       email={ownerData?.email || user?.email} 
                       customBorderColor={ownerBorderToken} 
                       borderValue={ownerBorderToken}
                       variant="avatar" 
-                      className="h-14 w-14 shrink-0"
+                      className="h-12 w-12"
                     >
-                      <div className="h-full w-full overflow-hidden rounded-full bg-white">
+                      <div className="h-full w-full overflow-hidden rounded-full bg-white border border-slate-200">
                         {ownerAvatar ? (
                           <img src={ownerAvatar} alt={ownerName} className="h-full w-full object-cover" />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-600 text-sm font-black">
+                          <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-600 text-sm font-bold">
                             {ownerName ? ownerName.charAt(0).toUpperCase() : 'B'}
                           </div>
                         )}
                       </div>
                     </ExclusiveProfileShell>
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center text-[9px] border-2 border-white">
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[9px] shadow-sm ring-2 ring-white">
                       <FontAwesomeIcon icon={faCrown} />
                     </div>
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-bold text-slate-900">{ownerName}</p>
+                      <p className="truncate text-xs font-bold text-slate-800">{ownerName}</p>
                       {Boolean(ownerExclusivePreset?.label && String(ownerExclusivePreset.label).trim()) && (
-                        <span className={`rounded-full px-2 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${ownerExclusivePreset.accent} border border-white/30 shadow-sm`}>
+                        <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-bold text-white bg-gradient-to-r ${ownerExclusivePreset.accent} shadow-sm`}>
                           {ownerExclusivePreset.label}
                         </span>
                       )}
                     </div>
-                    <p className="truncate text-[11px] font-medium text-slate-500">@{ownerUsername}</p>
+                    <p className="truncate text-[10px] font-medium text-slate-500 mt-0.5">@{ownerUsername}</p>
                   </div>
-                  <span className="shrink-0 rounded-lg bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
+                  <span className="shrink-0 rounded-lg bg-indigo-100 border border-indigo-200 px-2.5 py-1 text-[10px] font-bold text-indigo-700">
                     Bendahara
                   </span>
                 </button>
 
                 {/* Garis Pemisah */}
                 {memberList.length > 0 && (
-                  <div className="w-full px-4 py-1">
+                  <div className="w-full px-2 py-0.5">
                     <div className="h-px w-full bg-slate-100"></div>
                   </div>
                 )}
 
                 {/* 2. Daftar Anggota Biasa */}
                 {memberList.length === 0 ? (
-                  <div className="p-5 text-center text-xs font-medium text-slate-400">
+                  <div className="p-4 text-center text-xs font-medium text-slate-400">
                     Belum ada anggota lain di kelas ini.
                   </div>
                 ) : (
-                  memberList.map((member, index) => (
+                  memberList.map((member) => (
                     <button
                       key={member.id}
                       type="button"
                       onClick={() => handleOpenProfile(member, 'Siswa')}
-                      className={`flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-slate-50 focus:outline-none cursor-pointer ${index > 0 ? '-mt-0.5' : ''}`}
+                      className="flex w-full items-center gap-3.5 rounded-2xl p-2.5 bg-white border border-transparent hover:border-slate-200 hover:bg-slate-50 text-left transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <ExclusiveProfileShell 
                         email={member.email} 
                         customBorderColor={member.customBorderColor} 
                         borderValue={member.customBorderColor}
                         variant="avatar" 
-                        className="h-14 w-14 shrink-0"
+                        className="h-12 w-12 shrink-0"
                       >
                         <div className="h-full w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                           {member.displayAvatar ? (
                             <img src={member.displayAvatar} alt={member.displayName} className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-slate-200 text-slate-600 text-xs font-black">
+                            <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-500 text-xs font-bold">
                               {member.displayName ? member.displayName.charAt(0).toUpperCase() : 'A'}
                             </div>
                           )}
@@ -316,17 +316,17 @@ export default function ClassInfoPage() {
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-bold text-slate-800">{member.displayName}</p>
+                          <p className="truncate text-xs font-bold text-slate-800">{member.displayName}</p>
                           {Boolean(member.exclusivePreset?.label && String(member.exclusivePreset.label).trim()) && (
-                            <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black text-white bg-gradient-to-r ${member.exclusivePreset.accent} border border-white/30`}>
+                            <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-bold text-white bg-gradient-to-r ${member.exclusivePreset.accent} shadow-sm`}>
                               {member.exclusivePreset.label}
                             </span>
                           )}
                         </div>
-                        <p className="truncate text-[11px] font-medium text-slate-500">@{member.displayUsername}</p>
+                        <p className="truncate text-[10px] font-medium text-slate-500 mt-0.5">@{member.displayUsername}</p>
                       </div>
 
-                      <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">
+                      <span className="shrink-0 rounded-lg bg-slate-100 border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600">
                         Siswa
                       </span>
                     </button>
@@ -339,90 +339,93 @@ export default function ClassInfoPage() {
           </div>
         )}
 
-        {/* Modal Detail Profil */}
+        {/* Modal Detail Profil (Persis Sesuai Style Profile.jsx) */}
         {selectedProfile && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity"
             onClick={closeProfileModal}
           >
             <div
-              className="relative w-full max-w-md overflow-hidden rounded-[30px] border border-white/30 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.35)]"
+              className="relative w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-2xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${selectedProfile.exclusivePreset?.accent || 'from-indigo-600 via-indigo-500 to-sky-500'}`}>
+              {/* Banner Profil Popup */}
+              <div className="relative h-32 bg-indigo-600 overflow-hidden">
                 {selectedProfile.banner ? (
-                  <img src={selectedProfile.banner} alt={selectedProfile.displayName || 'Banner profil'} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%)]" />
-                )}
-                <button
-                  type="button"
-                  onClick={closeProfileModal}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xs font-black text-white backdrop-blur-sm transition hover:bg-white/20 cursor-pointer"
-                >
-                  ✕
-                </button>
+                  <img src={selectedProfile.banner} alt="Banner profil" className="h-full w-full object-cover opacity-90" />
+                ) : null}
+                
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <button 
+                    type="button" 
+                    onClick={closeProfileModal} 
+                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
 
-              <div className="relative -mt-12 px-5 pb-5">
-                <div className="flex items-end justify-between gap-3">
-                  <ExclusiveProfileShell 
-                    email={selectedProfile.email}
-                    borderValue={selectedProfile.customBorderColor} 
-                    customBorderColor={selectedProfile.customBorderColor} 
-                    variant="avatar" 
-                    className="h-24 w-24 shadow-[0_18px_30px_rgba(79,70,229,0.25)]"
-                  >
-                    <div className="h-full w-full overflow-hidden rounded-full border-[2px] border-white bg-slate-100">
-                      {selectedProfile.displayAvatar ? (
-                        <img src={selectedProfile.displayAvatar} alt={selectedProfile.displayName} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-slate-200 text-2xl font-black text-slate-700">
-                          {selectedProfile.displayName ? selectedProfile.displayName.charAt(0).toUpperCase() : 'A'}
-                        </div>
-                      )}
-                    </div>
-                  </ExclusiveProfileShell>
-
-                  {Boolean(selectedProfile.exclusivePreset?.label && String(selectedProfile.exclusivePreset.label).trim()) && (
-                    <span className={`rounded-full px-2.5 py-1 text-[9px] font-black text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} border border-white/40 shadow-md`}>
+              {/* Konten Profil Popup */}
+              <div className="px-6 pb-6 relative">
+                <div className="flex justify-between items-end -mt-10 mb-4">
+                  <div className="p-1.5 bg-white rounded-full">
+                    <ExclusiveProfileShell 
+                      email={selectedProfile.email}
+                      borderValue={selectedProfile.customBorderColor} 
+                      customBorderColor={selectedProfile.customBorderColor} 
+                      variant="avatar" 
+                      className="h-20 w-20"
+                    >
+                      <div className="h-full w-full overflow-hidden rounded-full bg-slate-100">
+                        {selectedProfile.displayAvatar ? (
+                          <img src={selectedProfile.displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-2xl font-bold text-slate-400">
+                            {selectedProfile.displayName ? selectedProfile.displayName.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                        )}
+                      </div>
+                    </ExclusiveProfileShell>
+                  </div>
+                  
+                  {selectedProfile.exclusivePreset && selectedProfile.exclusivePreset.label && String(selectedProfile.exclusivePreset.label).trim() && (
+                    <span className={`rounded-lg px-3 py-1 mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} shadow-sm`}>
                       {selectedProfile.exclusivePreset.label}
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-black text-slate-900 leading-tight">{selectedProfile.displayName}</h3>
-                    <p className="mt-1 text-sm font-medium text-slate-500">@{selectedProfile.displayUsername}</p>
-                  </div>
-
-                  <div className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-600">
-                    {selectedProfile.roleLabel}
+                    <h3 className="text-[19px] font-black text-slate-800">{selectedProfile.displayName}</h3>
+                    <p className="text-[13px] text-slate-500 font-medium">@{selectedProfile.displayUsername}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Kelas</p>
-                      <p className="mt-1 text-sm font-black text-slate-800 line-clamp-2">{selectedProfile.kelasName}</p>
+                    <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                      <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
+                      <p className="text-sm font-bold text-slate-800 capitalize">{selectedProfile.roleLabel}</p>
                     </div>
-                    <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Role</p>
-                      <p className="mt-1 text-sm font-black text-slate-800">{selectedProfile.roleLabel}</p>
+                    <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                      <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
+                      <p className="text-sm font-bold text-slate-800 truncate">{selectedProfile.kelasName}</p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Tanggal akun dibuat</p>
-                    <p className="mt-2 text-sm font-bold text-slate-800">
-                      {selectedProfile.createdAt
-                        ? new Date(selectedProfile.createdAt).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
-                        : 'Belum tersedia'}
-                    </p>
+                  <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
+                      <p className="text-sm font-bold text-slate-800">
+                        {selectedProfile.createdAt
+                          ? new Date(selectedProfile.createdAt).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            })
+                          : 'Belum tersedia'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

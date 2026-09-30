@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPaperPlane, faSpinner, faComments, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -46,7 +46,7 @@ const writeChatCache = (userId, room, messages) => {
 const AutoEmbedLink = ({ url, isMine, onImageLoaded }) => {
   const [status, setStatus] = useState('checking');
 
-  const linkStyle = isMine ? "text-indigo-100 underline font-medium break-all" : "text-blue-600 underline font-medium break-all";
+  const linkStyle = isMine ? "text-indigo-100 underline font-medium break-all" : "text-indigo-600 underline font-medium break-all";
 
   return (
     <span className="inline-block max-w-full align-top">
@@ -94,7 +94,7 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 // =========================================================
 // KOMPONEN ITEM PESAN (BUBBLE, AVATAR, & GROUPING)
 // =========================================================
-const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatTime, setMessageToDelete }) => {
+const MessageItem = ({ item, isMine, showAvatar, borderValue, getDisplayName, formatTime, setMessageToDelete }) => {
   const sender = item.user || {};
   const avatarUrl = sender?.profile_image_url || sender?.profile_image || '';
   const isDeleted = Boolean(item.deleted_at || item.is_deleted);
@@ -124,34 +124,40 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
   if (isImageMode && !isDeleted) {
     bubbleClass = 'bg-transparent shadow-none p-0 mt-1';
   } else {
-    bubbleClass += ` px-3 pt-2 pb-5 min-w-[70px] ${cornerClass}`;
+    bubbleClass += ` px-3.5 pt-2 pb-5 min-w-[70px] ${cornerClass}`;
   }
 
   return (
     <div className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} mt-1`}>
       <div className={`flex max-w-[90%] md:max-w-[75%] items-start gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
 
-        {/* WADAH FOTO PROFIL */}
-        <div className="flex flex-col items-center shrink-0 w-7 mt-0.5">
+        {/* WADAH FOTO PROFIL DENGAN EXCLUSIVE BORDER */}
+        <div className="flex flex-col items-center shrink-0 w-8 mt-0.5">
           {showAvatar ? (
-            <div className={`h-7 w-7 rounded-full ${preset ? `p-[1.5px] bg-gradient-to-br ${preset.accent}` : ''}`}>
-              <div className={`h-full w-full overflow-hidden rounded-full bg-slate-100 shadow-sm flex items-center justify-center ${preset ? 'border-[1.5px] border-white' : 'border border-slate-200'}`}>
+            <ExclusiveProfileShell 
+              email={sender?.email}
+              customBorderColor={borderValue}
+              borderValue={borderValue}
+              variant="avatar"
+              className="h-8 w-8"
+            >
+              <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={getDisplayName(sender)} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="text-[10px] font-black text-slate-600 uppercase">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase">
                     {getDisplayName(sender).charAt(0)}
                   </div>
                 )}
               </div>
-            </div>
+            </ExclusiveProfileShell>
           ) : (
-            <div className="h-7 w-7" />
+            <div className="h-8 w-8" />
           )}
         </div>
 
         {/* WADAH KONTEN CHAT */}
-        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.25rem)]`}>
+        <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.5rem)]`}>
 
           {showAvatar && !isMine && (
             <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1">
@@ -166,11 +172,11 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
             className={`relative max-w-full cursor-pointer active:scale-[0.98] transition-all ${bubbleClass}`}
           >
 
-            <div className={`text-[13px] leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : ''}`}>
+            <div className={`text-xs leading-relaxed break-words whitespace-pre-wrap ${isDeleted ? 'pr-0' : ''}`}>
               {isDeleted ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="italic">Pesan ini telah dihapus</span>
-                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[9px] font-black text-slate-600">×</span>
+                  <span className="italic text-[11px]">Pesan ini telah dihapus</span>
+                  <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-300 text-[8px] font-bold text-slate-600">×</span>
                 </span>
               ) : (
                 renderMessageWithImages(item.message, isMine, handleImageLoaded)
@@ -180,7 +186,7 @@ const MessageItem = ({ item, isMine, showAvatar, preset, getDisplayName, formatT
             <span className={`text-[9px] absolute font-medium z-10 ${
               isImageMode
                 ? 'bottom-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm'
-                : `bottom-1.5 right-2 ${isMine ? 'text-indigo-200' : 'text-slate-400'}`
+                : `bottom-1.5 right-2.5 ${isMine ? 'text-indigo-200' : 'text-slate-400'}`
             }`}>
               {formatTime(item.created_at)}
             </span>
@@ -292,11 +298,6 @@ export default function ChatRoom() {
         const incomingMessages = response.data.messages || [];
         const reconciled = reconcileMessages(incomingMessages);
 
-        // ===============================================================
-        // LOGIC SMART DIFFING (SUPER AKURAT):
-        // Membandingkan ID, status hapus, dan isi pesan.
-        // Jika tidak ada perubahan sama sekali, React TIDAK AKAN me-render ulang!
-        // ===============================================================
         setMessages((prev) => {
           if (prev.length !== reconciled.length) return reconciled;
           
@@ -343,7 +344,6 @@ export default function ChatRoom() {
 
     const safetyTimer = window.setTimeout(() => setLoading(false), 5000);
 
-    // DIKEMBALIKAN KE 3 DETIK (REAL-TIME SEJATI!)
     const timer = window.setInterval(() => {
       if (savedUser?.id) loadMessages(savedUser.id, true);
     }, 3000);
@@ -352,7 +352,6 @@ export default function ChatRoom() {
       window.clearInterval(timer);
       window.clearTimeout(safetyTimer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleScroll = () => {
@@ -377,9 +376,6 @@ export default function ChatRoom() {
     }
   }, [messages]);
 
-  // =========================================================
-  // LOGIKA KIRIM CHAT: TAHAN INPUT SAMPAI SERVER MERESPONS
-  // =========================================================
   const handleSend = async (event) => {
     event.preventDefault();
     if (!user?.id || !draft.trim() || sending) return;
@@ -464,40 +460,41 @@ export default function ChatRoom() {
     <MainLayout>
       <div className="flex flex-col h-[calc(100dvh-135px)] relative">
 
-        <div className="sticky top-0 z-30 bg-slate-50 flex items-center gap-3 pt-3 pb-3 shrink-0 border-b border-slate-200/50 mb-2">
+        {/* HEADER BAR DENGAN STYLE SAMA DENGAN PAGE LAIN */}
+        <div className="sticky top-0 z-30 -mx-4 -mt-4 border-b border-slate-100 bg-white/90 px-4 py-3 backdrop-blur-md flex items-center gap-3 mb-2 shrink-0">
           <button
             type="button"
             onClick={() => navigate('/profile')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50"
+            className="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer shadow-sm active:scale-95"
           >
-            <FontAwesomeIcon icon={faArrowLeft} />
+            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner">
-              <FontAwesomeIcon icon={faComments} className="text-sm" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xs shrink-0 shadow-2xs">
+              <FontAwesomeIcon icon={faComments} />
             </div>
             <div>
-              <h1 className="text-base font-black text-slate-900 leading-tight">
+              <h1 className="text-sm font-bold text-slate-800 leading-tight">
                 {room ? room.name : 'Room Chat Kelas'}
               </h1>
-              <p className="text-[10px] font-bold text-slate-400">Pesan terhapus otomatis 7 hari</p>
+              <p className="text-[10px] font-medium text-slate-400">Pesan terhapus otomatis 7 hari</p>
             </div>
           </div>
         </div>
 
         {loading && messages.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="flex flex-col items-center gap-3 text-slate-400">
-              <FontAwesomeIcon icon={faSpinner} spin className="text-2xl text-indigo-500" />
+            <div className="flex flex-col items-center gap-2 text-slate-400">
+              <FontAwesomeIcon icon={faSpinner} spin className="text-xl text-indigo-600" />
               <span className="text-xs font-bold">Memuat percakapan...</span>
             </div>
           </div>
         ) : !user?.kelas_id ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm max-w-sm">
-              <p className="text-sm font-black text-slate-800">Kamu belum bergabung di kelas.</p>
-              <p className="mt-1 text-xs text-slate-500">Silakan gabung kelas terlebih dahulu untuk memulai obrolan.</p>
+              <p className="text-sm font-bold text-slate-800">Kamu belum bergabung di kelas.</p>
+              <p className="mt-1 text-xs text-slate-500 font-medium">Silakan gabung kelas terlebih dahulu untuk memulai obrolan.</p>
             </div>
           </div>
         ) : (
@@ -508,7 +505,7 @@ export default function ChatRoom() {
           >
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
-                <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100">
+                <div className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold border border-indigo-100 shadow-2xs">
                   Mulai obrolan pertama di kelas ini!
                 </div>
               </div>
@@ -516,8 +513,7 @@ export default function ChatRoom() {
               messages.map((item, index) => {
                 const senderId = item.user_id || item.user?.id;
                 const isMine = String(senderId) === String(user.id);
-                const borderValue = item.user?.custom_border_color || item.user?.border_type || user?.custom_border_color || user?.border_type || '';
-                const preset = getExclusiveUserPreset(borderValue || item.user?.email || user?.email);
+                const borderValue = item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || '';
 
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
@@ -530,7 +526,7 @@ export default function ChatRoom() {
                     item={item}
                     isMine={isMine}
                     showAvatar={showAvatar}
-                    preset={preset}
+                    borderValue={borderValue}
                     getDisplayName={getDisplayName}
                     formatTime={formatTime}
                     setMessageToDelete={setMessageToDelete}
@@ -542,16 +538,17 @@ export default function ChatRoom() {
         )}
       </div>
 
+      {/* INPUT BAR PADA DESAIN BAWAH */}
       {user?.kelas_id && (
-        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-slate-50/95 backdrop-blur-md border-t border-slate-200/60 px-4 py-2">
+        <div className="fixed bottom-[65px] left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5">
           <div className="max-w-4xl mx-auto">
-            <form onSubmit={handleSend} className="flex items-end gap-2">
+            <form onSubmit={handleSend} className="flex items-center gap-2">
               <input
                 type="text"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Ketik pesan atau paste URL gambar..."
-                className="flex-1 h-12 rounded-full border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-700 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                className="flex-1 h-10 rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-semibold text-slate-800 shadow-2xs outline-none focus:border-indigo-600 focus:bg-white transition-all placeholder:text-slate-400"
                 maxLength={500}
                 autoComplete="off"
                 disabled={sending}
@@ -560,12 +557,12 @@ export default function ChatRoom() {
               <button
                 type="submit"
                 disabled={sending || !draft.trim()}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-600/20 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-all hover:bg-indigo-700 active:scale-95 cursor-pointer"
               >
                 {sending ? (
-                  <FontAwesomeIcon icon={faSpinner} spin className="text-lg" />
+                  <FontAwesomeIcon icon={faSpinner} spin className="text-xs" />
                 ) : (
-                  <FontAwesomeIcon icon={faPaperPlane} className="text-lg mr-0.5" />
+                  <FontAwesomeIcon icon={faPaperPlane} className="text-xs mr-0.5" />
                 )}
               </button>
             </form>
@@ -573,40 +570,36 @@ export default function ChatRoom() {
         </div>
       )}
 
+      {/* MODAL HAPUS PESAN */}
       {messageToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all" onClick={() => setMessageToDelete(null)}>
           <div
-            className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl animate-[slide-up_0.2s_ease-out]"
-            style={{ animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+            className="w-full max-w-sm bg-white rounded-[28px] p-5 shadow-2xl animate-[slide-up_0.2s_ease-out]"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
-            <h3 className="text-center text-sm font-black text-slate-800 mb-5">Pilihan Pesan</h3>
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3 sm:hidden"></div>
+            <h3 className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Pilihan Pesan</h3>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
+                type="button"
                 onClick={() => handleDeleteMessage(messageToDelete.id)}
-                className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                className="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer border border-rose-100"
               >
                 <FontAwesomeIcon icon={faTrash} />
                 Hapus Pesan Ini
               </button>
 
               <button
+                type="button"
                 onClick={() => setMessageToDelete(null)}
-                className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer"
               >
                 <FontAwesomeIcon icon={faTimes} />
                 Batal
               </button>
             </div>
           </div>
-
-          <style>{`
-            @keyframes slideUp {
-              from { transform: translateY(100%); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-          `}</style>
         </div>
       )}
     </MainLayout>
