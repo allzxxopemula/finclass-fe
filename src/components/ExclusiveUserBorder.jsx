@@ -449,18 +449,47 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         '--hover-c3': isPinkBorder ? '#FDA4AF' : isPurpleBorder ? '#6B21A8' : isExclusivePurple ? '#6366F1' : isDonatur ? '#EA580C' : isDevTeam ? '#6366F1' : isDeveloper ? '#111827' : isHexBorder ? resolvedBorderValue : '#6366F1',
       }}
     >
-      {/* PREMIUM HOVER OUTLINE — ONLY FOR THE PROFILE SHELL.
-          The avatar/photo itself is untouched. */}
-      <div className="profile-hover-outline pointer-events-none absolute -inset-[2px] rounded-[31px] opacity-0 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:-inset-[5px]">
-        <div className="absolute inset-0 rounded-[31px] border border-white/80 opacity-90" />
-        <div className="absolute inset-[-2px] rounded-[33px] border border-white/20" />
-        <div className="absolute inset-[-5px] rounded-[36px] border border-current opacity-80" />
-        <div className="absolute inset-[-9px] rounded-[40px] border border-current opacity-35" />
-        <div className="absolute inset-[-13px] rounded-[44px] border border-current opacity-15" />
-        <div className="profile-hover-sweep absolute inset-[-14px] overflow-hidden rounded-[45px]">
-          <div className="absolute left-1/2 top-1/2 h-[160%] w-[22%] -translate-x-1/2 -translate-y-1/2 rotate-[28deg] bg-gradient-to-b from-transparent via-white/80 to-transparent blur-[5px]" />
+      {/* ULTRA HOVER PROFILE OUTLINE — OUTER SHELL ONLY.
+          Avatar/photo and its border remain completely untouched. */}
+      <div className="profile-hover-system pointer-events-none absolute -inset-[18px] rounded-[46px] opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true">
+        {/* Thick atmospheric glow */}
+        <div className="profile-hover-aura absolute -inset-[3px] rounded-[39px]" />
+
+        {/* Main thick animated outline */}
+        <div className="profile-hover-ring profile-hover-ring-main absolute -inset-[1px] rounded-[35px]" />
+        <div className="profile-hover-ring profile-hover-ring-inner absolute inset-[3px] rounded-[31px]" />
+        <div className="profile-hover-ring profile-hover-ring-outer absolute -inset-[7px] rounded-[41px]" />
+
+        {/* Different path: SVG dash travels around the whole profile instead of simply spinning a gradient */}
+        <svg className="profile-hover-path absolute -inset-[11px] h-[calc(100%+22px)] w-[calc(100%+22px)] overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <rect x="5" y="5" width="90" height="90" rx="20" fill="none" pathLength="1000" className="profile-hover-trace profile-hover-trace-a" />
+          <rect x="9" y="9" width="82" height="82" rx="17" fill="none" pathLength="1000" className="profile-hover-trace profile-hover-trace-b" />
+        </svg>
+
+        {/* Four independent light runners — each follows a different route */}
+        <span className="profile-hover-runner runner-a" />
+        <span className="profile-hover-runner runner-b" />
+        <span className="profile-hover-runner runner-c" />
+        <span className="profile-hover-runner runner-d" />
+
+        {/* Corner energy brackets */}
+        <span className="profile-hover-corner corner-tl" />
+        <span className="profile-hover-corner corner-tr" />
+        <span className="profile-hover-corner corner-bl" />
+        <span className="profile-hover-corner corner-br" />
+
+        {/* Floating particles around the outline */}
+        <span className="profile-hover-particle particle-1" />
+        <span className="profile-hover-particle particle-2" />
+        <span className="profile-hover-particle particle-3" />
+        <span className="profile-hover-particle particle-4" />
+        <span className="profile-hover-particle particle-5" />
+        <span className="profile-hover-particle particle-6" />
+
+        {/* Diagonal energy sweep */}
+        <div className="profile-hover-sweep absolute -inset-[20px] overflow-hidden rounded-[50px]">
+          <div className="profile-hover-sweep-beam" />
         </div>
-        <div className="profile-hover-dots absolute inset-[-12px] rounded-[43px]" />
       </div>
       {isDeveloper && (
         <div className="absolute -inset-[150%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#000000_0%,#E5E7EB_15%,#111827_35%,#FFFFFF_50%,#000000_65%,#D1D5DB_85%,#000000_100%)] opacity-95" />
@@ -517,126 +546,239 @@ export function ExclusiveProfileShell({ email, className = '', children, variant
         }
 
         /* =========================================================
-           PROFILE SHELL HOVER SYSTEM
-           - Applies to the OUTER PROFILE CARD only.
-           - Does NOT modify the avatar/photo border.
-           - Uses color from the active border preset.
+           ULTRA PROFILE SHELL HOVER SYSTEM
+           Outer shell only — avatar/photo is never modified.
            ========================================================= */
-
         .profile-shell {
           --hover-c1: #ffffff;
           --hover-c2: #a855f7;
           --hover-c3: #6366f1;
           transform: translateZ(0);
+          isolation: isolate;
           will-change: transform, filter;
         }
 
         .profile-shell:hover {
-          transform: translateY(-2px);
-          filter: saturate(1.08);
+          transform: translateY(-3px) scale(1.008);
+          filter: saturate(1.12) brightness(1.025);
         }
 
-        .profile-shell .profile-hover-outline {
-          color: var(--hover-c2);
-          filter:
-            drop-shadow(0 0 5px var(--hover-c2))
-            drop-shadow(0 0 14px color-mix(in srgb, var(--hover-c2) 65%, transparent))
-            drop-shadow(0 0 30px color-mix(in srgb, var(--hover-c3) 45%, transparent));
+        .profile-hover-system {
+          z-index: 0;
+          transform: translateZ(0);
+          overflow: visible;
         }
 
-        .profile-shell .profile-hover-outline::before,
-        .profile-shell .profile-hover-outline::after {
-          content: "";
-          position: absolute;
-          inset: -1px;
-          border-radius: inherit;
-          pointer-events: none;
-        }
-
-        .profile-shell .profile-hover-outline::before {
-          border: 1px solid var(--hover-c1);
-          opacity: .35;
-          box-shadow:
-            0 0 8px var(--hover-c1),
-            0 0 22px var(--hover-c2),
-            0 0 48px var(--hover-c3);
-          animation: profileHoverBreath 2.2s ease-in-out infinite;
-        }
-
-        .profile-shell .profile-hover-outline::after {
-          border: 1px solid var(--hover-c2);
-          opacity: .55;
-          animation: profileHoverOrbit 3.8s linear infinite;
-        }
-
-        .profile-hover-sweep {
-          opacity: 0;
-          transform: rotate(0deg);
-          transition: opacity .35s ease;
-        }
-
-        .profile-shell:hover .profile-hover-sweep {
-          opacity: .75;
-          animation: profileHoverSweep 1.8s cubic-bezier(.22,.61,.36,1) infinite;
-        }
-
-        .profile-hover-dots {
-          opacity: 0;
+        .profile-hover-aura {
           background:
-            radial-gradient(circle at 8% 22%, var(--hover-c1) 0 1px, transparent 1.8px),
-            radial-gradient(circle at 91% 31%, var(--hover-c2) 0 1.2px, transparent 2px),
-            radial-gradient(circle at 18% 88%, var(--hover-c3) 0 1px, transparent 1.8px),
-            radial-gradient(circle at 82% 83%, var(--hover-c1) 0 1px, transparent 1.8px),
-            radial-gradient(circle at 52% 2%, var(--hover-c2) 0 1px, transparent 1.8px);
-          transition: opacity .3s ease;
+            radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--hover-c1) 45%, transparent), transparent 28%),
+            radial-gradient(circle at 88% 22%, color-mix(in srgb, var(--hover-c2) 48%, transparent), transparent 30%),
+            radial-gradient(circle at 75% 88%, color-mix(in srgb, var(--hover-c3) 42%, transparent), transparent 32%);
+          filter: blur(14px);
+          opacity: .72;
+          animation: hoverAuraPulse 2.8s ease-in-out infinite;
         }
 
-        .profile-shell:hover .profile-hover-dots {
-          opacity: .85;
-          animation: profileHoverDots 2.6s ease-in-out infinite;
+        .profile-hover-ring {
+          background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            var(--hover-c1) 38deg,
+            var(--hover-c2) 82deg,
+            transparent 132deg,
+            var(--hover-c3) 196deg,
+            var(--hover-c1) 238deg,
+            transparent 286deg,
+            var(--hover-c2) 330deg,
+            transparent 360deg
+          );
+          padding: 4px;
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          filter: drop-shadow(0 0 7px var(--hover-c2)) drop-shadow(0 0 22px color-mix(in srgb, var(--hover-c3) 70%, transparent));
         }
 
-        .profile-shell:hover .profile-hover-outline > .border {
-          box-shadow: 0 0 16px var(--hover-c2);
+        .profile-hover-ring-main {
+          animation: hoverRingOrbit 4.6s linear infinite;
+          opacity: .98;
         }
 
-        @keyframes profileHoverBreath {
-          0%, 100% {
-            opacity: .22;
-            transform: scale(.995);
-          }
-          50% {
-            opacity: .78;
-            transform: scale(1.012);
-          }
+        .profile-hover-ring-inner {
+          padding: 2px;
+          opacity: .72;
+          animation: hoverRingPulse 1.9s ease-in-out infinite;
+          filter: drop-shadow(0 0 8px var(--hover-c1));
         }
 
-        @keyframes profileHoverOrbit {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        .profile-hover-ring-outer {
+          padding: 2px;
+          opacity: .42;
+          animation: hoverOuterDrift 6.5s ease-in-out infinite alternate;
+          filter: blur(.25px) drop-shadow(0 0 12px var(--hover-c3));
         }
 
-        @keyframes profileHoverSweep {
-          0% {
-            transform: translateX(-90%) rotate(28deg);
-          }
-          55% {
-            transform: translateX(90%) rotate(28deg);
-          }
-          100% {
-            transform: translateX(90%) rotate(28deg);
-          }
+        .profile-hover-path {
+          z-index: 4;
+          overflow: visible;
+          filter: drop-shadow(0 0 5px var(--hover-c2)) drop-shadow(0 0 13px var(--hover-c3));
         }
 
-        @keyframes profileHoverDots {
-          0%, 100% {
-            transform: rotate(0deg) scale(.96);
-            filter: blur(.1px);
-          }
-          50% {
-            transform: rotate(8deg) scale(1.025);
-            filter: blur(.35px);
-          }
+        .profile-hover-trace {
+          fill: none;
+          stroke-linecap: round;
+          vector-effect: non-scaling-stroke;
+        }
+
+        .profile-hover-trace-a {
+          stroke: var(--hover-c1);
+          stroke-width: 1.4;
+          stroke-dasharray: 115 55 24 42 8 18;
+          stroke-dashoffset: 0;
+          opacity: .95;
+          animation: hoverTraceTravel 4.2s linear infinite;
+        }
+
+        .profile-hover-trace-b {
+          stroke: var(--hover-c2);
+          stroke-width: 2.1;
+          stroke-dasharray: 36 18 8 68;
+          opacity: .72;
+          animation: hoverTraceTravelReverse 5.7s linear infinite;
+        }
+
+        .profile-hover-runner {
+          position: absolute;
+          width: 34px;
+          height: 6px;
+          border-radius: 999px;
+          background: linear-gradient(90deg, transparent, var(--hover-c1), var(--hover-c2), transparent);
+          box-shadow: 0 0 8px var(--hover-c1), 0 0 22px var(--hover-c2), 0 0 42px var(--hover-c3);
+          opacity: .95;
+          filter: blur(.15px);
+        }
+
+        .runner-a { top: 0; left: 8%; animation: runnerTop 2.7s cubic-bezier(.55,.08,.35,.92) infinite; }
+        .runner-b { right: 0; top: 15%; width: 6px; height: 34px; animation: runnerRight 3.15s cubic-bezier(.55,.08,.35,.92) .35s infinite; }
+        .runner-c { bottom: 0; right: 10%; animation: runnerBottom 2.95s cubic-bezier(.55,.08,.35,.92) .7s infinite; }
+        .runner-d { left: 0; bottom: 18%; width: 6px; height: 34px; animation: runnerLeft 3.35s cubic-bezier(.55,.08,.35,.92) 1s infinite; }
+
+        .profile-hover-corner {
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          border-color: var(--hover-c1);
+          filter: drop-shadow(0 0 6px var(--hover-c2)) drop-shadow(0 0 15px var(--hover-c3));
+          opacity: .95;
+          animation: cornerPulse 1.8s ease-in-out infinite;
+        }
+
+        .corner-tl { left: -1px; top: -1px; border-left: 4px solid; border-top: 4px solid; border-radius: 10px 0 0 0; }
+        .corner-tr { right: -1px; top: -1px; border-right: 4px solid; border-top: 4px solid; border-radius: 0 10px 0 0; animation-delay: .25s; }
+        .corner-bl { left: -1px; bottom: -1px; border-left: 4px solid; border-bottom: 4px solid; border-radius: 0 0 0 10px; animation-delay: .5s; }
+        .corner-br { right: -1px; bottom: -1px; border-right: 4px solid; border-bottom: 4px solid; border-radius: 0 0 10px 0; animation-delay: .75s; }
+
+        .profile-hover-particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: var(--hover-c1);
+          box-shadow: 0 0 5px var(--hover-c1), 0 0 13px var(--hover-c2), 0 0 26px var(--hover-c3);
+          opacity: 0;
+        }
+
+        .particle-1 { left: 13%; top: -7px; animation: particleOrbitA 2.8s ease-in-out infinite; }
+        .particle-2 { right: 19%; top: -10px; width: 3px; height: 3px; animation: particleOrbitB 3.4s ease-in-out .3s infinite; }
+        .particle-3 { right: -8px; top: 42%; animation: particleOrbitC 2.5s ease-in-out .6s infinite; }
+        .particle-4 { right: 24%; bottom: -9px; width: 3px; height: 3px; animation: particleOrbitD 3.1s ease-in-out .9s infinite; }
+        .particle-5 { left: -7px; bottom: 23%; animation: particleOrbitE 3.7s ease-in-out 1.2s infinite; }
+        .particle-6 { left: 31%; top: 50%; width: 3px; height: 3px; animation: particleOrbitF 2.9s ease-in-out 1.5s infinite; }
+
+        .profile-hover-sweep { opacity: .9; z-index: 3; }
+        .profile-hover-sweep-beam {
+          position: absolute;
+          width: 18%;
+          height: 180%;
+          left: -28%;
+          top: -40%;
+          transform: rotate(28deg);
+          background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hover-c1) 85%, transparent), color-mix(in srgb, var(--hover-c2) 60%, transparent), transparent);
+          filter: blur(7px);
+          opacity: 0;
+        }
+
+        .profile-shell:hover .profile-hover-sweep-beam {
+          animation: hoverBeamTravel 2.2s cubic-bezier(.2,.7,.2,1) infinite;
+        }
+
+        @keyframes hoverAuraPulse {
+          0%, 100% { opacity: .45; transform: scale(.98); filter: blur(15px); }
+          50% { opacity: .9; transform: scale(1.045); filter: blur(11px); }
+        }
+
+        @keyframes hoverRingOrbit {
+          0% { transform: rotate(0deg) scale(.99); }
+          50% { transform: rotate(180deg) scale(1.015); }
+          100% { transform: rotate(360deg) scale(.99); }
+        }
+
+        @keyframes hoverRingPulse {
+          0%, 100% { opacity: .42; transform: scale(.995); }
+          50% { opacity: .95; transform: scale(1.025); }
+        }
+
+        @keyframes hoverOuterDrift {
+          0% { transform: translate(-2px, 1px) rotate(-1deg) scale(.985); }
+          50% { transform: translate(2px, -2px) rotate(1deg) scale(1.015); }
+          100% { transform: translate(-1px, 2px) rotate(-.5deg) scale(1); }
+        }
+
+        @keyframes hoverTraceTravel { to { stroke-dashoffset: -1000; } }
+        @keyframes hoverTraceTravelReverse { to { stroke-dashoffset: 1000; } }
+
+        @keyframes runnerTop {
+          0% { transform: translateX(0) scaleX(.7); opacity: 0; }
+          12% { opacity: 1; }
+          55% { transform: translateX(420%) scaleX(1.2); opacity: 1; }
+          100% { transform: translateX(560%) scaleX(.5); opacity: 0; }
+        }
+        @keyframes runnerRight {
+          0% { transform: translateY(0) scaleY(.7); opacity: 0; }
+          12% { opacity: 1; }
+          55% { transform: translateY(260%) scaleY(1.2); opacity: 1; }
+          100% { transform: translateY(390%) scaleY(.5); opacity: 0; }
+        }
+        @keyframes runnerBottom {
+          0% { transform: translateX(0) scaleX(.7); opacity: 0; }
+          12% { opacity: 1; }
+          55% { transform: translateX(-430%) scaleX(1.2); opacity: 1; }
+          100% { transform: translateX(-570%) scaleX(.5); opacity: 0; }
+        }
+        @keyframes runnerLeft {
+          0% { transform: translateY(0) scaleY(.7); opacity: 0; }
+          12% { opacity: 1; }
+          55% { transform: translateY(-270%) scaleY(1.2); opacity: 1; }
+          100% { transform: translateY(-400%) scaleY(.5); opacity: 0; }
+        }
+
+        @keyframes cornerPulse {
+          0%, 100% { opacity: .5; filter: drop-shadow(0 0 3px var(--hover-c2)); transform: scale(.92); }
+          50% { opacity: 1; filter: drop-shadow(0 0 8px var(--hover-c2)) drop-shadow(0 0 18px var(--hover-c3)); transform: scale(1.08); }
+        }
+
+        @keyframes particleOrbitA { 0%,100% { transform: translate(0,0) scale(.4); opacity: 0; } 25% { opacity: 1; } 55% { transform: translate(25px,-13px) scale(1.3); opacity: 1; } 100% { transform: translate(58px,8px) scale(.2); opacity: 0; } }
+        @keyframes particleOrbitB { 0%,100% { transform: translate(0,0) scale(.3); opacity: 0; } 30% { opacity: 1; } 60% { transform: translate(-30px,17px) scale(1.2); opacity: .9; } 100% { transform: translate(-50px,45px) scale(.2); opacity: 0; } }
+        @keyframes particleOrbitC { 0%,100% { transform: translate(0,0) scale(.4); opacity: 0; } 35% { opacity: 1; } 70% { transform: translate(15px,28px) scale(1.4); opacity: .8; } 100% { transform: translate(-18px,52px) scale(.1); opacity: 0; } }
+        @keyframes particleOrbitD { 0%,100% { transform: translate(0,0) scale(.2); opacity: 0; } 25% { opacity: 1; } 65% { transform: translate(-38px,-18px) scale(1.2); opacity: .9; } 100% { transform: translate(-65px,-3px) scale(.1); opacity: 0; } }
+        @keyframes particleOrbitE { 0%,100% { transform: translate(0,0) scale(.3); opacity: 0; } 30% { opacity: 1; } 65% { transform: translate(28px,-30px) scale(1.25); opacity: .9; } 100% { transform: translate(55px,-8px) scale(.1); opacity: 0; } }
+        @keyframes particleOrbitF { 0%,100% { transform: translate(0,0) scale(.2); opacity: 0; } 35% { opacity: 1; } 65% { transform: translate(18px,24px) scale(1.3); opacity: .8; } 100% { transform: translate(-12px,46px) scale(.1); opacity: 0; } }
+
+        @keyframes hoverBeamTravel {
+          0% { left: -35%; opacity: 0; }
+          12% { opacity: .8; }
+          58% { opacity: .95; }
+          100% { left: 125%; opacity: 0; }
         }
 
         @media (prefers-reduced-motion: reduce) {
