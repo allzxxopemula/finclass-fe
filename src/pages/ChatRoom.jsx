@@ -124,8 +124,16 @@ const renderMessageWithImages = (text, isMine, onImageLoaded) => {
 const MessageItem = ({ item, isMine, showAvatar, senderProfile, getDisplayName, formatTime, setMessageToDelete }) => {
   const sender = item.user || {};
   const storedProfile = getStoredProfile(sender?.id);
+  // senderProfile sudah diprioritaskan dari /dashboard (sumber yang sama dengan ClassInfoPage).
   const profile = senderProfile || sender || {};
-  const avatarUrl = storedProfile?.image || profile?.image || profile?.profile_image_url || sender?.profile_image_url || sender?.profile_image || '';
+  const avatarUrl =
+    profile?.image ||
+    profile?.profile_image_url ||
+    profile?.profile_image ||
+    storedProfile?.image ||
+    sender?.profile_image_url ||
+    sender?.profile_image ||
+    '';
   const borderValue = getProfileBorderToken(profile, storedProfile);
   const isDeleted = Boolean(item.deleted_at || item.is_deleted);
 
@@ -581,12 +589,40 @@ export default function ChatRoom() {
               </div>
             ) : (
               messages.map((item, index) => {
-                const senderId = item.user_id || item.user?.id;
+                // Cocokkan sender dengan member dari /dashboard, mengikuti logic ClassInfoPage.
+                const senderId = item.user_id ?? item.user?.id ?? item.sender_id ?? item.sender?.id;
                 const isMine = String(senderId) === String(user.id);
                 const storedSenderProfile = getStoredProfile(senderId);
-                
-                // Mendapatkan border secara akurat dari profil tersimpan atau payload user
-                const borderValue = storedSenderProfile?.custom_border_color || item.user?.custom_border_color || item.user?.border_type || (isMine ? (user?.custom_border_color || user?.border_type) : '') || item.user?.email || (isMine ? user?.email : '') || '';
+                const dashboardProfile = memberProfiles[String(senderId)] || null;
+                const apiSenderProfile = item.user || item.sender || {};
+
+                // Sumber utama border = /dashboard.
+                const resolvedSenderProfile = {
+                  ...apiSenderProfile,
+                  ...storedSenderProfile,
+                  ...dashboardProfile,
+                  ...(isMine ? user : {}),
+                };
+
+                const borderValue =
+                  dashboardProfile?.custom_border_color ||
+                  dashboardProfile?.border_type ||
+                  dashboardProfile?.exclusive_border ||
+                  dashboardProfile?.exclusive_border_type ||
+                  apiSenderProfile?.custom_border_color ||
+                  apiSenderProfile?.border_type ||
+                  apiSenderProfile?.exclusive_border ||
+                  apiSenderProfile?.exclusive_border_type ||
+                  storedSenderProfile?.custom_border_color ||
+                  storedSenderProfile?.border_type ||
+                  storedSenderProfile?.exclusive_border ||
+                  storedSenderProfile?.exclusive_border_type ||
+                  (isMine ? user?.custom_border_color || user?.border_type || user?.exclusive_border || user?.exclusive_border_type : '') ||
+                  dashboardProfile?.email ||
+                  apiSenderProfile?.email ||
+                  storedSenderProfile?.email ||
+                  (isMine ? user?.email : '') ||
+                  '';
 
                 const prevMessage = messages[index - 1];
                 const prevSenderId = prevMessage?.user_id || prevMessage?.user?.id;
@@ -600,10 +636,17 @@ export default function ChatRoom() {
                     isMine={isMine}
                     showAvatar={showAvatar}
                     senderProfile={{
-                      ...item.user,
-                      ...storedSenderProfile,
+                      ...resolvedSenderProfile,
                       custom_border_color: borderValue,
                       border_type: borderValue,
+                      // Simpan email juga supaya ExclusiveProfileShell tetap bisa
+                      // melakukan fallback preset berbasis email bila diperlukan.
+                      email:
+                        dashboardProfile?.email ||
+                        apiSenderProfile?.email ||
+                        storedSenderProfile?.email ||
+                        (isMine ? user?.email : '') ||
+                        '',
                     }}
                     getDisplayName={getDisplayName}
                     formatTime={formatTime}
