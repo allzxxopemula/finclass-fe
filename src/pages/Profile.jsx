@@ -331,34 +331,34 @@ export default function Profile() {
     }
   ];
 
-  const MenuItem = ({ icon, title, description, iconColorClass, onClick, rightBadge = null, rightText = null, cardClassName = '' }) => (
+  const MenuItem = ({ icon, title, description, onClick, rightBadge = null, rightText = null, cardClassName = '' }) => (
     <div 
       onClick={onClick} 
-      className={`group flex items-center justify-between p-4 bg-white border border-slate-200 rounded-[20px] cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md hover:border-slate-300 ${cardClassName}`}
+      className={`group flex items-center justify-between px-4 py-3 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all active:scale-[0.98] shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] hover:border-indigo-200 ${cardClassName}`}
     >
-      <div className="flex items-center gap-4">
-        <div className={`w-11 h-11 rounded-[16px] flex items-center justify-center text-lg transition-transform group-hover:scale-105 bg-slate-50 border border-slate-100 ${iconColorClass}`}>
+      <div className="flex items-center gap-3.5">
+        <div className={`w-9 h-9 rounded-[12px] flex items-center justify-center text-[15px] transition-transform group-hover:scale-110 bg-indigo-50 border border-indigo-100 text-indigo-600`}>
           <FontAwesomeIcon icon={icon} />
         </div>
         <div>
-          <h4 className="text-sm font-bold text-slate-800 transition-colors">{title}</h4>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">{description}</p>
+          <h4 className="text-[13px] font-bold text-slate-800 transition-colors group-hover:text-indigo-700">{title}</h4>
+          <p className="text-[10px] text-slate-500 font-medium mt-0.5">{description}</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         {rightText ? (
-          <span className={`whitespace-nowrap rounded-lg px-2.5 py-1 text-[10px] font-bold ${rightBadge > 0 ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
+          <span className={`whitespace-nowrap rounded-md px-2 py-1 text-[9px] font-bold ${rightBadge > 0 ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
             {rightText}
           </span>
         ) : (
           rightBadge !== null && rightBadge > 0 && (
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[10px] font-bold text-white shadow-sm">
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white shadow-sm">
               {rightBadge}
             </span>
           )
         )}
-        <div className="text-slate-300 group-hover:text-slate-500 transition-colors">
-          <FontAwesomeIcon icon={faChevronRight} className="text-sm" />
+        <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
+          <FontAwesomeIcon icon={faChevronRight} className="text-[13px]" />
         </div>
       </div>
     </div>
@@ -366,7 +366,7 @@ export default function Profile() {
 
   return (
     <MainLayout>
-      <div className="space-y-5 pb-6">
+      <div className="space-y-4 pb-6">
         
         {/* === HEADER PROFESSIONAL MODERN === */}
         <div className="bg-indigo-600 pt-6 pb-20 px-5 -mx-4 -mt-4 rounded-b-[40px] relative shadow-md">
@@ -434,30 +434,30 @@ export default function Profile() {
         </div>
 
         {/* === MAIN CONTENT === */}
-        <div className="-mt-14 space-y-5 relative z-20 px-1">
+        <div className="-mt-14 space-y-4 relative z-20 px-1">
           
           {/* Ringkasan Keuangan */}
           {kelasData && (
-            <div className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-200 grid grid-cols-2 divide-x divide-slate-100">
-              <div className="flex items-center gap-3.5 pr-3">
-                <div className="w-12 h-12 rounded-[16px] bg-slate-50 text-slate-600 border border-slate-100 flex items-center justify-center text-lg shadow-sm shrink-0">
+            <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 grid grid-cols-2 divide-x divide-slate-100">
+              <div className="flex items-center gap-3 pr-2">
+                <div className="w-10 h-10 rounded-[12px] bg-emerald-50 text-emerald-500 border border-emerald-100 flex items-center justify-center text-[15px] shadow-sm shrink-0">
                   <FontAwesomeIcon icon={faArrowUp} />
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-[10px] text-slate-500 font-medium">Uang Masuk</p>
-                  <p className="text-sm sm:text-base font-bold text-slate-800 mt-0.5 truncate">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Uang Masuk</p>
+                  <p className="text-[13px] font-bold text-slate-800 mt-0.5 truncate">
                     Rp {formatRupiah(dashboardData?.pemasukan_minggu_ini || 0)}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3.5 pl-4">
-                <div className="w-12 h-12 rounded-[16px] bg-slate-50 text-slate-600 border border-slate-100 flex items-center justify-center text-lg shadow-sm shrink-0">
+              <div className="flex items-center gap-3 pl-3.5">
+                <div className="w-10 h-10 rounded-[12px] bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center text-[15px] shadow-sm shrink-0">
                   <FontAwesomeIcon icon={faArrowDown} />
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-[10px] text-slate-500 font-medium">Pengeluaran</p>
-                  <p className="text-sm sm:text-base font-bold text-slate-800 mt-0.5 truncate">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Pengeluaran</p>
+                  <p className="text-[13px] font-bold text-slate-800 mt-0.5 truncate">
                     Rp {formatRupiah(dashboardData?.total_pengeluaran || 0)}
                   </p>
                 </div>
@@ -469,15 +469,15 @@ export default function Profile() {
           {kelasData && (
             <div 
               onClick={handleCopyKode}
-              className="bg-indigo-600 text-white p-5 rounded-[24px] flex justify-between items-center cursor-pointer shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
+              className="bg-indigo-600 text-white px-5 py-4 rounded-2xl flex justify-between items-center cursor-pointer shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
             >
-              <div className="space-y-1">
-                <p className="text-[10px] text-white/80 font-medium tracking-wide">
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-indigo-200 font-medium tracking-wide">
                   Kode Akses Kelas
                 </p>
                 <p className="text-xl font-bold tracking-widest">{kelasData.kode_akses_publik}</p>
               </div>
-              <div className="px-4 py-2.5 bg-white/10 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors active:bg-white/20">
+              <div className="px-3.5 py-2 bg-white/10 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors active:bg-white/20 border border-white/10">
                 <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
                 <span>{copied ? 'Tersalin' : 'Copy'}</span>
               </div>
@@ -486,20 +486,19 @@ export default function Profile() {
 
           {loadingProfile ? (
             <div className="animate-pulse space-y-3 pt-2">
-              {[1, 2, 3, 4, 5].map(item => <div key={item} className="h-[76px] rounded-[20px] bg-slate-100" />)}
+              {[1, 2, 3, 4, 5].map(item => <div key={item} className="h-[68px] rounded-2xl bg-slate-100" />)}
             </div>
           ) : (
             <>
           {/* Menu Settings */}
-          <div className="space-y-3 pt-2">
-            <h3 className="text-sm font-bold text-slate-800 px-1">Pengaturan Akun</h3>
+          <div className="space-y-2.5 pt-1">
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Pengaturan Akun</h3>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <MenuItem 
                 icon={faUserPen} 
                 title="Setting Profil" 
                 description="Ubah nama tampilan & identitas"
-                iconColorClass="text-slate-600"
                 onClick={() => navigate('/settings/profile')} 
               />
               
@@ -508,7 +507,6 @@ export default function Profile() {
                   icon={user?.role === 'bendahara' ? faPlus : faRightToBracket} 
                   title={user?.role === 'bendahara' ? "Buat Room Kelas Baru" : "Gabung Room Kelas"} 
                   description={user?.role === 'bendahara' ? "Mulai kelola kas untuk kelasmu" : "Gunakan kode unik dari bendahara"}
-                  iconColorClass="text-indigo-600"
                   onClick={() => navigate('/settings/aksi-kelas')} 
                 />
               )}
@@ -519,14 +517,12 @@ export default function Profile() {
                     icon={faUsersCog} 
                     title="Kelola Anggota & Kas" 
                     description="Atur nominal & daftar anggota"
-                    iconColorClass="text-slate-600"
                     onClick={() => navigate('/settings/anggota')} 
                   />
                   <MenuItem 
                     icon={faWallet} 
                     title="Input Saldo Awal" 
                     description="Pindahkan sisa kas fisik ke digital"
-                    iconColorClass="text-slate-600"
                     onClick={() => navigate('/settings/input-saldo-awal')} 
                   />
                 </>
@@ -538,25 +534,21 @@ export default function Profile() {
                     icon={faSliders} 
                     title="Setting Kelas" 
                     description="Manajemen status kelas kamu"
-                    iconColorClass="text-slate-600"
                     onClick={() => navigate('/settings/kelas')} 
                   />
                   <MenuItem
                     icon={faInfoCircle}
                     title="Info Kelas"
                     description="Detail dan statistik kelas"
-                    iconColorClass="text-slate-600"
                     onClick={() => navigate('/settings/info-kelas')}
                   />
                   <MenuItem
                     icon={faComments}
                     title="Room Chat Kelas"
                     description="Diskusi dengan anggota lain"
-                    iconColorClass="text-indigo-600"
                     onClick={() => navigate('/chat-room')}
                     rightBadge={chatUnreadCount}
                     rightText={getChatUnreadLabel(chatUnreadCount)}
-                    cardClassName="border-slate-200"
                   />
                 </>
               )}
@@ -565,72 +557,58 @@ export default function Profile() {
                 icon={faShieldHalved} 
                 title="Proteksi Akun" 
                 description="Perbarui kata sandi"
-                iconColorClass="text-slate-600"
                 onClick={() => navigate('/settings/security')} 
               />
             </div>
           </div>
 
-          <div className="space-y-3 pt-3">
-             <h3 className="text-sm font-bold text-slate-800 px-1">Lainnya</h3>
-             <div className="space-y-2.5">
+          <div className="space-y-2.5 pt-2">
+             <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Lainnya</h3>
+             <div className="space-y-2">
               <MenuItem 
                 icon={faCircleQuestion} 
                 title="Bantuan & FAQ" 
                 description="Panduan penggunaan aplikasi"
-                iconColorClass="text-slate-600"
                 onClick={() => navigate('/settings/faq')} 
               />
               <MenuItem
                 icon={faQrcode}
                 title="QRIS Pembayaran"
                 description={qrisUrl ? 'QRIS tersimpan dan aktif' : 'Simpan URL gambar QRIS'}
-                iconColorClass="text-slate-600"
                 onClick={openQrisModal}
               />
               
               {qrisUrl && (
-                <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm mt-1 mb-2">
-                  <div className="mb-4 flex items-center justify-between">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] mt-1 mb-2">
+                  <div className="mb-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-bold text-slate-800">QRIS Aktif</p>
-                      <p className="mt-0.5 text-xs text-slate-500">Siap untuk ditunjukkan</p>
+                      <p className="text-[13px] font-bold text-slate-800">QRIS Aktif</p>
+                      <p className="mt-0.5 text-[10px] text-slate-500">Siap untuk ditunjukkan</p>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600">
-                      <FontAwesomeIcon icon={faQrcode} className="text-lg" />
+                    <div className="w-9 h-9 rounded-[12px] bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                      <FontAwesomeIcon icon={faQrcode} className="text-[15px]" />
                     </div>
                   </div>
-                  <div className="flex justify-center rounded-[16px] bg-slate-50 border border-slate-100 p-4">
+                  <div className="flex justify-center rounded-[14px] bg-slate-50 border border-slate-100 p-3">
                     <img
                       src={qrisUrl}
                       alt="QRIS pembayaran"
-                      className="h-48 w-48 rounded-lg object-contain"
+                      className="h-40 w-40 rounded-lg object-contain"
                       onError={(event) => { event.currentTarget.style.display = 'none'; }}
                     />
                   </div>
-                  <a href={qrisUrl} target="_blank" rel="noreferrer" className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-800">
+                  <a href={qrisUrl} target="_blank" rel="noreferrer" className="mt-3 flex items-center justify-center gap-2 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
                     <FontAwesomeIcon icon={faExternalLinkAlt} /> Buka gambar penuh
                   </a>
                 </div>
               )}
               
-              <button
+              <MenuItem
+                icon={faPalette}
+                title="Warna Tema"
+                description="Sesuaikan tampilan aplikasi"
                 onClick={() => setShowThemeModal(true)}
-                className="flex w-full items-center justify-between p-4 bg-white border border-slate-200 rounded-[20px] cursor-pointer transition-all active:scale-[0.98] shadow-sm hover:shadow-md hover:border-slate-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-[16px] flex items-center justify-center text-lg bg-slate-50 border border-slate-100 text-indigo-600">
-                    <FontAwesomeIcon icon={faPalette} />
-                  </div>
-                  <div className="text-left">
-                    <h4 className="text-sm font-bold text-slate-800">Warna Tema</h4>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">Sesuaikan tampilan aplikasi</p>
-                  </div>
-                </div>
-                <div className="text-slate-300">
-                  <FontAwesomeIcon icon={faChevronRight} className="text-sm" />
-                </div>
-              </button>
+              />
              </div>
           </div>
             </>
@@ -650,14 +628,14 @@ export default function Profile() {
                     <button 
                       type="button" 
                       onClick={() => { setShowProfileModal(false); handleOpenBorderModal(); }} 
-                      className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold hover:bg-white/30 transition border border-white/20 cursor-pointer"
+                      className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
                     >
                       <FontAwesomeIcon icon={faPalette} /> Border
                     </button>
                     <button 
                       type="button" 
                       onClick={() => setShowProfileModal(false)} 
-                      className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer"
+                      className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
                     >
                       ✕
                     </button>
@@ -690,22 +668,22 @@ export default function Profile() {
 
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-xl font-bold text-slate-800">{user?.name || 'Pengguna'}</h3>
-                      <p className="text-sm text-slate-500 font-medium">@{displayUsername}</p>
+                      <h3 className="text-[19px] font-black text-slate-800">{user?.name || 'Pengguna'}</h3>
+                      <p className="text-[13px] text-slate-500 font-medium">@{displayUsername}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5">
+                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
                         <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
                         <p className="text-sm font-bold text-slate-800 capitalize">{user?.role?.replace('_', ' ') || 'Pengguna'}</p>
                       </div>
-                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5">
+                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
                         <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
                         <p className="text-sm font-bold text-slate-800 truncate">{kelasData?.nama_kelas || 'Belum ada'}</p>
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center">
+                    <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
                       <div>
                         <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
                         <p className="text-sm font-bold text-slate-800">
@@ -722,58 +700,58 @@ export default function Profile() {
           {showBorderModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" onClick={() => setShowBorderModal(false)}>
               <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">Warna Border</h3>
-                    <p className="text-xs text-slate-500 mt-1">Sesuaikan bingkai profil kamu.</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Sesuaikan bingkai profil kamu.</p>
                   </div>
                   <button type="button" onClick={() => setShowBorderModal(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition cursor-pointer">&times;</button>
                 </div>
 
                 {hasExclusiveBorder ? (
-                  <div className="mb-6 flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-5 flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600">
                       <FontAwesomeIcon icon={faCrown} />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">Akses Eksklusif</p>
-                      <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                      <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
                         Akun ini menggunakan border eksklusif dan tidak dapat diubah ke warna standar.
                       </p>
                     </div>
                   </div>
                 ) : !canUseCustomBorder ? (
-                  <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-sm font-bold text-slate-800">Belum Tersedia</p>
-                    <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                    <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
                       Fitur ini terbuka setelah akun berusia minimal 3 hari. Saat ini: {accountAgeInDays} hari.
                     </p>
                   </div>
                 ) : null}
 
-                <div className={`grid grid-cols-4 gap-4 mb-6 ${hasExclusiveBorder ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
+                <div className={`grid grid-cols-4 gap-4 mb-5 ${hasExclusiveBorder ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
                   {borderColors.map((color) => (
                     <button
                       key={color}
                       type="button"
                       disabled={hasExclusiveBorder || !canUseCustomBorder}
                       onClick={() => setSelectedBorderColor(color)}
-                      className={`h-12 w-full rounded-2xl transition-all border-2 ${selectedBorderColor === color ? 'border-slate-800 scale-105 shadow-md' : 'border-transparent hover:scale-105'} ${(!canUseCustomBorder || hasExclusiveBorder) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                      className={`h-11 w-full rounded-2xl transition-all border-2 ${selectedBorderColor === color ? 'border-slate-800 scale-105 shadow-md' : 'border-transparent hover:scale-105'} ${(!canUseCustomBorder || hasExclusiveBorder) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                       style={{ backgroundColor: color }}
                       aria-label={`Warna ${color}`}
                     />
                   ))}
                 </div>
 
-                {borderError && <p className="mb-4 text-xs font-semibold text-rose-500 text-center">{borderError}</p>}
+                {borderError && <p className="mb-4 text-[11px] font-semibold text-rose-500 text-center">{borderError}</p>}
 
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-xl bg-slate-100 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer">
+                  <button type="button" onClick={() => setShowBorderModal(false)} className="flex-1 rounded-xl bg-slate-100 py-3 text-[13px] font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer">
                     {hasExclusiveBorder ? 'Kembali' : 'Batal'}
                   </button>
                   
                   {!hasExclusiveBorder && (
-                    <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:opacity-90 transition disabled:opacity-50 cursor-pointer">
+                    <button type="button" disabled={!canUseCustomBorder} onClick={handleSaveBorderColor} className="flex-1 rounded-xl bg-indigo-600 py-3 text-[13px] font-bold text-white hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-sm shadow-indigo-600/20">
                       Simpan
                     </button>
                   )}
@@ -785,10 +763,10 @@ export default function Profile() {
           {showThemeModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" onClick={() => setShowThemeModal(false)}>
               <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">Tema Aplikasi</h3>
-                    <p className="text-xs text-slate-500 mt-1">Pilih aksen warna antarmuka.</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Pilih aksen warna antarmuka.</p>
                   </div>
                   <button type="button" onClick={() => setShowThemeModal(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition cursor-pointer">&times;</button>
                 </div>
@@ -803,10 +781,10 @@ export default function Profile() {
                       key={value} 
                       type="button" 
                       onClick={() => { setTheme(value); setShowThemeModal(false); }} 
-                      className={`flex flex-col items-center gap-3 rounded-2xl border p-4 transition-all cursor-pointer ${theme === value ? 'border-slate-800 bg-slate-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+                      className={`flex flex-col items-center gap-2.5 rounded-2xl border p-4 transition-all cursor-pointer ${theme === value ? 'border-slate-800 bg-slate-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
                     >
-                      <span className="h-10 w-10 rounded-full shadow-sm" style={{ backgroundColor: color }} />
-                      <span className="text-xs font-bold text-slate-700">{label}</span>
+                      <span className="h-9 w-9 rounded-full shadow-sm" style={{ backgroundColor: color }} />
+                      <span className="text-[11px] font-bold text-slate-700">{label}</span>
                     </button>
                   ))}
                 </div>
@@ -817,16 +795,16 @@ export default function Profile() {
           {showQrisModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" onClick={() => setShowQrisModal(false)}>
               <div className="w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">QRIS Pembayaran</h3>
-                    <p className="text-xs text-slate-500 mt-1">Simpan URL QRIS statis.</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Simpan URL QRIS statis.</p>
                   </div>
                   <button type="button" onClick={() => setShowQrisModal(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition cursor-pointer">&times;</button>
                 </div>
                 <form onSubmit={handleSaveQris} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-2" htmlFor="qris-url">Tautan Gambar (URL)</label>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-2" htmlFor="qris-url">Tautan Gambar (URL)</label>
                     <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-slate-400 focus-within:bg-white transition-colors">
                       <FontAwesomeIcon icon={faImage} className="text-slate-400" />
                       <input 
@@ -835,14 +813,14 @@ export default function Profile() {
                         value={qrisDraft} 
                         onChange={(event) => { setQrisDraft(event.target.value); setQrisError(''); }} 
                         placeholder="https://contoh.com/qris.jpg" 
-                        className="w-full bg-transparent text-sm text-slate-800 outline-none" 
+                        className="w-full bg-transparent text-[13px] text-slate-800 outline-none" 
                       />
                     </div>
                   </div>
-                  {qrisError && <p className="text-xs font-semibold text-rose-500">{qrisError}</p>}
+                  {qrisError && <p className="text-[11px] font-semibold text-rose-500">{qrisError}</p>}
                   
                   {qrisDraft && !qrisError && (
-                    <div className="flex justify-center rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                    <div className="flex justify-center rounded-2xl bg-slate-50 border border-slate-100 p-3 shadow-inner">
                       <img src={qrisDraft} alt="Preview QRIS" className="h-40 w-40 rounded-lg object-contain" />
                     </div>
                   )}
@@ -853,7 +831,7 @@ export default function Profile() {
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     )}
-                    <button type="submit" className="flex-1 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:opacity-90 transition cursor-pointer">
+                    <button type="submit" className="flex-1 rounded-xl bg-indigo-600 py-3 text-[13px] font-bold text-white hover:opacity-90 transition cursor-pointer shadow-sm shadow-indigo-600/20">
                       Simpan QRIS
                     </button>
                   </div>
@@ -868,7 +846,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5 shrink-0">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">Log Pembaruan</h3>
-                    <p className="text-xs text-slate-500 mt-1">Riwayat versi FinClass</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Riwayat versi FinClass</p>
                   </div>
                   <button
                     type="button"
@@ -884,18 +862,18 @@ export default function Profile() {
                     {changelogEntries.map((entry) => (
                       <section key={entry.version} className="relative">
                         <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-3">
-                          <h4 className="text-base font-bold text-slate-800">{entry.version}</h4>
-                          <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md">{entry.date}</span>
+                          <h4 className="text-[15px] font-bold text-slate-800">{entry.version}</h4>
+                          <span className="text-[11px] font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md">{entry.date}</span>
                         </div>
                         <div className="mb-4">
                           <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded-md mb-2">
                             {entry.label}
                           </span>
-                          <p className="text-sm text-slate-600 leading-relaxed">{entry.summary}</p>
+                          <p className="text-[13px] text-slate-600 leading-relaxed">{entry.summary}</p>
                         </div>
                         <ul className="space-y-2.5">
                           {entry.bullets.map((bullet, index) => (
-                            <li key={index} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
+                            <li key={index} className="flex items-start gap-3 text-[13px] text-slate-600 leading-relaxed">
                               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
                               <span>{bullet}</span>
                             </li>
@@ -911,7 +889,7 @@ export default function Profile() {
         </div>
       </div>
       
-      <footer className="pb-4 pt-4 text-center print:hidden">
+      <footer className="pb-4 pt-2 text-center print:hidden">
         <div className="flex flex-col items-center justify-center gap-3">
           <button
             type="button"
@@ -920,7 +898,7 @@ export default function Profile() {
           >
             Lihat Changelog
           </button>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">FinClass App</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">FinClass App</span>
         </div>
       </footer>
     </MainLayout>
