@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
-import { ExclusiveProfileBanner, ExclusiveProfileFrame, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
+import { ExclusiveProfileBanner, ExclusiveProfileShell, getExclusiveUserPreset } from '../components/ExclusiveUserBorder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
@@ -339,99 +339,107 @@ export default function ClassInfoPage() {
           </div>
         )}
 
-        {/* Modal Detail Profil (Persis Sesuai Style Profile.jsx) */}
+        {/* Modal Detail Profil */}
         {selectedProfile && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity"
             onClick={closeProfileModal}
           >
-            <ExclusiveProfileFrame
+            {/* 
+              PERUBAHAN DI SINI:
+              Mengganti ExclusiveProfileFrame menjadi ExclusiveProfileShell variant="card" 
+              agar efek border popup memanggil efek partikel melayang yang baru.
+            */}
+            <ExclusiveProfileShell
               borderValue={selectedProfile.customBorderColor}
-              className="w-full max-w-sm"
-              onClick={(event) => event.stopPropagation()}
+              customBorderColor={selectedProfile.customBorderColor}
+              email={selectedProfile.email}
+              variant="card"
+              className="w-full max-w-sm cursor-default text-left"
             >
-              {/* Banner Profil Popup */}
-              <ExclusiveProfileBanner
-                bannerUrl={selectedProfile.banner}
-                borderValue={selectedProfile.customBorderColor}
-                className="relative h-36"
-              >
-                
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button 
-                    type="button" 
-                    onClick={closeProfileModal} 
-                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </ExclusiveProfileBanner>
-
-              {/* Konten Profil Popup */}
-              <div className="px-6 pb-6 relative">
-                <div className="flex justify-between items-end -mt-10 mb-4">
-                  <div className="p-1.5 bg-white rounded-full">
-                    <ExclusiveProfileShell 
-                      email={selectedProfile.email}
-                      borderValue={selectedProfile.customBorderColor} 
-                      customBorderColor={selectedProfile.customBorderColor} 
-                      variant="avatar" 
-                      className="h-24 w-24"
+              <div onClick={(event) => event.stopPropagation()} className="w-full h-full relative z-10 flex flex-col">
+                {/* Banner Profil Popup */}
+                <ExclusiveProfileBanner
+                  bannerUrl={selectedProfile.banner}
+                  borderValue={selectedProfile.customBorderColor}
+                  className="relative h-36 shrink-0"
+                >
+                  <div className="absolute top-4 right-4 flex gap-2 z-50">
+                    <button 
+                      type="button" 
+                      onClick={closeProfileModal} 
+                      className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition border border-white/20 cursor-pointer shadow-sm"
                     >
-                      <div className="h-full w-full overflow-hidden rounded-full bg-slate-100">
-                        {selectedProfile.displayAvatar ? (
-                          <img src={selectedProfile.displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-2xl font-bold text-slate-400">
-                            {selectedProfile.displayName ? selectedProfile.displayName.charAt(0).toUpperCase() : 'U'}
-                          </div>
-                        )}
-                      </div>
-                    </ExclusiveProfileShell>
+                      ✕
+                    </button>
                   </div>
-                  
-                  {selectedProfile.exclusivePreset && selectedProfile.exclusivePreset.label && String(selectedProfile.exclusivePreset.label).trim() && (
-                    <span className={`rounded-lg px-3 py-1 mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} shadow-sm`}>
-                      {selectedProfile.exclusivePreset.label}
-                    </span>
-                  )}
-                </div>
+                </ExclusiveProfileBanner>
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-[19px] font-black text-slate-800">{selectedProfile.displayName}</h3>
-                    <p className="text-[13px] text-slate-500 font-medium">@{selectedProfile.displayUsername}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
-                      <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
-                      <p className="text-sm font-bold text-slate-800 capitalize">{selectedProfile.roleLabel}</p>
+                {/* Konten Profil Popup */}
+                <div className="px-6 pb-6 relative bg-transparent flex-1">
+                  <div className="flex justify-between items-end -mt-10 mb-4">
+                    <div className="p-1.5 bg-white rounded-full">
+                      <ExclusiveProfileShell 
+                        email={selectedProfile.email}
+                        borderValue={selectedProfile.customBorderColor} 
+                        customBorderColor={selectedProfile.customBorderColor} 
+                        variant="avatar" 
+                        className="h-24 w-24"
+                      >
+                        <div className="h-full w-full overflow-hidden rounded-full bg-slate-100 border border-white">
+                          {selectedProfile.displayAvatar ? (
+                            <img src={selectedProfile.displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-slate-100 text-2xl font-bold text-slate-400">
+                              {selectedProfile.displayName ? selectedProfile.displayName.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                          )}
+                        </div>
+                      </ExclusiveProfileShell>
                     </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
-                      <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
-                      <p className="text-sm font-bold text-slate-800 truncate">{selectedProfile.kelasName}</p>
-                    </div>
+                    
+                    {selectedProfile.exclusivePreset && selectedProfile.exclusivePreset.label && String(selectedProfile.exclusivePreset.label).trim() && (
+                      <span className={`rounded-lg px-3 py-1 mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${selectedProfile.exclusivePreset.accent} shadow-sm relative z-10`}>
+                        {selectedProfile.exclusivePreset.label}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
-                      <p className="text-sm font-bold text-slate-800">
-                        {selectedProfile.createdAt
-                          ? new Date(selectedProfile.createdAt).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                            })
-                          : 'Belum tersedia'}
-                      </p>
+                      <h3 className="text-[19px] font-black text-slate-800">{selectedProfile.displayName}</h3>
+                      <p className="text-[13px] text-slate-500 font-medium">@{selectedProfile.displayUsername}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                        <p className="text-[10px] font-semibold text-slate-500 mb-1">Status</p>
+                        <p className="text-sm font-bold text-slate-800 capitalize">{selectedProfile.roleLabel}</p>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 border border-slate-100 p-3.5 shadow-sm">
+                        <p className="text-[10px] font-semibold text-slate-500 mb-1">Kelas</p>
+                        <p className="text-sm font-bold text-slate-800 truncate">{selectedProfile.kelasName}</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between items-center shadow-sm">
+                      <div>
+                        <p className="text-[10px] font-semibold text-slate-500 mb-0.5">Bergabung sejak</p>
+                        <p className="text-sm font-bold text-slate-800">
+                          {selectedProfile.createdAt
+                            ? new Date(selectedProfile.createdAt).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Belum tersedia'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </ExclusiveProfileFrame>
+            </ExclusiveProfileShell>
           </div>
         )}
       </div>
