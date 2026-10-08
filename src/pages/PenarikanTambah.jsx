@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
@@ -7,55 +7,81 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
   faCheck, 
-  faTriangleExclamation,
   faClipboardList,
-  faCheckCircle
+  faCheckCircle,
+  faCalendarCheck,
+  faCalendarXmark
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function PenarikanTambah() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [user, setUser] = useState(null);
+  const [user] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [kelas, setKelas] = useState(null);
   const [siswas, setSiswas] = useState([]);
   const [tanggalKolom, setTanggalKolom] = useState([]);
-  const [bulan, setBulan] = useState(searchParams.get('bulan') || new Date().toISOString().slice(0, 7));
+  const [hariLibur, setHariLibur] = useState({});
+  const bulan = searchParams.get('bulan') || new Date().toISOString().slice(0, 7);
   const canEdit = user?.role === 'bendahara';
-  const [loadingBook, setLoadingBook] = useState(true);
+  const [loadingBook, setLoadingBook] = useState(() => Boolean(user?.id));
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingBook, setDeletingBook] = useState(false);
 
-  const fetchData = async (userId) => {
-    try {
-      const dashboard = await API.get(`/dashboard?user_id=${userId}`);
-      if (dashboard.data.status !== 'success') return;
-      setKelas(dashboard.data.kelas);
+  const handleHariLiburToggle = async (date) => {
+    const isHoliday = Boolean(hariLibur[date]);
+    const catatan = isHoliday ? null : window.prompt('Catatan Hari Libur Kas (opsional):', '');
+    if (!isHoliday && catatan === null) return;
 
-      // Form selalu mengambil status sesi terbaru, termasuk jumlah tunggakan.
-      const res = await API.get(`/penarikan-form?kelas_id=${dashboard.data.kelas.id}&bulan=${Number(bulan.slice(5))}&tahun=${Number(bulan.slice(0, 4))}`);
-      if (res.data.status === 'success') {
-        setKelas(res.data.kelas);
-        setTanggalKolom(res.data.tanggal_kolom || []);
-        setSiswas(res.data.siswas || []);
-      }
+    try {
+      await API.post('/penarikan/hari-libur', {
+        user_id: user.id,
+        kelas_id: kelas.id,
+        tanggal: date,
+        libur: !isHoliday,
+        catatan: catatan?.trim() || null
+      });
+
+      const nextHariLibur = { ...hariLibur };
+      if (isHoliday) delete nextHariLibur[date];
+      else nextHariLibur[date] = { catatan: catatan?.trim() || null };
+      setHariLibur(nextHariLibur);
+      const dateIsUnpaid = date <= new Date().toISOString().slice(0, 10);
+      setSiswas(current => current.map(siswa => {
+        if (!dateIsUnpaid || siswa.tanggal?.[date]) return siswa;
+        return { ...siswa, tunggakan: Math.max(0, siswa.tunggakan + (isHoliday ? 1 : -1)) };
+      }));
     } catch (err) {
-      console.error("Gagal mengambil data siswa:", err);
-    } finally {
-      setLoadingBook(false);
+      alert(err.response?.data?.message || 'Status Hari Libur Kas gagal disimpan.');
     }
   };
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem('user'));
-    if (savedUser) {
-      setUser(savedUser);
-      if (savedUser.id) {
-        fetchData(savedUser.id);
+    const fetchData = async () => {
+      try {
+        const dashboard = await API.get(`/dashboard?user_id=${user.id}`);
+        if (dashboard.data.status !== 'success') return;
+        setKelas(dashboard.data.kelas);
+
+        // Form selalu mengambil status sesi terbaru, termasuk jumlah tunggakan.
+        const res = await API.get(`/penarikan-form?kelas_id=${dashboard.data.kelas.id}&bulan=${Number(bulan.slice(5))}&tahun=${Number(bulan.slice(0, 4))}`);
+        if (res.data.status === 'success') {
+          setKelas(res.data.kelas);
+          setTanggalKolom(res.data.tanggal_kolom || []);
+          setHariLibur(res.data.hari_libur || {});
+          setSiswas(res.data.siswas || []);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data siswa:", err);
+      } finally {
+        setLoadingBook(false);
       }
-    } else {
-      setLoadingBook(false);
-    }
-  }, []);
+    };
+
+    if (user?.id) fetchData();
+  }, [bulan, user]);
 
   // Semua kotak adalah CRUD detail buku, termasuk tanggal yang baru dibuat.
   const handleHistoryToggle = async (date, siswaId, sudahBayar) => {
@@ -69,7 +95,7 @@ export default function PenarikanTambah() {
         if (siswa.id !== siswaId) return siswa;
         const tanggal = { ...siswa.tanggal, [date]: !sudahBayar };
         const today = new Date().toISOString().slice(0, 10);
-        return { ...siswa, tanggal, tunggakan: Object.entries(tanggal).filter(([date, paid]) => date <= today && !paid).length };
+        return { ...siswa, tanggal, tunggakan: Object.entries(tanggal).filter(([entryDate, paid]) => entryDate <= today && !paid && !hariLibur[entryDate]).length };
       }));
     } catch (err) {
       alert(err.response?.data?.message || 'Koreksi pembayaran gagal disimpan.');
@@ -93,7 +119,7 @@ export default function PenarikanTambah() {
 
   // Menghitung siswa yang belum bayar secara realtime berdasarkan data 'siswas'
   const siswaBelumBayar = siswas.map(siswa => {
-    const tanggalUnpaid = tanggalKolom.filter(date => !siswa.tanggal?.[date]);
+    const tanggalUnpaid = tanggalKolom.filter(date => !hariLibur[date] && !siswa.tanggal?.[date]);
     return {
       ...siswa,
       tanggalUnpaid
@@ -159,11 +185,17 @@ export default function PenarikanTambah() {
                 <thead>
                   <tr className="bg-slate-900 text-white">
                     <th className="sticky left-0 z-10 min-w-[170px] bg-slate-900 px-3 py-3 text-left font-black">Nama Siswa</th>
-                    {tanggalKolom.map(date => (
-                      <th key={date} className="min-w-[80px] px-2 py-3 text-center font-black">
-                        {new Date(`${date}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
+                    {tanggalKolom.map(date => {
+                      const holiday = hariLibur[date];
+                      return (
+                      <th key={date} className={`min-w-[80px] px-2 py-2 text-center font-black ${holiday ? 'bg-amber-700' : ''}`}>
+                        <div>{new Date(`${date}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</div>
+                        {canEdit && <button type="button" onClick={() => handleHariLiburToggle(date)} title={holiday?.catatan || (holiday ? 'Buka kembali penarikan' : 'Tandai Hari Libur Kas')} aria-label={`${holiday ? 'Buka kembali' : 'Tandai libur'} tanggal ${date}`} className={`mt-1 rounded px-1.5 py-1 text-[9px] ${holiday ? 'bg-amber-100 text-amber-900' : 'bg-white/15 text-white hover:bg-white/25'}`}>
+                          <FontAwesomeIcon icon={holiday ? faCalendarCheck : faCalendarXmark} /> {holiday ? 'Libur' : 'Liburkan'}
+                        </button>}
+                        {holiday?.catatan && <div className="mt-1 max-w-[90px] truncate text-[9px] font-medium text-amber-100" title={holiday.catatan}>{holiday.catatan}</div>}
                       </th>
-                    ))}
+                    );})}
                   </tr>
                 </thead>
                 <tbody>
@@ -175,11 +207,16 @@ export default function PenarikanTambah() {
                       </td>
                       {tanggalKolom.map(date => {
                         const checked = Boolean(siswa.tanggal?.[date]);
+                        const holiday = Boolean(hariLibur[date]);
                         return (
-                          <td key={date} className="min-w-[66px] border-l border-slate-200 bg-indigo-50/20 text-center">
-                            <button type="button" disabled={!canEdit} aria-label={`Koreksi ${siswa.nama_siswa} tanggal ${date}`} onClick={() => handleHistoryToggle(date, siswa.id, checked)} className={`mx-auto flex h-7 w-7 items-center justify-center rounded-md border-2 ${checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-slate-50'} disabled:cursor-default`}>
-                              {checked && <FontAwesomeIcon icon={faCheck} className="text-[11px]" />}
-                            </button>
+                          <td key={date} className={`min-w-[66px] border-l border-slate-200 text-center ${holiday ? 'bg-amber-50' : 'bg-indigo-50/20'}`}>
+                            {holiday ? (
+                              <span title={hariLibur[date]?.catatan || 'Hari Libur Kas'} aria-label="Hari Libur Kas" className="mx-auto flex h-7 w-7 items-center justify-center text-amber-700"><FontAwesomeIcon icon={faCalendarXmark} /></span>
+                            ) : (
+                              <button type="button" disabled={!canEdit} aria-label={`Koreksi ${siswa.nama_siswa} tanggal ${date}`} onClick={() => handleHistoryToggle(date, siswa.id, checked)} className={`mx-auto flex h-7 w-7 items-center justify-center rounded-md border-2 ${checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-slate-50'} disabled:cursor-default`}>
+                                {checked && <FontAwesomeIcon icon={faCheck} className="text-[11px]" />}
+                              </button>
+                            )}
                           </td>
                         );
                       })}
