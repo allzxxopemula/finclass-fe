@@ -79,9 +79,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-blue-100/80 px-4 md:px-6 py-3.5 transition-all">
         <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
           <div className="flex items-center gap-1 text-lg md:text-xl font-extrabold tracking-tight cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-            <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center mr-1 shadow-md shadow-blue-200">
-              <span className="text-sm">FC</span>
-            </div>
+            <img src="/finclassicon.png" alt="FinClass Logo" className="mr-1 h-8 w-8 object-contain" />
             <span className="text-slate-800">Fin</span>
             <span className="text-blue-600">Class</span>
           </div>
@@ -305,7 +303,7 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.5fr_1fr_1fr] md:py-14">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-lg font-black tracking-tight">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-xs text-white shadow-md shadow-blue-200">FC</span>
+              <img src="/finclassicon.png" alt="" className="h-9 w-9 object-contain" />
               <span className="text-slate-800">Fin<span className="text-blue-600">Class</span></span>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-slate-500">
