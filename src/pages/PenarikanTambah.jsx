@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
@@ -13,28 +13,71 @@ import {
   faCalendarXmark
 } from '@fortawesome/free-solid-svg-icons';
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  } catch (err) {
+    console.error('Gagal membaca data pengguna lokal:', err);
+    return null;
+  }
+};
+
+const readCachedBook = (key) => {
+  if (!key) return null;
+  try {
+    const cachedBook = JSON.parse(localStorage.getItem(key) || 'null');
+    return Array.isArray(cachedBook?.siswas)
+      && Array.isArray(cachedBook?.tanggal_kolom)
+      && cachedBook.hari_libur
+      && typeof cachedBook.hari_libur === 'object'
+      && cachedBook.kelas?.id
+      ? cachedBook
+      : null;
+  } catch (err) {
+    console.error('Gagal membaca cache buku kas:', err);
+    return null;
+  }
+};
+
 export default function PenarikanTambah() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [user] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [kelas, setKelas] = useState(null);
-  const [siswas, setSiswas] = useState([]);
-  const [tanggalKolom, setTanggalKolom] = useState([]);
-  const [hariLibur, setHariLibur] = useState({});
+  const [user] = useState(getStoredUser);
   const bulan = searchParams.get('bulan') || new Date().toISOString().slice(0, 7);
+  const cacheKey = user?.kelas_id && bulan
+    ? `finclass-penarikan-book-${user.kelas_id}-${bulan}`
+    : null;
+  const [cachedBook] = useState(() => readCachedBook(cacheKey));
+  const [kelas, setKelas] = useState(cachedBook?.kelas || null);
+  const [siswas, setSiswas] = useState(cachedBook?.siswas || []);
+  const [tanggalKolom, setTanggalKolom] = useState(cachedBook?.tanggal_kolom || []);
+  const [hariLibur, setHariLibur] = useState(cachedBook?.hari_libur || {});
+  const siswasRef = useRef(cachedBook?.siswas || []);
+  const hariLiburRef = useRef(cachedBook?.hari_libur || {});
+  const dataVersionRef = useRef(0);
+  const pendingCellsRef = useRef(new Set());
   const canEdit = user?.role === 'bendahara';
-  const [loadingBook, setLoadingBook] = useState(() => Boolean(user?.id));
+  const [loadingBook, setLoadingBook] = useState(() => Boolean(user?.id && !cachedBook));
+  const [pendingCells, setPendingCells] = useState({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingBook, setDeletingBook] = useState(false);
 
+  const saveBookCache = useCallback((patch) => {
+    if (!cacheKey) return;
+    try {
+      const existing = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+      localStorage.setItem(cacheKey, JSON.stringify({ ...existing, ...patch }));
+    } catch (err) {
+      console.error('Gagal menyimpan cache buku kas:', err);
+    }
+  }, [cacheKey]);
+
   const handleHariLiburToggle = async (date) => {
-    const isHoliday = Boolean(hariLibur[date]);
+    const isHoliday = Boolean(hariLiburRef.current[date]);
     const catatan = isHoliday ? null : window.prompt('Catatan Hari Libur Kas (opsional):', '');
     if (!isHoliday && catatan === null) return;
 
+    dataVersionRef.current += 1;
     try {
       await API.post('/penarikan/hari-libur', {
         user_id: user.id,
@@ -44,15 +87,19 @@ export default function PenarikanTambah() {
         catatan: catatan?.trim() || null
       });
 
-      const nextHariLibur = { ...hariLibur };
+      const nextHariLibur = { ...hariLiburRef.current };
       if (isHoliday) delete nextHariLibur[date];
       else nextHariLibur[date] = { catatan: catatan?.trim() || null };
+      hariLiburRef.current = nextHariLibur;
       setHariLibur(nextHariLibur);
       const dateIsUnpaid = date <= new Date().toISOString().slice(0, 10);
-      setSiswas(current => current.map(siswa => {
+      const nextSiswas = siswasRef.current.map(siswa => {
         if (!dateIsUnpaid || siswa.tanggal?.[date]) return siswa;
-        return { ...siswa, tunggakan: Math.max(0, siswa.tunggakan + (isHoliday ? 1 : -1)) };
-      }));
+        return { ...siswa, tunggakan: Math.max(0, Number(siswa.tunggakan || 0) + (isHoliday ? 1 : -1)) };
+      });
+      siswasRef.current = nextSiswas;
+      setSiswas(nextSiswas);
+      saveBookCache({ hari_libur: nextHariLibur, siswas: nextSiswas });
     } catch (err) {
       alert(err.response?.data?.message || 'Status Hari Libur Kas gagal disimpan.');
     }
@@ -60,18 +107,28 @@ export default function PenarikanTambah() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const startingVersion = dataVersionRef.current;
       try {
         const dashboard = await API.get(`/dashboard?user_id=${user.id}`);
         if (dashboard.data.status !== 'success') return;
-        setKelas(dashboard.data.kelas);
 
         // Form selalu mengambil status sesi terbaru, termasuk jumlah tunggakan.
         const res = await API.get(`/penarikan-form?kelas_id=${dashboard.data.kelas.id}&bulan=${Number(bulan.slice(5))}&tahun=${Number(bulan.slice(0, 4))}`);
-        if (res.data.status === 'success') {
+        if (res.data.status === 'success' && startingVersion === dataVersionRef.current) {
+          const nextSiswas = res.data.siswas || [];
+          const nextHariLibur = res.data.hari_libur || {};
           setKelas(res.data.kelas);
           setTanggalKolom(res.data.tanggal_kolom || []);
-          setHariLibur(res.data.hari_libur || {});
-          setSiswas(res.data.siswas || []);
+          hariLiburRef.current = nextHariLibur;
+          siswasRef.current = nextSiswas;
+          setHariLibur(nextHariLibur);
+          setSiswas(nextSiswas);
+          saveBookCache({
+            kelas: res.data.kelas,
+            tanggal_kolom: res.data.tanggal_kolom || [],
+            hari_libur: nextHariLibur,
+            siswas: nextSiswas
+          });
         }
       } catch (err) {
         console.error("Gagal mengambil data siswa:", err);
@@ -81,24 +138,58 @@ export default function PenarikanTambah() {
     };
 
     if (user?.id) fetchData();
-  }, [bulan, user]);
+  }, [bulan, user, saveBookCache]);
 
   // Semua kotak adalah CRUD detail buku, termasuk tanggal yang baru dibuat.
   const handleHistoryToggle = async (date, siswaId, sudahBayar) => {
+    const cellKey = `${date}-${siswaId}`;
+    if (!canEdit || !kelas?.id || pendingCellsRef.current.has(cellKey)) return;
+
+    const nextPaid = !sudahBayar;
+    const previousSiswas = siswasRef.current;
+    const today = new Date().toISOString().slice(0, 10);
+    const nextSiswas = previousSiswas.map(siswa => {
+      if (siswa.id !== siswaId) return siswa;
+      const tanggal = { ...siswa.tanggal, [date]: nextPaid };
+      const tunggakan = Object.entries(tanggal).filter(
+        ([entryDate, paid]) => entryDate <= today && !paid && !hariLiburRef.current[entryDate]
+      ).length;
+      return { ...siswa, tanggal, tunggakan };
+    });
+
+    dataVersionRef.current += 1;
+    pendingCellsRef.current.add(cellKey);
+    siswasRef.current = nextSiswas;
+    setSiswas(nextSiswas);
+    setPendingCells(current => ({ ...current, [cellKey]: true }));
+    saveBookCache({ siswas: nextSiswas });
+
     try {
       await API.patch(`/penarikan/${date}/siswa/${siswaId}`, {
         user_id: user.id,
         kelas_id: kelas.id,
-        sudah_bayar: !sudahBayar
+        sudah_bayar: nextPaid
       });
-      setSiswas(current => current.map(siswa => {
-        if (siswa.id !== siswaId) return siswa;
-        const tanggal = { ...siswa.tanggal, [date]: !sudahBayar };
-        const today = new Date().toISOString().slice(0, 10);
-        return { ...siswa, tanggal, tunggakan: Object.entries(tanggal).filter(([entryDate, paid]) => entryDate <= today && !paid && !hariLibur[entryDate]).length };
-      }));
     } catch (err) {
+      const currentSiswas = siswasRef.current.map(siswa => {
+        if (siswa.id !== siswaId || Boolean(siswa.tanggal?.[date]) !== nextPaid) return siswa;
+        const tanggal = { ...siswa.tanggal, [date]: sudahBayar };
+        const tunggakan = Object.entries(tanggal).filter(
+          ([entryDate, paid]) => entryDate <= today && !paid && !hariLiburRef.current[entryDate]
+        ).length;
+        return { ...siswa, tanggal, tunggakan };
+      });
+      siswasRef.current = currentSiswas;
+      setSiswas(currentSiswas);
+      saveBookCache({ siswas: currentSiswas });
       alert(err.response?.data?.message || 'Koreksi pembayaran gagal disimpan.');
+    } finally {
+      pendingCellsRef.current.delete(cellKey);
+      setPendingCells(current => {
+        const next = { ...current };
+        delete next[cellKey];
+        return next;
+      });
     }
   };
 
@@ -108,6 +199,13 @@ export default function PenarikanTambah() {
       await API.delete(`/penarikan/buku/${bulan.slice(0, 4)}/${Number(bulan.slice(5))}`, {
         data: { user_id: user.id, kelas_id: kelas.id }
       });
+      if (cacheKey) {
+        try {
+          localStorage.removeItem(cacheKey);
+        } catch (err) {
+          console.error('Gagal menghapus cache buku kas:', err);
+        }
+      }
       navigate('/penarikan');
     } catch (err) {
       alert(err.response?.data?.message || 'Buku kas belum berhasil dihapus.');
@@ -213,7 +311,7 @@ export default function PenarikanTambah() {
                             {holiday ? (
                               <span title={hariLibur[date]?.catatan || 'Hari Libur Kas'} aria-label="Hari Libur Kas" className="mx-auto flex h-7 w-7 items-center justify-center text-amber-700"><FontAwesomeIcon icon={faCalendarXmark} /></span>
                             ) : (
-                              <button type="button" disabled={!canEdit} aria-label={`Koreksi ${siswa.nama_siswa} tanggal ${date}`} onClick={() => handleHistoryToggle(date, siswa.id, checked)} className={`mx-auto flex h-7 w-7 items-center justify-center rounded-md border-2 ${checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-slate-50'} disabled:cursor-default`}>
+                              <button type="button" disabled={!canEdit || Boolean(pendingCells[`${date}-${siswa.id}`])} aria-label={`Koreksi ${siswa.nama_siswa} tanggal ${date}`} onClick={() => handleHistoryToggle(date, siswa.id, checked)} className={`mx-auto flex h-7 w-7 items-center justify-center rounded-md border-2 ${checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-slate-50'} disabled:cursor-default`}>
                                 {checked && <FontAwesomeIcon icon={faCheck} className="text-[11px]" />}
                               </button>
                             )}

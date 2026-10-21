@@ -1,52 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHandHoldingDollar, 
-  faClockRotateLeft, 
   faTriangleExclamation,
   faPlus,
   faCalendarCheck
 } from '@fortawesome/free-solid-svg-icons';
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  } catch (err) {
+    console.error('Gagal membaca data pengguna lokal:', err);
+    return null;
+  }
+};
+
+const readCachedLog = (key) => {
+  if (!key) return null;
+  try {
+    const cachedLog = JSON.parse(localStorage.getItem(key) || 'null');
+    return Array.isArray(cachedLog) ? cachedLog : null;
+  } catch (err) {
+    console.error('Gagal membaca cache riwayat penarikan:', err);
+    return null;
+  }
+};
+
 export default function Penarikan() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [riwayatPenarikan, setRiwayatPenarikan] = useState([]);
+  const [user] = useState(getStoredUser);
+  const logCacheKey = user?.kelas_id ? `finclass-penarikan-log-${user.kelas_id}` : null;
+  const [cachedLog] = useState(() => readCachedLog(logCacheKey));
+  const [riwayatPenarikan, setRiwayatPenarikan] = useState(cachedLog || []);
   const [showModal, setShowModal] = useState(false);
   const [bulan, setBulan] = useState(new Date().toISOString().slice(0, 7));
   const [hariPenarikan, setHariPenarikan] = useState('Rabu');
   const [loadingBook, setLoadingBook] = useState(false);
-  const [loadingLog, setLoadingLog] = useState(true);
-
-  const fetchPenarikanLog = async (kelasId) => {
-    try {
-      // Endpoint untuk mengambil riwayat/log log penarikan kas yang pernah dilakukan bendahara
-      const res = await API.get(`/penarikan-log?kelas_id=${kelasId}`);
-      if (res.data.status === 'success') {
-        setRiwayatPenarikan(res.data.data || []);
-      }
-    } catch (err) {
-      console.error("Gagal mengambil log penarikan:", err);
-    } finally {
-      setLoadingLog(false);
-    }
-  };
+  const [loadingLog, setLoadingLog] = useState(() => Boolean(user?.kelas_id && cachedLog === null));
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem('user'));
-    if (savedUser) {
-      setUser(savedUser);
-      if (savedUser.kelas_id) {
-        fetchPenarikanLog(savedUser.kelas_id);
-        API.get(`/dashboard?user_id=${savedUser.id}`).then(res => {
-          if (res.data.status === 'success') setHariPenarikan(res.data.kelas.hari_penarikan || 'Rabu');
-        });
+    if (user?.kelas_id) {
+      const fetchPenarikanLog = async () => {
+        try {
+          const res = await API.get(`/penarikan-log?kelas_id=${user.kelas_id}`);
+          if (res.data.status === 'success') {
+            const log = res.data.data || [];
+            setRiwayatPenarikan(log);
+            try {
+              localStorage.setItem(`finclass-penarikan-log-${user.kelas_id}`, JSON.stringify(log));
+            } catch (err) {
+              console.error('Gagal menyimpan cache riwayat penarikan:', err);
+            }
+          }
+        } catch (err) {
+          console.error('Gagal mengambil log penarikan:', err);
+        } finally {
+          setLoadingLog(false);
+        }
+      };
+      fetchPenarikanLog();
+      if (user.id) {
+        API.get(`/dashboard?user_id=${user.id}`)
+          .then(res => {
+            if (res.data.status === 'success') setHariPenarikan(res.data.kelas.hari_penarikan || 'Rabu');
+          })
+          .catch(err => console.error('Gagal mengambil hari penarikan kelas:', err));
       }
     }
-  }, []);
+  }, [user]);
 
   return (
     <MainLayout>
