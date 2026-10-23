@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import API from '../api/axios';
@@ -26,7 +26,11 @@ import {
   faExternalLinkAlt,
   faInfoCircle,
   faComments,
-  faCrown
+  faCrown,
+  faDatabase,
+  faDownload,
+  faUpload,
+  faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
@@ -47,6 +51,14 @@ export default function Profile() {
   const [showBorderModal, setShowBorderModal] = useState(false);
   const [selectedBorderColor, setSelectedBorderColor] = useState('#6366F1');
   const [borderError, setBorderError] = useState('');
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [backupNotice, setBackupNotice] = useState(null);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [restoreFile, setRestoreFile] = useState(null);
+  const [restorePassword, setRestorePassword] = useState('');
+  const [restoreConfirmation, setRestoreConfirmation] = useState('');
+  const [restoreError, setRestoreError] = useState('');
+  const backupFileInput = useRef(null);
 
   const PROFILE_TABLE_KEY = 'finclass-user-profiles';
 
@@ -300,6 +312,105 @@ export default function Profile() {
     }
 
     return count === 1 ? '1 pesan baru' : `${count} pesan baru`;
+  };
+
+  const handleDownloadBackup = async () => {
+    if (!user?.id || !kelasData?.id) return;
+
+    setBackupBusy(true);
+    setBackupNotice(null);
+    try {
+      const response = await API.get('/backup/export', {
+        params: { kelas_id: kelasData.id, user_id: user.id },
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      const safeClassName = String(kelasData.nama_kelas || 'kelas').replace(/[^a-z0-9_-]+/gi, '-');
+      link.href = url;
+      link.download = `finclass-backup-${safeClassName}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setBackupNotice({ type: 'success', message: 'File backup berhasil diunduh.' });
+    } catch (error) {
+      console.error('Gagal mengunduh backup:', error);
+      setBackupNotice({ type: 'error', message: error.response?.status === 403
+        ? 'Hanya bendahara kelas yang dapat mengunduh backup.'
+        : 'Backup gagal diunduh. Periksa koneksi internet lalu coba kembali.' });
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+
+  const handleBackupFileSelected = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    setBackupNotice(null);
+
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      setBackupNotice({ type: 'error', message: 'Pilih file backup FinClass berformat JSON.' });
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      setBackupNotice({ type: 'error', message: 'Ukuran file backup maksimal 50 MB.' });
+      return;
+    }
+
+    setRestoreFile(file);
+    setRestorePassword('');
+    setRestoreConfirmation('');
+    setRestoreError('');
+    setShowRestoreModal(true);
+  };
+
+  const handleRestoreBackup = async () => {
+    if (!user?.id || user.role !== 'bendahara' || !restoreFile) return;
+    if (!restorePassword || restoreConfirmation !== 'PULIHKAN') {
+      setRestoreError('Masukkan kata sandi dan ketik PULIHKAN untuk melanjutkan.');
+      return;
+    }
+
+    setBackupBusy(true);
+    setBackupNotice(null);
+    setRestoreError('');
+    try {
+      const formData = new FormData();
+      formData.append('user_id', String(user.id));
+      formData.append('password', restorePassword);
+      formData.append('confirmation_text', restoreConfirmation);
+      formData.append('backup_file', restoreFile);
+      if (kelasData?.id) formData.append('kelas_id', String(kelasData.id));
+
+      const response = await API.post('/backup/restore', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setShowRestoreModal(false);
+      setRestoreFile(null);
+      setRestorePassword('');
+      setRestoreConfirmation('');
+      if (response.data.user) {
+        const restoredUser = { ...user, ...response.data.user };
+        localStorage.setItem('user', JSON.stringify(restoredUser));
+        setUser(restoredUser);
+      }
+      if (response.data.kelas) setKelasData(response.data.kelas);
+      setBackupNotice({ type: 'success', message: response.data.message || 'Backup berhasil dipulihkan.' });
+      loadUserData();
+    } catch (error) {
+      console.error('Gagal memulihkan backup:', error);
+      const validationErrors = error.response?.data?.errors;
+      const validationMessage = validationErrors?.backup_file?.[0]
+        || validationErrors?.confirmation_text?.[0]
+        || Object.values(validationErrors || {}).flat()[0]
+        || error.response?.data?.message;
+      setRestoreError(validationMessage || 'Backup gagal dipulihkan. Data kelas tidak diubah; periksa file lalu coba kembali.');
+    } finally {
+      setBackupBusy(false);
+    }
   };
 
   const changelogEntries = [
@@ -559,6 +670,62 @@ export default function Profile() {
                 description="Perbarui kata sandi"
                 onClick={() => navigate('/settings/security')} 
               />
+
+              {user?.role === 'bendahara' && (
+                <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+                      <FontAwesomeIcon icon={faDatabase} />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-[13px] font-bold text-slate-800">Backup Data Kelas</h4>
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                        {kelasData
+                          ? 'Simpan data siswa, pengaturan kelas, pembayaran, penarikan, dan pengeluaran sebagai file JSON. Kata sandi akun tidak disertakan.'
+                          : 'Pulihkan data kelas dari backup meskipun kelas lama sudah tidak tersedia. Jika akun lama hilang, masuk dengan akun bendahara baru terlebih dahulu.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDownloadBackup}
+                      disabled={backupBusy || !kelasData}
+                      title={!kelasData ? 'Tidak ada kelas aktif untuk dicadangkan' : undefined}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <FontAwesomeIcon icon={faDownload} />
+                      {backupBusy ? 'Memproses...' : 'Download'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => backupFileInput.current?.click()}
+                      disabled={backupBusy}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-xs font-bold text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <FontAwesomeIcon icon={faUpload} /> Upload backup
+                    </button>
+                    <input
+                      ref={backupFileInput}
+                      type="file"
+                      accept=".json,application/json"
+                      className="hidden"
+                      onChange={handleBackupFileSelected}
+                    />
+                  </div>
+
+                  {backupNotice && (
+                    <p role="status" className={`mt-3 rounded-xl px-3 py-2 text-[11px] font-semibold ${
+                      backupNotice.type === 'success'
+                        ? 'border border-emerald-100 bg-emerald-50 text-emerald-700'
+                        : 'border border-rose-100 bg-rose-50 text-rose-700'
+                    }`}>
+                      {backupNotice.message}
+                    </p>
+                  )}
+                </section>
+              )}
             </div>
           </div>
 
@@ -900,6 +1067,112 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {showRestoreModal && restoreFile && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget && !backupBusy) {
+                  setShowRestoreModal(false);
+                  setRestoreFile(null);
+                  setRestorePassword('');
+                  setRestoreConfirmation('');
+                  setRestoreError('');
+                }
+              }}
+            >
+              <section
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="restore-backup-title"
+                className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
+              >
+                <div className="border-b border-amber-100 bg-amber-50 px-5 py-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                      <FontAwesomeIcon icon={faTriangleExclamation} />
+                    </div>
+                    <div>
+                      <h3 id="restore-backup-title" className="text-base font-black text-slate-900">Pulihkan backup kelas?</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                        {kelasData
+                          ? 'Tindakan ini akan mengganti data siswa, pengaturan kelas, dan seluruh data kas kelas saat ini dengan isi backup.'
+                          : 'Backup akan digunakan untuk membuat kembali kelas dan data siswa pada akun bendahara ini. Pastikan kamu masuk dengan akun bendahara yang ingin memakai kelas hasil pemulihan.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 p-5">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">File yang dipilih</p>
+                    <p className="mt-1 break-all text-xs font-semibold text-slate-700">{restoreFile.name}</p>
+                  </div>
+                  <p className="text-xs leading-relaxed text-slate-500">
+                    Akun pengguna dan kelas lain tidak diubah. Sebaiknya unduh backup data saat ini terlebih dahulu jika masih tersedia. Verifikasi kata sandi bendahara diperlukan untuk melanjutkan.
+                  </p>
+                  <label className="block text-xs font-bold text-slate-700" htmlFor="restore-backup-password">
+                    Kata sandi bendahara
+                    <input
+                      id="restore-backup-password"
+                      type="password"
+                      autoComplete="current-password"
+                      value={restorePassword}
+                      onChange={(event) => {
+                        setRestorePassword(event.target.value);
+                        setRestoreError('');
+                      }}
+                      disabled={backupBusy}
+                      className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50"
+                    />
+                  </label>
+                  <label className="block text-xs font-bold text-slate-700" htmlFor="restore-backup-confirmation">
+                    Ketik <span className="text-rose-600">PULIHKAN</span> sebagai konfirmasi
+                    <input
+                      id="restore-backup-confirmation"
+                      type="text"
+                      autoComplete="off"
+                      value={restoreConfirmation}
+                      onChange={(event) => {
+                        setRestoreConfirmation(event.target.value);
+                        setRestoreError('');
+                      }}
+                      disabled={backupBusy}
+                      className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50"
+                    />
+                  </label>
+                  {restoreError && <p role="alert" className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{restoreError}</p>}
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowRestoreModal(false);
+                        setRestoreFile(null);
+                        setRestorePassword('');
+                        setRestoreConfirmation('');
+                        setRestoreError('');
+                        setRestorePassword('');
+                        setRestoreConfirmation('');
+                        setRestoreError('');
+                      }}
+                      disabled={backupBusy}
+                      className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRestoreBackup}
+                      disabled={backupBusy}
+                      className="rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {backupBusy ? 'Memulihkan...' : 'Ya, pulihkan data'}
+                    </button>
+                  </div>
+                </div>
+              </section>
             </div>
           )}
         </div>
