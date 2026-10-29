@@ -5,6 +5,7 @@ body,
 #root {
   min-height: 100dvh;
   background-color: #ffffff;
+  color-scheme: light;
   overscroll-behavior: none;
   overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
